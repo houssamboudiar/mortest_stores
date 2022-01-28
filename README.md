@@ -11,5 +11,10 @@ bulk/retail store management system.
 # Migrate models to database :
     python manage.py migrate
 
+# Run react frontend :
+    npm i
+    npm run dev
+    
 # Run django server :
     python manage.py runserver
+    
