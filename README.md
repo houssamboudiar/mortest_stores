@@ -12,6 +12,7 @@ bulk/retail store management system.
     python manage.py migrate
 
 # Run react frontend :
+    cd mortest_frontend
     npm i
     npm run dev
     
