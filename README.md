@@ -18,4 +18,13 @@ bulk/retail store management system.
     
 # Run django server :
     python manage.py runserver
+
+# Git cheatsheet :
+    - Pull from main (Before coding)
+
+    - Push to personal Branch (after coding session)
+
+    - Push to main Branch (after major changes)
+
+
     
