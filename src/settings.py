@@ -38,9 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'core',
-    'core.user',
-    'corsheaders',
     'mortest_frontend',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
@@ -79,17 +78,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'src.wsgi.application'
-
-
-# Database
-# https://docs.djangoproject.com/en/4.0/ref/settings/#databases
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
+# Touares comment "don't fuck me up".
 DATABASES = {
   'default': {
     # MySQL engine. Powered by the mysqlclient module.
@@ -101,6 +90,17 @@ DATABASES = {
     'PORT': '3306',
   }
 }
+# Touares Uncomment that for your mysql settings.
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'mortest_store',
+#         'HOST': '127.0.0.1',
+#         'PORT': '3306',
+#         'USER': 'root',
+#         'PASSWORD': '0663058639',
+#     }
+# }
 
 # Authentication Classes
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
@@ -155,4 +155,4 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Tells django to use core.user as the authentification model.
-AUTH_USER_MODEL = 'core_user.User'
+# AUTH_USER_MODEL = 'core_user.User'
