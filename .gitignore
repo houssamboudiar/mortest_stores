@@ -145,4 +145,5 @@ dmypy.json
 # Pyre type checker
 .pyre/
 node_modules
+mortest_frontend/static/frontend/
 mortest_frontend/static/frontend/main.js

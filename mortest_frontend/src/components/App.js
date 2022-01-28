@@ -5,7 +5,7 @@ class App extends Component {
 
   render() {
     return (
-        <h1>Hello Django ! Thats React ... Webpack hot Reload Working!</h1>
+        <h1>Hello Django ! Thats React ... Webpack hot Reload is really working!</h1>
     );
   }
 }
