@@ -3,7 +3,7 @@ from pyexpat import model
 from tkinter import CASCADE
 from django.conf import Settings
 from django.db import models
-from django.contrib.auth.models import User
+from users.models import CustomUser as User
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.forms import DateField
 
@@ -135,7 +135,7 @@ class Vendeur(models.Model):
     last_name = models.CharField(max_length=50)
     adress = models.CharField(max_length=100)
     identity_num = models.BigIntegerField()
-    admin = models.OneToOneField(User, on_delete=models.CASCADE)
+    admin = models.OneToOneField(User, on_delete=models.CASCADE,default=1111)
     phone_number_1 = models.IntegerField()
     phone_number_2= models.IntegerField(blank=True, null=True)
     family_situation = models.CharField(max_length=100)
@@ -169,7 +169,7 @@ class FicheAchatCommandeFournisseur(models.Model):
     depot = models.ForeignKey(Depot, on_delete=models.PROTECT)
     saisie_le = models.DateField(auto_now_add=True)
     modilfié_le = models.DateField(auto_now=True)
-    saisie_par = models.ForeignKey(User, on_delete=models.CASCADE)
+    saisie_par = models.ForeignKey(User, on_delete=models.CASCADE,default=1111)
     action_data=(('1',"facture"),('2',"bon"),('3',"bon de commande"),)
     action=models.CharField(default=1,choices=action_data,max_length=10)
     numero = models.IntegerField()
@@ -193,7 +193,7 @@ class FicheAchatCommandeFournisseur(models.Model):
     caisse = models.ForeignKey(Caisse, on_delete=models.CASCADE)
     observation = models.TextField(max_length=500)
 
-    #montant de fournisseur
+    # montant de fournisseur
     prixHT = models.DecimalField(max_digits=5, decimal_places=2)
     TVA = models.DecimalField(default=0,
         validators=[
@@ -227,7 +227,7 @@ class PayementFournisseur(models.Model):
     fournisseur = models.ForeignKey(Fournisseur, on_delete=models.PROTECT)
     saisie_le = models.DateField(auto_now_add=True)
     modilfié_le = models.DateField(auto_now=True)
-    saisie_par = models.ForeignKey(User, on_delete=models.CASCADE)
+    saisie_par = models.ForeignKey(User, on_delete=models.CASCADE,default=1111)
     achat = models.ForeignKey(FicheAchatCommandeFournisseur, on_delete=models.CASCADE)
     solde = models.DecimalField(max_digits=5, decimal_places=2)
     montant = models.DecimalField(max_digits=5, decimal_places=2)
@@ -253,7 +253,7 @@ class RetoursFournisseur(models.Model):
     observation = models.TextField(max_length=500)
     saisie_le = models.DateField(auto_now_add=True)
     modilfié_le = models.DateField(auto_now=True)
-    saisie_par = models.ForeignKey(User, on_delete=models.CASCADE)
+    saisie_par = models.ForeignKey(User, on_delete=models.CASCADE,default=1111)
 
     def __str__(self) -> str:
         return f'fiche retour {self.fournisseur.name}'
@@ -275,7 +275,7 @@ class FraisGenerales(models.Model):
     reglement=models.CharField(default=1,choices=reglement_data,max_length=10)
     saisie_le = models.DateField(auto_now_add=True)
     modilfié_le = models.DateField(auto_now=True)
-    saisie_par = models.ForeignKey(User, on_delete=models.CASCADE)
+    saisie_par = models.ForeignKey(User, on_delete=models.CASCADE,default=1111)
     caisse = models.ForeignKey(Caisse, on_delete=models.CASCADE)
     observation = models.TextField(max_length=500)
 
@@ -290,7 +290,7 @@ class FraisGenerales(models.Model):
     def __str__(self) -> str:
         return f'frais {self.number} de la caisse {self.caisse.nom}'
 
-#----------------------------------- CLIENTS ----------------------------------------
+# ---------------------------------- CLIENTS ----------------------------------------
     
 class Client(models.Model):
     selling_point = models.ForeignKey(SellingPoint, on_delete=models.CASCADE)
@@ -313,7 +313,7 @@ class Client(models.Model):
     adress = models.CharField(max_length=100)
     saisie_le = models.DateField(auto_now_add=True)
     modilfié_le = models.DateField(auto_now=True)
-    saisie_par = models.ForeignKey(User, on_delete=models.CASCADE)
+    saisie_par = models.ForeignKey(User, on_delete=models.CASCADE,default=1111)
 
     def __str__(self) -> str:
         return f'{self.etat_civile} {self.nom}'
@@ -329,7 +329,7 @@ class FicheVenteClient(models.Model):
     quantite = models.DecimalField(max_digits=5, decimal_places=2)
     saisie_le = models.DateField(auto_now_add=True)
     modilfié_le = models.DateField(auto_now=True)
-    saisie_par = models.ForeignKey(User, on_delete=models.CASCADE)
+    saisie_par = models.ForeignKey(User, on_delete=models.CASCADE,default=1111)
     code = models.IntegerField()
     produit = models.ManyToManyField(Produit, related_name="produit_vente_client")
     date = models.DateField(auto_now=True)
@@ -343,7 +343,7 @@ class FicheVenteClient(models.Model):
     caisse = models.ForeignKey(Caisse, on_delete=models.CASCADE)
     observation = models.TextField(max_length=500)
 
-    #montant de fournisseur
+    # ontant de fournisseur
     prixHT = models.DecimalField(max_digits=5, decimal_places=2)
     TVA = models.DecimalField(default=0,
         validators=[
@@ -377,7 +377,7 @@ class PayementClient(models.Model):
     client = models.ForeignKey(Client, on_delete=models.PROTECT)
     saisie_le = models.DateField(auto_now_add=True)
     modilfié_le = models.DateField(auto_now=True)
-    saisie_par = models.ForeignKey(User, on_delete=models.CASCADE)
+    saisie_par = models.ForeignKey(User, on_delete=models.CASCADE,default=1111)
     achat = models.ForeignKey(FicheAchatCommandeFournisseur, on_delete=models.CASCADE)
     solde = models.DecimalField(max_digits=5, decimal_places=2)
     montant = models.DecimalField(max_digits=5, decimal_places=2)
@@ -404,7 +404,7 @@ class RetoursClient(models.Model):
     observation = models.TextField(max_length=500)
     saisie_le = models.DateField(auto_now_add=True)
     modilfié_le = models.DateField(auto_now=True)
-    saisie_par = models.ForeignKey(User, on_delete=models.CASCADE)
+    saisie_par = models.ForeignKey(User, on_delete=models.CASCADE,default=1111)
 
     def __str__(self) -> str:
         return f'retour {self.client.nom}'

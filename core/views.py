@@ -56,6 +56,14 @@ def caisseGETPOST(request):
             return Response (serializer.data, status=status.HTTP_201_CREATED)
         return Response (serializer.data, status=status.HTTP_201_CREATED)
 
+@api_view(['GET'])
+def sellingPointGETPOST(request):
+    if request.method == 'GET':
+        selling_points = SellingPoint.objects.all()
+        serializer = SellingPointSerializer(selling_points, many=True)
+        return Response (serializer.data)
+
+
 
 
 
