@@ -74,6 +74,14 @@ def caissePk(request, pk):
         caisse.delete()
         return Response (status= status.HTTP_204_NO_CONTENT)
 
+@api_view(['GET'])
+def sellingPointGETPOST(request):
+    if request.method == 'GET':
+        selling_points = SellingPoint.objects.all()
+        serializer = SellingPointSerializer(selling_points, many=True)
+        return Response (serializer.data)
+
+
 
 
 
