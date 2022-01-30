@@ -24,7 +24,7 @@ class SellingPoint(models.Model):
 
 
 class Caisse(models.Model):
-    selling_point = models.ForeignKey(SellingPoint, on_delete=models.CASCADE)
+    selling_point = models.ForeignKey(SellingPoint, on_delete=models.CASCADE, related_name='selling_point_caisse')
     caisse_data=(('1',"principale"),('2',"secondaire"))
     caisse=models.CharField(default=1,choices=caisse_data,max_length=10)
     nom = models.CharField(max_length=50)
