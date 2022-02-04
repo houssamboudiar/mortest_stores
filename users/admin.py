@@ -1,3 +1,6 @@
+# Register your models here.
+from django.contrib.auth.admin import UserAdmin
+from .models import CustomUser
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from users.models import CustomUser as User
@@ -15,3 +18,7 @@ from django.contrib.auth.forms import ReadOnlyPasswordHashField
 
 admin.site.register(User)
 
+class MyUserAdmin(UserAdmin):
+    model = CustomUser
+
+admin.site.register(CustomUser)

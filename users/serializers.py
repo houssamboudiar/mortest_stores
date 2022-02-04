@@ -8,4 +8,5 @@ class UserSerializer(serializers.ModelSerializer):
     user_type = serializers.ChoiceField(default='2',choices=user_type_data)
     class Meta:
         model = CustomUser
-        fields = ['username','email', 'first_name', 'last_name', 'date_of_birth']
+
+        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'date_of_birth']
