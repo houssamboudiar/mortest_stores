@@ -1,13 +1,12 @@
-from ast import Delete
-from pyexpat import model
-from tkinter import CASCADE
-from unicodedata import decimal
-from urllib import request
 from django.conf import Settings
 from django.db import models
 from users.models import CustomUser as User
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.forms import DateField
+
+
+
+          #----------------------------------SELLING POINT----------------------------------------------
 
 
 class SellingPoint(models.Model):
@@ -24,7 +23,6 @@ class SellingPoint(models.Model):
     def __str__(self) -> str:
         return f'{self.name} selling point'
 
-
 class Caisse(models.Model):
     selling_point = models.ForeignKey(SellingPoint, on_delete=models.CASCADE, related_name='selling_point_caisse')
     caisse_data=(('1',"principale"),('2',"secondaire"))
@@ -37,6 +35,7 @@ class Caisse(models.Model):
         return f'{self.nom} caisse'
 
 class Produit(models.Model):
+    selling_point = models.ForeignKey(SellingPoint, on_delete=models.CASCADE, default=1)
     reference = models.CharField(max_length=200)
     article = models.TextField(max_length=200)
     img = models.ImageField( null=True, blank=True, upload_to="images/produits/")
@@ -165,6 +164,43 @@ class Vendeur(models.Model):
     def __str__(self) -> str:
         return f'{self.name} {self.last_name}'
 
+class FraisGenerales(models.Model):
+    number = models.IntegerField()
+    date = models.DateField()
+    type_data=()
+    type=models.CharField(default=1,choices=type_data,max_length=10)
+    montant = models.DecimalField(max_digits=10, decimal_places=2)
+    TVA = models.DecimalField(default=0,
+        validators=[
+            MaxValueValidator(100),
+            MinValueValidator(0)
+        ], max_digits=10, decimal_places=2)
+    
+    timbre = models.DecimalField(default=0, max_digits=10, decimal_places=2)
+    reglement_data=(('1',"A terme"),('2',"Espece"),('3',"Virement"), ('4',"chèque"),)
+    reglement=models.CharField(default=1,choices=reglement_data,max_length=10)
+    saisie_le = models.DateField(auto_now_add=True)
+    modilfié_le = models.DateField(auto_now=True)
+    saisie_par = models.ForeignKey(User, on_delete=models.CASCADE,default=1111)
+    caisse = models.ForeignKey(Caisse, on_delete=models.CASCADE)
+    observation = models.TextField(max_length=500)
+    @property
+    def montantTVA(self):
+        montant = (self.TVA*self.montant)/100
+        return montant
+    @property
+    def montant(self):
+        montant = self.montant - self.montantTVA - self.timbre
+        return montant
+    
+    def __str__(self) -> str:
+        return f'frais {self.number} de la caisse {self.caisse.nom}'
+
+
+
+             #---------------------------------FOURNISSEURS-----------------------------------------
+
+
 class Fournisseur(models.Model):
     etat_civile_data=(('1',"M."),('2',"Mme"),('3',"SARL"), ('4',"EURL"), ('5',"ETS"), ('5',"autre"),)
     etat_civile=models.CharField(default=1,choices=etat_civile_data,max_length=10)
@@ -248,11 +284,14 @@ class FicheAchatCommandeFournisseur(models.Model):
         return f'{self.type_fiche} {self.fournisseur.name}'
     
 class PayementFournisseur(models.Model):
+    selling_point = models.ForeignKey(SellingPoint, on_delete=models.CASCADE, default=1)
     date = models.DateField()
     fournisseur = models.ForeignKey(Fournisseur, on_delete=models.PROTECT)
     saisie_le = models.DateField(auto_now_add=True)
     modilfié_le = models.DateField(auto_now=True)
-    saisie_par = models.ForeignKey(User, on_delete=models.CASCADE,default=1111)
+    saisie_par = models.ForeignKey(User, on_delete=models.CASCADE, related_name='saisie_par_pf')
+    modifie_par = models.ForeignKey(User, on_delete=models.CASCADE, null=True, related_name='modifie_par_pf')
+
     achat = models.ForeignKey(FicheAchatCommandeFournisseur, on_delete=models.CASCADE)
     solde = models.DecimalField(max_digits=10, decimal_places=2)
     montant = models.DecimalField(max_digits=5, decimal_places=2)
@@ -283,39 +322,9 @@ class RetoursFournisseur(models.Model):
     def __str__(self) -> str:
         return f'fiche retour {self.fournisseur.name}'
 
-class FraisGenerales(models.Model):
-    number = models.IntegerField()
-    date = models.DateField()
-    type_data=()
-    type=models.CharField(default=1,choices=type_data,max_length=10)
-    montant = models.DecimalField(max_digits=10, decimal_places=2)
-    TVA = models.DecimalField(default=0,
-        validators=[
-            MaxValueValidator(100),
-            MinValueValidator(0)
-        ], max_digits=10, decimal_places=2)
-    
-    timbre = models.DecimalField(default=0, max_digits=10, decimal_places=2)
-    reglement_data=(('1',"A terme"),('2',"Espece"),('3',"Virement"), ('4',"chèque"),)
-    reglement=models.CharField(default=1,choices=reglement_data,max_length=10)
-    saisie_le = models.DateField(auto_now_add=True)
-    modilfié_le = models.DateField(auto_now=True)
-    saisie_par = models.ForeignKey(User, on_delete=models.CASCADE,default=1111)
-    caisse = models.ForeignKey(Caisse, on_delete=models.CASCADE)
-    observation = models.TextField(max_length=500)
-    @property
-    def montantTVA(self):
-        montant = (self.TVA*self.montant)/100
-        return montant
-    @property
-    def montant(self):
-        montant = self.montant - self.montantTVA - self.timbre
-        return montant
-    
-    def __str__(self) -> str:
-        return f'frais {self.number} de la caisse {self.caisse.nom}'
+             #---------------------------------- CLIENTS ----------------------------------------
 
-# ---------------------------------- CLIENTS ----------------------------------------
+
     
 class Client(models.Model):
     selling_point = models.ForeignKey(SellingPoint, on_delete=models.CASCADE)

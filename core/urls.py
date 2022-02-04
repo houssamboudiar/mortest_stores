@@ -22,6 +22,7 @@ urlpatterns = [
     path('fournisseur_pk/<int:pk>', views.fournisseurPk, name='fournisseur_pk'),
     path('ficheACfournisseur_get_post', views.ficheACFournisseurGETPOST, name='ficheACfournisseur_get_post'),
     path('ficheACfournisseur_pk/<int:pk>', views.ficheACFournisseurPk, name='ficheACFournisseur_pk'),
-
+    path('payementfournisseur_get_post', views.payementFournisseurGETPOST, name='payementfournisseur_get_post'),
+    path('payementfournisseur_pk/<int:pk>', views.payementFournisseurPk, name='payementfournisseur_pk'),
 
 ]

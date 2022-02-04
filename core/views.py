@@ -54,7 +54,7 @@ def caisseGETPOST(request):
         serializer = CaisseSerializer(caisses, many=True)
         return Response (serializer.data)
     if request.method == 'POST':
-        serializer = CaisseSerializer(data=request.data)
+        serializer = CaisseSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             serializer.save()
             return Response (serializer.data, status=status.HTTP_201_CREATED)
@@ -287,3 +287,38 @@ def ficheACFournisseurPk(request, pk):
     elif request.method == 'DELETE':
         fiche.delete()
         return Response (status= status.HTTP_204_NO_CONTENT)
+
+
+@api_view(['GET','POST'])
+def payementFournisseurGETPOST(request):
+    if request.method == 'GET':
+        fiche = models.PayementFournisseur.objects.all()
+        serializer = serializers.PayementFournisseurSerializer(fiche, many=True)
+        return Response (serializer.data)
+    if request.method == 'POST':
+        serializer = serializers.PayementFournisseurSerializer(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            # serializer.instance.saisie_par = request.user
+            serializer.save(saisie_par = request.user)
+            return Response (serializer.data, status=status.HTTP_201_CREATED)
+        return Response (serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET','PUT', 'DELETE'])
+def payementFournisseurPk(request, pk):
+    try:
+        fiche = models.PayementFournisseur.objects.get(id=pk)
+    except models.PayementFournisseur.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    if request.method == 'GET':
+        serializer = serializers.PayementFournisseurSerializer(fiche)
+        return Response(serializer.data)
+    elif request.method == 'PUT':
+        serializer = serializers.PayementFournisseurSerializer(fiche, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save(modifie_par = request.user)
+            return Response(serializer.data)
+        return Response(serializer.errors, status= status.HTTP_400_BAD_REQUEST)
+    elif request.method == 'DELETE':
+        fiche.delete()
+        return Response (status= status.HTTP_204_NO_CONTENT)
+

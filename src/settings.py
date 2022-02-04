@@ -85,28 +85,28 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'src.wsgi.application'
 # Touares comment "don't fuck me up".
-DATABASES = {
-  'default': {
-    # MySQL engine. Powered by the mysqlclient module.
-    'ENGINE': 'django.db.backends.mysql',
-    'NAME': 'mortestdb',
-    'USER': 'houssamboudiar',
-    'PASSWORD': 'stormspirit99',
-    'HOST': 'localhost',
-    'PORT': '3306',
-  }
-}
-# Touares Uncomment that for your mysql settings.
 # DATABASES = {
-#      'default': {
-#          'ENGINE': 'django.db.backends.mysql',
-#          'NAME': 'mortestdb',
-#          'HOST': '127.0.0.1',
-#          'PORT': '3306',
-#          'USER': 'root',
-#          'PASSWORD': '0663058639',
-#      }
-#  }
+#   'default': {
+#     # MySQL engine. Powered by the mysqlclient module.
+#     'ENGINE': 'django.db.backends.mysql',
+#     'NAME': 'mortestdb',
+#     'USER': 'houssamboudiar',
+#     'PASSWORD': 'stormspirit99',
+#     'HOST': 'localhost',
+#     'PORT': '3306',
+#   }
+# }
+# Touares Uncomment that for your mysql settings.
+DATABASES = {
+     'default': {
+         'ENGINE': 'django.db.backends.mysql',
+         'NAME': 'mortestdb',
+         'HOST': '127.0.0.1',
+         'PORT': '3306',
+         'USER': 'root',
+         'PASSWORD': '0663058639',
+     }
+ }
 
 # Authentication Classes
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
@@ -114,8 +114,8 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         # 'rest_framework_simplejwt.authentication.JWTAuthentication',
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
-        'rest_framework.authentication.BasicAuthentication',
+        # 'rest_framework.authentication.SessionAuthentication',
+        # 'rest_framework.authentication.BasicAuthentication',
     ),
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
@@ -167,15 +167,15 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Tells django to use core.user as the authentification model.
 AUTH_USER_MODEL = 'users.CustomUser'
 
-ACCOUNT_USER_MODEL_USERNAME_FIELD = None
-ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_UNIQUE_EMAIL = True
-ACCOUNT_USERNAME_REQUIRED = False
-ACCOUNT_AUTHENTICATION_METHOD = 'email'
-ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
-ACCOUNT_CONFIRM_EMAIL_ON_GET = True
-ACCOUNT_EMAIL_CONFIRMATION_ANONYMOUS_REDIRECT_URL = '/?verification=1'
-ACCOUNT_EMAIL_CONFIRMATION_AUTHENTICATED_REDIRECT_URL = '/?verification=1'
+# ACCOUNT_USER_MODEL_USERNAME_FIELD = None
+# ACCOUNT_EMAIL_REQUIRED = True
+# ACCOUNT_UNIQUE_EMAIL = True
+# ACCOUNT_USERNAME_REQUIRED = False
+# ACCOUNT_AUTHENTICATION_METHOD = 'username'
+# ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
+# # ACCOUNT_CONFIRM_EMAIL_ON_GET = True
+# ACCOUNT_EMAIL_CONFIRMATION_ANONYMOUS_REDIRECT_URL = '/?verification=1'
+# ACCOUNT_EMAIL_CONFIRMATION_AUTHENTICATED_REDIRECT_URL = '/?verification=1'
 
 SITE_ID = 1
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
