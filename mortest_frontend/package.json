@@ -24,8 +24,13 @@
     "webpack-dev-server": "^4.7.3"
   },
   "dependencies": {
+    "@chakra-ui/react": "^1.8.3",
+    "@emotion/react": "^11.7.1",
+    "@emotion/styled": "^11.6.0",
     "axios": "^0.25.0",
+    "framer-motion": "^5.6.0",
     "react-redux": "^7.2.6",
+    "react-router-dom": "^6.2.1",
     "redux": "^4.1.2",
     "redux-devtools-extension": "^2.13.9",
     "redux-thunk": "^2.4.1"
