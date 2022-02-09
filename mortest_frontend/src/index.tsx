@@ -4,6 +4,7 @@ import App from './components/App';
 import { extendTheme, ChakraProvider } from '@chakra-ui/react'
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import ReactDOM from 'react-dom';
+import * as _ from 'lodash';
 
 // 2. Extend the theme to include custom colors, fonts, etc
 const colors = {
@@ -20,7 +21,7 @@ const routing = (
                   <Router>
                       <React.StrictMode>
                           <ChakraProvider theme={theme}>
-                                <App path="/" element={App} />
+                                <App />
                           </ChakraProvider>
                       </React.StrictMode>
                   </Router>);
