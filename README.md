@@ -14,7 +14,7 @@ bulk/retail store management system.
 # Run react frontend :
     cd mortest_frontend
     npm i
-    npm run dev
+    npm
     
 # Run django server :
     python manage.py runserver
