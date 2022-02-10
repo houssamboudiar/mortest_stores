@@ -53,5 +53,5 @@ class CustomUserAdmin(UserAdmin):
         )
 
     filter_horizontal = ()
-
+admin.site.unregister(CustomUser)
 admin.site.register(CustomUser, CustomUserAdmin)
