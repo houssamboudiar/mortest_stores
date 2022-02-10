@@ -17,11 +17,34 @@ const colors = {
 
 const theme = extendTheme({ colors })
 
+// Store type from Redux
+import { combineReducers, Store } from 'redux';
+// Import the store function and state
+import configureStore, { IAppState } from './store/store';
+import { getAllProducts } from './actions/productActions';
+import { productReducer } from './reducers/productReducer';
+import { Provider } from 'react-redux';
+
+interface IProps {
+  store: Store<IAppState>;
+}
+
+// Create the root reducer
+const rootReducer = combineReducers<IAppState>({
+  productState: productReducer,
+});
+console.log('Hi')
+// Generate the store
+const store = configureStore();
+store.dispatch(getAllProducts());
+
 const routing = (
                   <Router>
                       <React.StrictMode>
                           <ChakraProvider theme={theme}>
+                            <Provider store={store}>
                                 <App />
+                            </Provider>
                           </ChakraProvider>
                       </React.StrictMode>
                   </Router>);
