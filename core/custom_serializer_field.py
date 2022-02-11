@@ -42,6 +42,13 @@ class AchatCustomRelationField(serializers.SlugRelatedField):
             queryset = queryset.filter(selling_point=request.user.vendeur.selling_point)
         return queryset
 
+class AchatCustomRelationField(serializers.SlugRelatedField):
+    def get_queryset(self):
+        queryset = FicheAchatCommandeFournisseur.objects.all()
+        request = self.context.get('request', None)
+        if not request.user.is_superuser:
+            queryset = queryset.filter(selling_point=request.user.vendeur.selling_point)
+        return queryset
 # class CaisseSerializer(serializers.Serializer):
 #     selling_point = serializers.CharField()
 #     nom = serializers.CharField(max_length=200)

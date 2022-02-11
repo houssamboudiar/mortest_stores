@@ -20,9 +20,14 @@ urlpatterns = [
     path('vendeur_pk/<int:pk>', views.vendeurPk, name='vendeur_pk'),
     path('fournisseur_get_post', views.fournisseurGETPOST, name='fournisseur_get_post'),
     path('fournisseur_pk/<int:pk>', views.fournisseurPk, name='fournisseur_pk'),
-    path('ficheACfournisseur_get_post', views.ficheACFournisseurGETPOST, name='ficheACfournisseur_get_post'),
-    path('ficheACfournisseur_pk/<int:pk>', views.ficheACFournisseurPk, name='ficheACFournisseur_pk'),
+    path('ficheachatfournisseur_get_post', views.ficheAchatFournisseurGETPOST, name='ficheAchatfournisseur_get_post'),
+    path('ficheachatfournisseur_pk/<int:pk>', views.ficheAchatFournisseurPk, name='ficheAchatfournisseur_pk'),
+    path('fichecommandefournisseur_get_post', views.ficheCommandeFournisseurGETPOST, name='fichecommandefournisseur_get_post'),
+    path('fichecommanfournisseur_pk/<int:pk>', views.ficheCommandeFournisseurPk, name='fichecommanfournisseur_pk'),
     path('payementfournisseur_get_post', views.payementFournisseurGETPOST, name='payementfournisseur_get_post'),
     path('payementfournisseur_pk/<int:pk>', views.payementFournisseurPk, name='payementfournisseur_pk'),
+    path('fraisgenerales_get_post', views.fraisGeneralesGETPOST, name='fraisgenerales_get_post'),
+    path('raisgenerales_pk/<int:pk>', views.fraisGeneralesPk, name='raisgenerales_pk'),
+    path('retourfournisseur_get_post', views.retourFournisseurGETPOST, name='retourfournisseur_get_post'),
 
 ]
