@@ -6,9 +6,9 @@
     <title>Django REST with React</title>
   </head>
   <body>
-    <div id="app">
+    <div id="root">
     </div>
+    {% load static %}
+    <script src="{% static "frontend/bundle.js" %}"></script>
   </body>
-  {% load static %}
-  <script src="{% static "frontend/main.js" %}"></script>
 </html>

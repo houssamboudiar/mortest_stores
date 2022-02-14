@@ -28,7 +28,7 @@ class CustomUserAdmin(UserAdmin):
     ordering = ("username",)
 
     fieldsets = (
-        (None, {'fields': ('username', 'email','password', 'first_name', 'last_name')}),
+        (None, {'fields': ('username', 'email', 'password', 'first_name', 'last_name')}),
         )
     add_fieldsets = (
         (None, {
@@ -38,8 +38,5 @@ class CustomUserAdmin(UserAdmin):
         )
 
     filter_horizontal = ()
-
+admin.site.unregister(CustomUser)
 admin.site.register(CustomUser, CustomUserAdmin)
-
-
-
