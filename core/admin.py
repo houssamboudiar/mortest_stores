@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import (SellingPoint, Caisse, Produit, Depot, FicheCredit,
+from .models import (ProduitVenteClient, ProduitsRetourClient, SellingPoint, Caisse, Produit, Depot, FicheCredit,
  FicheDebit, Vendeur, Fournisseur, FicheAchatCommandeFournisseur,
  PayementFournisseur,  RetoursFournisseur, FraisGenerales, 
  Client, FicheVenteClient, PayementClient, RetoursClient, ProduitAchatCommandeFournisseur, ProduitsRetourFournisseur)
@@ -25,12 +25,25 @@ class RetourAdmin(admin.ModelAdmin):
 
 admin.site.register(RetoursFournisseur, RetourAdmin)
 
+class PVCInline(admin.StackedInline):
+    model = ProduitVenteClient
+class VenteClientAdmin(admin.ModelAdmin):
+     inlines = [PVCInline,]
+
+admin.site.register(FicheVenteClient, VenteClientAdmin)
+
+class PRCInline(admin.StackedInline):
+    model = ProduitsRetourClient
+
+class RetourAdmin(admin.ModelAdmin):
+     inlines = [PRCInline,]
+
+admin.site.register(RetoursClient, RetourAdmin)
+
 admin.site.register(PayementFournisseur)
 admin.site.register(Client)
-admin.site.register(FicheVenteClient)
 admin.site.register(PayementClient)
 admin.site.register(FraisGenerales)
-admin.site.register(RetoursClient)
 admin.site.register(FicheDebit)
 admin.site.register(FicheCredit)
 

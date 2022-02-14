@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from django.conf import settings
 from users.models import CustomUser as User
-from .models import (Fournisseur, ProduitAchatCommandeFournisseur, SellingPoint, Caisse, Produit, Depot, FicheCredit, FicheDebit, Vendeur)
+from .models import (Fournisseur, PayementClient, ProduitAchatCommandeFournisseur, SellingPoint, Caisse, Produit, Depot, FicheCredit, FicheDebit, Vendeur)
 from . import models
 from .custom_serializer_field import *
 
@@ -17,7 +17,13 @@ class CaisseSerializer(serializers.ModelSerializer):
     slug_field='id')
     class Meta:
         model = Caisse
-        fields = ['selling_point', 'nom', 'caisse', 'wilaya', 'ville', 'solde']
+        fields = ['selling_point', 'nom', 'caisse', 'wilaya',
+         'ville', 'solde', 'montant_achats_four', 'montant_retour_four',
+          'montant_pay_four', 'montant_vente_client', 'montant_retour_client',
+          'montant_credit', 'montant_pay_client', 'montant_debit', 'montant_frais_generales']
+        read_only_fields = ['montant_achats_four', 'montant_retour_four',
+          'montant_pay_four', 'montant_vente_client', 'montant_retour_client',
+          'montant_credit', 'montant_pay_client', 'montant_debit', 'montant_frais_generales']
         depth = 1
 
 
@@ -46,7 +52,20 @@ class ProduitSerializer(serializers.ModelSerializer):
         read_only_fields = ['marge_vente_detail', 'marge_vente_grossiste',
          'marge_vente_revendeur', 'marge_vente_autre', 'qtte_achete', 'qtte_vendue',
           'qtte_retour_four', 'qtte_retour_client', 'qtte_avarie']
-    
+
+class AvariesSerializer(serializers.ModelSerializer):
+    selling_point = SellingPointCustomRelationQueryset(
+    slug_field='id')
+    produit = ProduitCustomRelationField(slug_field='id')
+    depoot = serializers.ReadOnlyField(source='depot')
+    prix_prod = serializers.ReadOnlyField(source='prix_u')
+
+    class Meta:
+        model = models.Avaries
+        fields = ['selling_point', 'produit', 'caisse', 'qtte', 'depoot',
+        'prix_prod']
+        depth = 1
+
 
 class DepotSerializer(serializers.ModelSerializer):
     selling_point = SellingPointCustomRelationQueryset(
@@ -192,10 +211,26 @@ class FicheACFournisseurSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         produits_data = validated_data.pop('produits')
+        request = self.context.get('request', None)
+        for produit_data in produits_data:
+            if not request.user.is_superuser:
+                if produit_data['produit'] not in Produit.objects.filter(selling_point=request.user.vendeur.selling_point):
+                    raise serializers.ValidationError({'produit': 'that product does not exist'})
         fiche = models.FicheAchatCommandeFournisseur.objects.create(**validated_data)
         for produit_data in produits_data:
-            models.ProduitAchatCommandeFournisseur.objects.create(achat=fiche, **produit_data)
+            models.ProduitAchatCommandeFournisseur.objects.create(vente=fiche, **produit_data)
         return fiche
+    
+    def validate(self, data):
+        """
+        Check that start is before finish.
+        """
+        for prod in data['produits']:
+            
+            if prod['quantite'] > prod['produit'].qtteActuelStock:
+                missing = prod['quantite']-prod['produit'].qtteActuelStock
+                raise serializers.ValidationError(f"you dont have enough of {prod['produit'].article}, you miss {missing} pieces")
+        return data
 
 class PayementFournisseurSerializer(serializers.ModelSerializer):
     selling_point = SellingPointCustomRelationQueryset(
@@ -211,9 +246,14 @@ class PayementFournisseurSerializer(serializers.ModelSerializer):
         model = Fournisseur
         fields = ['selling_point', 'date', 'fournisseur',
         'saisie_le', 'modilfié_le', 'saisie_par', 'modifie_par',
-         'achat', 'solde', 'montant', 'solde', 'reglement', 'caisse', 'observation']
+         'achat', 'montant', 'solde', 'reglement', 'caisse', 'observation']
         read_only_fields = ['saisie_le', 'modilfié_le', 'saisie_par', 'modifie_par']
         depth = 1
+    
+    def validate(self, data):
+        if data['montant'] > data['fournisseur'].solde:
+            raise serializers.ValidationError({'montant':'montant is bigger than solde'})
+        return data
 
 class ProduitRetourFournisseurSerializer(serializers.ModelSerializer):
     produit = ProduitCustomRelationField(slug_field='id')
@@ -255,7 +295,11 @@ class RetorFournisseurSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         produits_data = validated_data.pop('produits')
         achat_id = validated_data.pop('achat')
+        request = self.context.get('request', None)
         achat = FicheAchatCommandeFournisseur.objects.get(id=achat_id.id)
+
+        if not request.user.is_superuser:
+            achat = FicheAchatCommandeFournisseur.objects.filter(selling_point=request.user.vendeur.selling_point).get(id=achat_id.id)
         produits_achat = ProduitAchatCommandeFournisseur.objects.filter(achat=achat)
         for produit_data in produits_data:
             
@@ -264,6 +308,8 @@ class RetorFournisseurSerializer(serializers.ModelSerializer):
                 achat_prods.append(prod.produit)
             if produit_data['produit'] not in achat_prods:
                 raise serializers.ValidationError({'produit': 'Please enter a product that belongs to the sell'})
+            elif produit_data['produit'] not in Produit.objects.filter(selling_point=request.user.vendeur.selling_point):
+                raise serializers.ValidationError({'produit': 'that product does not exist'})
         
         fiche = models.RetoursFournisseur.objects.create(**validated_data, achat=achat)
         
@@ -279,3 +325,214 @@ class RetorFournisseurSerializer(serializers.ModelSerializer):
             prix_retour_prod = prod.quantite_retour * prod.produit.prix_U_achat
             montant += prix_retour_prod
         return montant
+
+
+
+#-------------------------------------CLIENT----------------------------------
+
+
+class ClientSerializer(serializers.ModelSerializer):
+    selling_point = SellingPointCustomRelationQueryset(
+    slug_field='id')
+    class Meta:
+        model = Vendeur
+        fields = ['selling_point', 'numero', 'etat_civile', 'nom',
+        'type', 'telephone', 'phone_number', 'email',
+         'numero_rc', 'NRC', 'NIS', 'RIB', 'solde', 'wilaya',
+         'ville', 'adress', 'saisie_le', 'modilfié_le', 'saisie_par']
+        read_only_fields = ['saisie_le', 'modilfié_le', 'saisie_par']
+        depth = 1
+
+class ProduitVenteClientSerializer(serializers.ModelSerializer):
+    produit = ProduitCustomRelationField(slug_field='id')
+    depot = DepotCustomRelationField(slug_field='id')
+    prix = serializers.ReadOnlyField(source='prixProduit')
+    qtteAct = serializers.ReadOnlyField(source='qtteActProduit')
+
+    class Meta:
+        model = models.ProduitVenteClient
+        fields = ['depot', 'produit', 'quantite', 'numero_lot', 
+         'prix', 'qtteAct']
+
+class FicheVenteSerializer(serializers.ModelSerializer):
+    produits = ProduitVenteClientSerializer(many=True)
+    selling_point = SellingPointCustomRelationQueryset(
+    slug_field='id', required=False)
+    # type_fiche_choices = (('1',"Achat"),('2',"Commande"))
+    # type_fiche=serializers.ChoiceField(default=1,choices=type_fiche_choices)
+    action_choices=(('1',"Bon de livraison"),('2',"Facture"),('2',"BL sans montant"),('2',"Facture proformat"),)
+    type_fiche=serializers.ChoiceField(default=1,choices=action_choices)
+    type_choices=(('détaillant',"détaillant"),('grossiste',"grossiste"),('revendeur',"revendeur"),('autre',"autre"),)
+    type_client=serializers.ChoiceField(default=1,choices=type_choices)
+    reglement_choices=(('1',"A terme"),('2',"Espece"),('3',"Virement"), ('4',"chèque"),)
+    mode_reglement=serializers.ChoiceField(default=1,choices=reglement_choices)
+    client = ClientCustomRelationField(queryset=models.Fournisseur.objects.all(),
+    slug_field='id')
+    # depot = DepotCustomRelationField(slug_field='id')
+    # produit = ProduitCustomRelationField(
+    # slug_field='id', many=True)
+    caisse = CaisseCustomRelationField(
+    slug_field='id')
+
+    montanttva = serializers.ReadOnlyField(source='montantTVA')
+    montantremise = serializers.ReadOnlyField(source='montantRemise')
+    prixttc = serializers.ReadOnlyField(source='prixTTC')
+    totalachats = serializers.ReadOnlyField(source='total')
+    reste_a_payer = serializers.SerializerMethodField()
+    class Meta:
+        model = models.FicheVenteClient
+        fields = ['type_fiche', 'produits','selling_point', 'client', 'type_client',
+        'saisie_le', 'modilfié_le', 'saisie_par', 'modifie_par', 'reste_a_payer',
+         'numero', 'date', 'montant_reg_client', 'mode_reglement',
+         'caisse', 'observation', 'totalachats', 'TVA', 'timbre',
+          'remise', 'montanttva', 'montantremise', 'prixttc', 'reste_a_payer']
+        
+        read_only_fields = ['saisie_le', 'modilfié_le', 'saisie_par', 'type_fiche', 'reste_a_payer']
+        # depth = 1
+
+    def create(self, validated_data):
+        produits_data = validated_data.pop('produits')
+        request = self.context.get('request', None)
+        for produit_data in produits_data:
+            if not request.user.is_superuser:
+                if produit_data['produit'] not in Produit.objects.filter(selling_point=request.user.vendeur.selling_point):
+                    raise serializers.ValidationError({'produit': 'that product does not exist'})
+        fiche = models.FicheVenteClient.objects.create(**validated_data)
+        for produit_data in produits_data:
+            models.ProduitVenteClient.objects.create(vente=fiche, **produit_data)
+        return fiche
+    def validate(self, data):
+        """
+        Check that start is before finish.
+        """
+        for prod in data['produits']:
+            if prod['quantite'] > prod['produit'].qtteActuelStock:
+                missing = prod['produit'].qtteActuelStock - prod['quantite']
+                raise serializers.ValidationError(f"you dont have enough of {prod['produit'].article}, you miss {missing} pieces")
+        return data
+
+    def get_reste_a_payer(self, obj):
+        reste = obj.total - obj.montant_reg_client
+        return reste
+
+
+class PayementClientSerializer(serializers.ModelSerializer):
+    selling_point = SellingPointCustomRelationQueryset(
+    slug_field='id')
+    client = ClientCustomRelationField(
+     slug_field='id')
+    achat = AchatCustomRelationField(slug_field='id')
+    reglement_data=(('1',"A terme"),('2',"Espece"),('3',"Virement"), ('4',"chèque"),)
+    reglement=serializers.ChoiceField(default=1,choices=reglement_data)
+    caisse = CaisseCustomRelationField(
+    slug_field='id')
+    # client_solde = serializers.SerializerMethodField()
+    class Meta:
+        model = PayementClient
+        fields = ['selling_point', 'date', 'client',
+        'saisie_le', 'modilfié_le', 'saisie_par', 'modifie_par',
+         'achat', 'montant', 'reglement', 'caisse', 'observation']
+        read_only_fields = ['saisie_le', 'modilfié_le', 'saisie_par', 'modifie_par']
+        depth = 1
+    def validate(self, data):
+        """
+        Check that start is before finish.
+        """
+        
+        if data['client'].solde == 0:
+                raise serializers.ValidationError(f"the client {data['client']} has no debt ")
+        if data['montant'] > data['client'].solde:
+            raise serializers.ValidationError(f"the client {data['client']} is overpaying")
+        return data
+    # def get_client_solde(self, data):
+    #     solde = data['client'].solde
+    #     return solde
+    
+
+class ProduitRetourClientSerializer(serializers.ModelSerializer):
+    produit = ProduitCustomRelationField(slug_field='id')
+
+
+    class Meta:
+        model = models.ProduitsRetourClient
+        fields = ['quantite_retour', 'produit']
+
+
+class RetorClientSerializer(serializers.ModelSerializer):
+    produits = ProduitRetourClientSerializer(many=True)
+    selling_point = SellingPointCustomRelationQueryset(
+    slug_field='id')
+    vente = VenteCustomRelationField(slug_field='id')
+    # type_fiche_choices = (('1',"Achat"),('2',"Commande"))
+    # type_fiche=serializers.ChoiceField(default=1,choices=type_fiche_choices)
+    reglement_choices=(('1',"A terme"),('2',"Espece"),('3',"Virement"), ('4',"chèque"),)
+    reglement=serializers.ChoiceField(default=1,choices=reglement_choices)
+    client = ClientCustomRelationField(
+    slug_field='id')
+    # depot = DepotCustomRelationField(slug_field='id')
+    # produit = ProduitCustomRelationField(
+    # slug_field='id', many=True)
+    caisse = CaisseCustomRelationField(
+    slug_field='id')
+    montant_retour = serializers.SerializerMethodField()
+
+
+
+    class Meta:
+        model = models.RetoursClient
+        fields = ['produits','selling_point', 'client', 'vente',
+        'saisie_le', 'modilfié_le', 'saisie_par', 'modifie_par', 'date', 'reglement',
+         'caisse', 'observation', 'montant_retour']
+        
+        read_only_fields = ['saisie_le', 'modilfié_le', 'saisie_par', 'montant_retour', 'modifie_par']
+        # depth = 1
+
+    def create(self, validated_data):
+        produits_data = validated_data.pop('produits')
+        vente_id = validated_data.pop('vente')
+        request = self.context.get('request', None)
+        vente = FicheVenteClient.objects.get(id=vente_id.id)
+       
+        if not request.user.is_superuser:
+            vente = FicheVenteClient.objects.filter(selling_point=request.user.vendeur.selling_point).get(id=vente_id.id)
+        produits_vente = models.ProduitVenteClient.objects.filter(vente=vente)
+        for produit_data in produits_data:
+            
+            achat_prods = []
+            for prod in produits_vente:
+                achat_prods.append(prod.produit)
+            if produit_data['produit'] not in achat_prods:
+                raise serializers.ValidationError({'produit': 'Please enter a product that belongs to the sell'})
+            if not request.user.is_superuser:
+                if produit_data['produit'] not in Produit.objects.filter(selling_point=request.user.vendeur.selling_point):
+                    raise serializers.ValidationError({'produit': 'that product does not exist'})
+        
+        fiche = models.RetoursClient.objects.create(**validated_data, vente=vente)
+        
+        for produit_data in produits_data:
+            models.ProduitsRetourClient.objects.create(retour=fiche, **produit_data)
+        return fiche
+
+
+    def get_montant_retour(self, obj):
+        prod_fiches = obj.produits.all()
+        montant = 0
+        for prod in prod_fiches:
+            prix_retour_prod = prod.quantite_retour * prod.produit.prix_detail
+            montant += prix_retour_prod
+        return montant
+
+    def validate(self, data):
+        vente = data['vente']
+        prods = models.ProduitVenteClient.objects.filter(vente=vente)
+        for prod in data['produits']:
+            produit = prod['produit']
+            try:
+                venteprod = prods.get(produit=produit)
+            except models.ProduitVenteClient.DoesNotExist:
+                raise serializers.ValidationError({'product': 'either this product does not exist, or it s not a part of the given sell'})
+            if prod['quantite_retour'] > venteprod.quantite:
+                raise serializers.ValidationError({'produit': 'client is retutning more than he bought'})
+            if prod['quantite_retour'] <= 0:
+                raise serializers.ValidationError({'produit': 'you cant return 0 quantity'})
+        return data

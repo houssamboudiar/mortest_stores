@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Caisse, Depot, FicheAchatCommandeFournisseur, Produit, SellingPoint
+from .models import Caisse, FicheVenteClient, Depot, FicheAchatCommandeFournisseur, Produit, SellingPoint, Client
 
 
 class SellingPointCustomRelationQueryset(serializers.SlugRelatedField):
@@ -21,6 +21,14 @@ class ProduitCustomRelationField(serializers.SlugRelatedField):
 class CaisseCustomRelationField(serializers.SlugRelatedField):
     def get_queryset(self):
         queryset = Caisse.objects.all()
+        request = self.context.get('request', None)
+        if not request.user.is_superuser:
+            queryset = queryset.filter(selling_point=request.user.vendeur.selling_point)
+        return queryset
+
+class ClientCustomRelationField(serializers.SlugRelatedField):
+    def get_queryset(self):
+        queryset = Client.objects.all()
         request = self.context.get('request', None)
         if not request.user.is_superuser:
             queryset = queryset.filter(selling_point=request.user.vendeur.selling_point)
@@ -49,6 +57,24 @@ class AchatCustomRelationField(serializers.SlugRelatedField):
         if not request.user.is_superuser:
             queryset = queryset.filter(selling_point=request.user.vendeur.selling_point)
         return queryset
+
+
+class VenteCustomRelationField(serializers.SlugRelatedField):
+    def get_queryset(self):
+        queryset = FicheVenteClient.objects.all()
+        request = self.context.get('request', None)
+        if not request.user.is_superuser:
+            queryset = queryset.filter(selling_point=request.user.vendeur.selling_point)
+        return queryset
+
+class ClientCustomRelationField(serializers.SlugRelatedField):
+    def get_queryset(self):
+        queryset = Client.objects.all()
+        request = self.context.get('request', None)
+        if not request.user.is_superuser:
+            queryset = queryset.filter(selling_point=request.user.vendeur.selling_point)
+        return queryset
+
 # class CaisseSerializer(serializers.Serializer):
 #     selling_point = serializers.CharField()
 #     nom = serializers.CharField(max_length=200)

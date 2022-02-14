@@ -105,6 +105,7 @@ def produitGETPOST(request):
             return Response (serializer.data, status=status.HTTP_201_CREATED)
         return Response (serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 @api_view(['GET','PUT', 'DELETE'])
 def produitPk(request, pk):
     try:
@@ -125,7 +126,47 @@ def produitPk(request, pk):
     elif request.method == 'DELETE':
         produit.delete()
         return Response (status= status.HTTP_204_NO_CONTENT)
-    
+
+@api_view(['GET','POST'])
+def avariesGETPOST(request):
+    if request.method == 'GET':
+        ava = models.Avaries.objects.all()
+        if not request.user.is_superuser:
+            ava = models.Avaries.objects.filter(vendeur=request.user.vendeur)
+        
+        serializer = serializers.AvariesSerializer(ava, many=True)
+        return Response (serializer.data)
+    if request.method == 'POST':
+        serializer = serializers.AvariesSerializer(data= request.data, context={'request': request})
+        if serializer.is_valid():
+            serializer.save()
+            serializer.instance.produit.qtte_avarie += serializer.instance.qtte
+            serializer.instance.produit
+            return Response (serializer.data, status=status.HTTP_201_CREATED)
+        return Response (serializer.data, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET','PUT', 'DELETE'])
+def avariesPk(request, pk):
+    try:
+        ava = models.Avaries.objects.get(id=pk)
+        if not request.user.is_superuser:
+            ava = models.Avaries.objects.filter(vendeur=request.user.vendeur).get(id=pk)
+        
+    except models.Avaries.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    if request.method == 'GET':
+        serializer = serializers.AvariesSerializer(ava)
+        return Response(serializer.data)
+    elif request.method == 'PUT':
+        serializer = serializers.AvariesSerializer(ava, data=request.data, context={'request': request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status= status.HTTP_400_BAD_REQUEST)
+    elif request.method == 'DELETE':
+        ava.delete()
+        return Response (status= status.HTTP_204_NO_CONTENT)
+
 class DepotGETPOST(generics.ListCreateAPIView):
     queryset = Depot.objects.all()
     serializer_class = DepotSerializer
@@ -153,6 +194,10 @@ def ficheCreditGETPOST(request):
         if serializer.is_valid():
             # serializer.instance.
             serializer.save(saisie_par = request.user)
+            fiche = serializer.instance
+            caisse = fiche.caisse
+            caisse.montant_credit += fiche.prixTTC
+            caisse.save()
             return Response (serializer.data, status=status.HTTP_201_CREATED)
         return Response (serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -190,6 +235,11 @@ def ficheDebitGETPOST(request):
         if serializer.is_valid():
             # serializer.instance.
             serializer.save(saisie_par = request.user)
+            serializer.save(saisie_par = request.user)
+            fiche = serializer.instance
+            caisse = fiche.caisse
+            caisse.montant_debit += fiche.prixTTC
+            caisse.save()
             return Response (serializer.data, status=status.HTTP_201_CREATED)
         return Response (serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -337,10 +387,15 @@ def ficheAchatFournisseurGETPOST(request):
             # serializer.instance.saisie_par = request.user
             serializer.save(saisie_par = request.user, type_fiche='1')
             for prod in serializer.instance.produits.all():
-
-
+                                
+                
                 prod.produit.qtte_achete += prod.quantite
                 prod.produit.save()
+            caisse = serializer.instance.caisse
+            caisse.montant_achats_four -= serializer.instance.montantregfour
+            caisse.save()
+            serializer.instance.fournisseur.solde += (serializer.instance.total-serializer.instance.montantregfour)
+            serializer.instance.fournisseur.save()
             return Response (serializer.data, status=status.HTTP_201_CREATED)
         return Response (serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -418,6 +473,11 @@ def payementFournisseurGETPOST(request):
         if serializer.is_valid():
             # serializer.instance.saisie_par = request.user
             serializer.save(saisie_par = request.user)
+            pay = serializer.instance
+            pay.caisse.montant_pay_four += pay.montant
+            pay.caisse.save()
+            pay.fournisseur.solde -= pay.montant
+            pay.fournisseur.save()
             return Response (serializer.data, status=status.HTTP_201_CREATED)
         return Response (serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -460,6 +520,9 @@ def retourFournisseurGETPOST(request):
 
                 prod.produit.qtte_retour_four += prod.quantite_retour
                 prod.produit.save()
+            caisse = serializer.instance.caisse
+            caisse.montant_pay_four += serializer.instance.montant
+            caisse.save()
                 # objects.update(qtte_retour_four=F('qtte_retour_four') + prod.quantite_retour)#
             return Response (serializer.data, status=status.HTTP_201_CREATED)
         return Response (serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -477,6 +540,186 @@ def retourFournisseurPk(request, pk):
         return Response(serializer.data)
     elif request.method == 'PUT':
         serializer = serializers.RetorFournisseurSerializer(fiche, data=request.data, partial=True, context={'request': request})
+        if serializer.is_valid():
+            serializer.save(modifie_par = request.user)
+            return Response(serializer.data)
+        return Response(serializer.errors, status= status.HTTP_400_BAD_REQUEST)
+    elif request.method == 'DELETE':
+        fiche.delete()
+        return Response (status= status.HTTP_204_NO_CONTENT)
+
+#--------------------------------------------------CLIENT---------------------------------------
+
+@api_view(['GET','POST'])
+def clientGETPOST(request):
+    if request.method == 'GET':
+        client = models.Client.objects.all()
+        if not request.user.is_superuser:
+            client = models.Client.objects.filter(selling_point=request.user.vendeur.selling_point)
+        serializer = serializers.ClientSerializer(client, many=True)
+        return Response (serializer.data)
+    if request.method == 'POST':
+        serializer = serializers.ClientSerializer(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            serializer.save(saisie_par=request.user)
+            return Response (serializer.data, status=status.HTTP_201_CREATED)
+        return Response (serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET','PUT', 'DELETE'])
+def clientPk(request, pk):
+    try:
+        client = models.Client.objects.get(id=pk)
+        if not request.user.is_superuser:
+            client = models.Client.objects.filter(selling_point=request.user.vendeur.selling_point).get(id=pk)
+    except models.Client.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    if request.method == 'GET':
+        serializer = serializers.ClientSerializer(client)
+        return Response(serializer.data)
+    elif request.method == 'PUT':
+        serializer = serializers.ClientSerializer(client, data=request.data, partial=True, context={'request': request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status= status.HTTP_400_BAD_REQUEST)
+    elif request.method == 'DELETE':
+        client.delete()
+        return Response (status= status.HTTP_204_NO_CONTENT)
+
+@api_view(['GET','POST'])
+def venteClientGETPOST(request):
+    if request.method == 'GET':
+        fiche = models.FicheVenteClient.objects.all()
+        if not request.user.is_superuser:
+            fiche = models.FicheVenteClient.objects.filter(selling_point=request.user.vendeur.selling_point)
+        serializer = serializers.FicheVenteSerializer(fiche, many=True)
+        return Response (serializer.data)
+    if request.method == 'POST':
+        serializer = serializers.FicheVenteSerializer(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            serializer.instance.reste_a_payer = (serializer.instance.prixTTC - serializer.instance.montant_reg_client)
+            # serializer.instance.saisie_par = request.user
+            serializer.save(saisie_par = request.user)
+            for prod in serializer.instance.produits.all():
+
+                prod.produit.qtte_vendue += prod.quantite
+                prod.produit.save()
+            solde = serializer.instance.total - serializer.instance.montant_reg_client
+            serializer.instance.client.solde += solde
+            serializer.instance.client.save()
+            caisse = serializer.instance.caisse
+            caisse.montant_vente_client += serializer.instance.montant_reg_client
+            caisse.save
+            client = serializer.instance.client
+            client.solde += (serializer.instance.prixTTC - serializer.instance.montant_reg_client)
+            client.save()
+                # objects.update(qtte_retour_four=F('qtte_retour_four') + prod.quantite_retour)#
+            return Response (serializer.data, status=status.HTTP_201_CREATED)
+        return Response (serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET','PUT', 'DELETE'])
+def venteClientPk(request, pk):
+    try:
+        fiche = models.FicheVenteClient.objects.get(id=pk)
+        if not request.user.is_superuser:
+            fiche = models.FicheVenteClient.objects.filter(selling_point=request.user.vendeur.selling_point).get(id=pk)
+    except models.FicheVenteClient.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    if request.method == 'GET':
+        serializer = serializers.FicheVenteSerializer(fiche)
+        return Response(serializer.data)
+    elif request.method == 'PUT':
+        serializer = serializers.FicheVenteSerializer(fiche, data=request.data, partial=True, context={'request': request})
+        if serializer.is_valid():
+            serializer.save(modifie_par = request.user)
+            return Response(serializer.data)
+        return Response(serializer.errors, status= status.HTTP_400_BAD_REQUEST)
+    elif request.method == 'DELETE':
+        fiche.delete()
+        return Response (status= status.HTTP_204_NO_CONTENT)
+
+
+@api_view(['GET','POST'])
+def payementClientGETPOST(request):
+    if request.method == 'GET':
+        fiche = models.PayementClient.objects.all()
+        if not request.user.is_superuser:
+            fiche = models.PayementClient.objects.filter(selling_point=request.user.vendeur.selling_point)
+        serializer = serializers.PayementClientSerializer(fiche, many=True)
+        return Response (serializer.data)
+    if request.method == 'POST':
+        serializer = serializers.PayementClientSerializer(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            # serializer.instance.saisie_par = request.user
+            serializer.save(saisie_par = request.user)
+            pay = serializer.instance
+            pay.client.solde -= pay.montant
+            pay.client.save()
+            caisse = serializer.instance.caisse
+            caisse.montant_pay_client += serializer.instance.montant
+            caisse.save()
+
+            return Response (serializer.data, status=status.HTTP_201_CREATED)
+        return Response (serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+@api_view(['GET','PUT', 'DELETE'])
+def payementClientPk(request, pk):
+    try:
+        fiche = models.PayementClient.objects.get(id=pk)
+        if not request.user.is_superuser:
+            fiche = models.PayementClient.objects.filter(selling_point=request.user.vendeur.selling_point).get(id=pk)
+    except models.PayementClient.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    if request.method == 'GET':
+        serializer = serializers.PayementClientSerializer(fiche)
+        return Response(serializer.data)
+    elif request.method == 'PUT':
+        serializer = serializers.PayementClientSerializer(fiche, data=request.data, partial=True, context={'request': request})
+        if serializer.is_valid():
+            serializer.save(modifie_par = request.user)
+            return Response(serializer.data)
+        return Response(serializer.errors, status= status.HTTP_400_BAD_REQUEST)
+    elif request.method == 'DELETE':
+        fiche.delete()
+        return Response (status= status.HTTP_204_NO_CONTENT)
+
+@api_view(['GET','POST'])
+def retourClientGETPOST(request):
+    if request.method == 'GET':
+        fiche = models.RetoursClient.objects.all()
+        if not request.user.is_superuser:
+            fiche = models.RetoursClient.objects.filter(selling_point=request.user.vendeur.selling_point)
+        serializer = serializers.RetorClientSerializer(fiche, many=True)
+        return Response (serializer.data)
+    if request.method == 'POST':
+        serializer = serializers.RetorClientSerializer(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            # serializer.instance.saisie_par = request.user
+            serializer.save(saisie_par = request.user)
+            for prod in serializer.instance.produits.all():
+
+
+                prod.produit.qtte_retour_client += prod.quantite_retour
+                prod.produit.save()
+            caisse = serializer.instance.caisse
+            caisse.montant_retour_client += serializer.instance.montant
+                # objects.update(qtte_retour_four=F('qtte_retour_four') + prod.quantite_retour)#
+            return Response (serializer.data, status=status.HTTP_201_CREATED)
+        return Response (serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET','PUT', 'DELETE'])
+def retourClientPk(request, pk):
+    try:
+        fiche = models.RetoursClient.objects.get(id=pk)
+        if not request.user.is_superuser:
+            fiche = models.RetoursClient.objects.filter(selling_point=request.user.vendeur.selling_point).get(id=pk)
+    except models.RetoursClient.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    if request.method == 'GET':
+        serializer = serializers.RetorClientSerializer(fiche)
+        return Response(serializer.data)
+    elif request.method == 'PUT':
+        serializer = serializers.RetorClientSerializer(fiche, data=request.data, partial=True, context={'request': request})
         if serializer.is_valid():
             serializer.save(modifie_par = request.user)
             return Response(serializer.data)

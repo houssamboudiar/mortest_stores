@@ -27,7 +27,17 @@ urlpatterns = [
     path('payementfournisseur_get_post', views.payementFournisseurGETPOST, name='payementfournisseur_get_post'),
     path('payementfournisseur_pk/<int:pk>', views.payementFournisseurPk, name='payementfournisseur_pk'),
     path('fraisgenerales_get_post', views.fraisGeneralesGETPOST, name='fraisgenerales_get_post'),
-    path('raisgenerales_pk/<int:pk>', views.fraisGeneralesPk, name='raisgenerales_pk'),
+    path('fraisgenerales_pk/<int:pk>', views.fraisGeneralesPk, name='raisgenerales_pk'),
     path('retourfournisseur_get_post', views.retourFournisseurGETPOST, name='retourfournisseur_get_post'),
+    path('retourfournisseur_pk/<int:pk>', views.retourFournisseurPk, name='retourfournisseur_pk'),
+    path('client_pk/<int:pk>', views.clientPk, name='client_pk'),
+    path('client_get_post', views.clientGETPOST, name='client_get_post'),
+    path('avaries_get_post', views.avariesGETPOST, name='avaries_get_post'),
+    path('avaries_pk/<int:pk>', views.avariesPk, name='avaries_pk'),
+    path('venteclient_get_post', views.venteClientGETPOST, name='venteclient_get_post'),
+    path('venteclient_pk/<int:pk>', views.venteClientPk, name='venteclient_pk'),
+    path('payementclient_get_post', views.payementClientGETPOST, name='payementclient_get_post'),
+    path('retourclient_get_post', views.retourClientGETPOST, name='retourclient_get_post'),
+    path('retourclient_pk/<int:pk>', views.retourClientPk, name='retourclient_pk'),
 
 ]
