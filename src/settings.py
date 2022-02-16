@@ -85,28 +85,28 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'src.wsgi.application'
 # Touares comment "don't fuck me up".
-DATABASES = {
-  'default': {
-    # MySQL engine. Powered by the mysqlclient module.
-    'ENGINE': 'django.db.backends.mysql',
-    'NAME': 'mortestdb',
-    'USER': 'houssamboudiar',
-    'PASSWORD': 'stormspirit99',
-    'HOST': 'localhost',
-    'PORT': '3306',
-  }
-}
-# Touares Uncomment that for your mysql settings.
 # DATABASES = {
-#      'default': {
-#          'ENGINE': 'django.db.backends.mysql',
-#          'NAME': 'mortestdb',
-#          'HOST': '127.0.0.1',
-#          'PORT': '3306',
-#          'USER': 'root',
-#          'PASSWORD': '0663058639',
-#      }
-#  }
+#   'default': {
+#     # MySQL engine. Powered by the mysqlclient module.
+#     'ENGINE': 'django.db.backends.mysql',
+#     'NAME': 'mortestdb',
+#     'USER': 'houssamboudiar',
+#     'PASSWORD': 'stormspirit99',
+#     'HOST': 'localhost',
+#     'PORT': '3306',
+#   }
+# }
+# Touares Uncomment that for your mysql settings.
+DATABASES = {
+     'default': {
+         'ENGINE': 'django.db.backends.mysql',
+         'NAME': 'mortestdb',
+         'HOST': '127.0.0.1',
+         'PORT': '3306',
+         'USER': 'root',
+         'PASSWORD': '0663058639',
+     }
+ }
 
 # Authentication Classes
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
@@ -120,7 +120,10 @@ REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',
-    )
+    ),
+    
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',]
 }
 
 # Password validation

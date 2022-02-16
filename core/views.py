@@ -173,7 +173,10 @@ class DepotGETPOST(generics.ListCreateAPIView):
 
     def list(self, request):
         # Note the use of `get_queryset()` instead of `self.queryset`
+        
         queryset = self.get_queryset()
+        if not request.user.is_superuser:
+            queryset = queryset.filter(selling_point=request.user.vendeur.selling_point)
         serializer = DepotSerializer(queryset, many=True)
         return Response(serializer.data)
 
@@ -312,6 +315,10 @@ def fraisGeneralesGETPOST(request):
         serializer = serializers.FraisGeneralesSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             serializer.save(saisie_par=request.user)
+            frais = serializer.instance
+            caisse = frais.caisse
+            caisse.montant_frais_generales += frais.montant
+            caisse.save()
             return Response (serializer.data, status=status.HTTP_201_CREATED)
         return Response (serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -727,3 +734,46 @@ def retourClientPk(request, pk):
     elif request.method == 'DELETE':
         fiche.delete()
         return Response (status= status.HTTP_204_NO_CONTENT)
+
+
+@api_view(['GET'])
+def situationGle(request):
+    ventes = models.FicheVenteClient.objects.all()
+    total_ventes = 0
+    total_remises = 0
+    for vente in ventes:
+        total_ventes+= vente.prixTTC
+        total_remises += vente.remise
+    
+    
+    total_achats=0
+    achats = models.FicheAchatCommandeFournisseur.objects.filter(type_fiche='1')
+    for achat in achats:
+        total_achats+= achat.prixTTC
+    
+    benefice_ventes_achats = total_ventes - total_achats
+
+    retours_clients = models.RetoursClient.objects.all()
+    total_retours_clients = 0
+    for retour in retours_clients:
+        total_retours_clients += retour.montant
+    
+    retours_four = models.RetoursFournisseur.objects.all()
+    tatal_retour_four = 0
+    for retour in retours_four:
+        tatal_retour_four+=retour.montant
+    
+    
+    avaries = models.Avaries.objects.all()
+    total_avaries = 0
+    for ava in avaries:
+        total_avaries += ava.montant
+    
+
+    total_benefice = total_ventes - total_achats + tatal_retour_four - total_retours_clients - total_avaries
+
+    context = {'total_achats':total_achats, 'total_ventes': total_ventes,
+     'total_retours_clients': total_retours_clients, 'tatal_retour_four': tatal_retour_four,
+     'total_avaries': total_avaries, 'total_benefice': total_benefice}
+    return Response(context)
+

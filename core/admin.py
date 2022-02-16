@@ -1,7 +1,7 @@
 from django.contrib import admin
 from .models import (ProduitVenteClient, ProduitsRetourClient, SellingPoint, Caisse, Produit, Depot, FicheCredit,
  FicheDebit, Vendeur, Fournisseur, FicheAchatCommandeFournisseur,
- PayementFournisseur,  RetoursFournisseur, FraisGenerales, 
+ PayementFournisseur,  RetoursFournisseur, FraisGenerales, FamilleProduit, MarqueProduit,
  Client, FicheVenteClient, PayementClient, RetoursClient, ProduitAchatCommandeFournisseur, ProduitsRetourFournisseur)
 
 admin.site.register(SellingPoint)
@@ -10,6 +10,8 @@ admin.site.register(Produit)
 admin.site.register(Depot)
 admin.site.register(Vendeur)
 admin.site.register(Fournisseur)
+admin.site.register(FamilleProduit)
+admin.site.register(MarqueProduit)
 class PACFInline(admin.StackedInline):
     model = ProduitAchatCommandeFournisseur
 

@@ -39,5 +39,5 @@ urlpatterns = [
     path('payementclient_get_post', views.payementClientGETPOST, name='payementclient_get_post'),
     path('retourclient_get_post', views.retourClientGETPOST, name='retourclient_get_post'),
     path('retourclient_pk/<int:pk>', views.retourClientPk, name='retourclient_pk'),
-
+    path('situationgle', views.situationGle, name='situationgle')
 ]

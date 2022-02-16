@@ -4,6 +4,7 @@ from users.models import CustomUser as User
 from .models import (Fournisseur, PayementClient, ProduitAchatCommandeFournisseur, SellingPoint, Caisse, Produit, Depot, FicheCredit, FicheDebit, Vendeur)
 from . import models
 from .custom_serializer_field import *
+from drf_writable_nested.serializers import WritableNestedModelSerializer
 
 class SellingPointSerializer(serializers.ModelSerializer):
     class Meta:
@@ -20,10 +21,10 @@ class CaisseSerializer(serializers.ModelSerializer):
         fields = ['selling_point', 'nom', 'caisse', 'wilaya',
          'ville', 'solde', 'montant_achats_four', 'montant_retour_four',
           'montant_pay_four', 'montant_vente_client', 'montant_retour_client',
-          'montant_credit', 'montant_pay_client', 'montant_debit', 'montant_frais_generales']
+          'montant_credit', 'montant_pay_client', 'montant_debit', 'montant_frais_generales', 'somme']
         read_only_fields = ['montant_achats_four', 'montant_retour_four',
           'montant_pay_four', 'montant_vente_client', 'montant_retour_client',
-          'montant_credit', 'montant_pay_client', 'montant_debit', 'montant_frais_generales']
+          'montant_credit', 'montant_pay_client', 'montant_debit', 'montant_frais_generales', 'somme']
         depth = 1
 
 
@@ -176,7 +177,7 @@ class ProduitAchatCommandeFournisseurSerializer(serializers.ModelSerializer):
         fields = ['depot', 'produit', 'quantite', 'numero_lot', 'date_de_fabrication',
         'date_dexpiration', 'unit', 'prix', 'qtteAct']
 
-class FicheACFournisseurSerializer(serializers.ModelSerializer):
+class FicheACFournisseurSerializer(WritableNestedModelSerializer):
     produits = ProduitAchatCommandeFournisseurSerializer(many=True)
     selling_point = SellingPointCustomRelationQueryset(
     slug_field='id', required=False)
@@ -218,9 +219,37 @@ class FicheACFournisseurSerializer(serializers.ModelSerializer):
                     raise serializers.ValidationError({'produit': 'that product does not exist'})
         fiche = models.FicheAchatCommandeFournisseur.objects.create(**validated_data)
         for produit_data in produits_data:
-            models.ProduitAchatCommandeFournisseur.objects.create(vente=fiche, **produit_data)
+            models.ProduitAchatCommandeFournisseur.objects.create(achat=fiche, **produit_data)
         return fiche
     
+    # def update(self, instance, validated_data):
+    #     instance.type_fiche = validated_data.get('type_fiche', instance.type_fiche)
+    #     instance.selling_point = validated_data.get('selling_point', instance.selling_point)
+    #     instance.fournisseur = validated_data.get('fournisseur', instance.fournisseur)
+    #     instance.action = validated_data.get('action', instance.action)
+    #     instance.numero = validated_data.get('numero', instance.numero)
+    #     instance.date = validated_data.get('date', instance.date)
+    #     instance.montantregfour = validated_data.get('montantregfour', instance.montantregfour)
+    #     instance.caisse = validated_data.get('caisse', instance.caisse)
+    #     instance.observation = validated_data.get('observation', instance.observation)
+    #     instance.TVA = validated_data.get('TVA', instance.TVA)
+    #     instance.timbre = validated_data.get('timbre', instance.timbre)
+    #     instance.remise = validated_data.get('remise', instance.remise)
+
+    #     produits_data = validated_data.pop('produits')
+    #     request = self.context.get('request', None)
+    #     for produit_data in produits_data:
+    #         if not request.user.is_superuser:
+    #             if produit_data['produit'] not in Produit.objects.filter(selling_point=request.user.vendeur.selling_point):
+    #                 raise serializers.ValidationError({'produit': 'that product does not exist'})
+        
+    #     for produit_data in produits_data:
+    #         instance.produits.produit_data = validated_data.get(produit_data['produit'], instance.produits.produit_data)
+            
+
+    #     return instance
+    
+
     def validate(self, data):
         """
         Check that start is before finish.
