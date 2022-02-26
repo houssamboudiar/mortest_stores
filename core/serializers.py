@@ -9,7 +9,7 @@ from drf_writable_nested.serializers import WritableNestedModelSerializer
 class SellingPointSerializer(serializers.ModelSerializer):
     class Meta:
         model = SellingPoint
-        fields = ['name', 'societé', 'adress', 'wilaya',
+        fields = ['id', 'name', 'societé', 'adress', 'wilaya',
         'ville', 'telephone', 'fax', 'email', 'articles_dimposition']
 
 
@@ -18,7 +18,7 @@ class CaisseSerializer(serializers.ModelSerializer):
     slug_field='id')
     class Meta:
         model = Caisse
-        fields = ['selling_point', 'nom', 'caisse', 'wilaya',
+        fields = ['id', 'selling_point', 'nom', 'caisse', 'wilaya',
          'ville', 'solde', 'montant_achats_four', 'montant_retour_four',
           'montant_pay_four', 'montant_vente_client', 'montant_retour_client',
           'montant_credit', 'montant_pay_client', 'montant_debit', 'montant_frais_generales', 'somme']
@@ -30,12 +30,10 @@ class CaisseSerializer(serializers.ModelSerializer):
 
 class ProduitSerializer(serializers.ModelSerializer):
     selling_point = SellingPointCustomRelationQueryset(slug_field='id')
-    unit_choices = (('1',"m²"),('2',"m"),('3',"L"), ('4',"Kg"), ('4',"g"))
+    unit_choices = (('m²',"m²"),('m',"m"),('L',"L"), ('Kg',"Kg"), ('g',"g"))
     unit = serializers.ChoiceField(unit_choices)
-    famille_choices = (('1',"1"),('2',"2"),('3',"3"), ('4',"4"), ('4',"5"))
-    famille = serializers.ChoiceField(famille_choices)
-    marque_choices = (('1',"1"),('2',"2"),('3',"3"), ('4',"4"), ('5',"5"))
-    marque = serializers.ChoiceField(marque_choices)
+    famille = serializers.SlugRelatedField(queryset=models.FamilleProduit.objects.all(), slug_field='id')
+    marque = serializers.SlugRelatedField(queryset=models.MarqueProduit.objects.all(), slug_field='id')
     marge_vente_detail = serializers.ReadOnlyField(source='margePprixDetail')
     marge_vente_grossiste = serializers.ReadOnlyField(source='margeVenteGrossiste')
     marge_vente_revendeur = serializers.ReadOnlyField(source='margeVenteRevendeur')
@@ -44,7 +42,7 @@ class ProduitSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Produit
-        fields = ['selling_point', 'reference', 'article', 'img', 'unit',
+        fields = ['id','selling_point', 'reference', 'article', 'img', 'unit',
         'famille', 'marque', 'prix_U_achat', 'prix_detail', 'prix_vente_gros',
         'prix_vente_revendeur', 'prix_vente_autre', 'stock_alerte', 
          'qtte', 'ancien_prix', 'marge_vente_detail', 
@@ -63,7 +61,7 @@ class AvariesSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Avaries
-        fields = ['selling_point', 'produit', 'caisse', 'qtte', 'depoot',
+        fields = ['id','selling_point', 'produit', 'qtte', 'depoot',
         'prix_prod']
         depth = 1
 
@@ -76,14 +74,15 @@ class DepotSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Depot
-        fields = ['selling_point', 'produits', 'nom', 'adresse']
+        fields = ['id','selling_point', 'produits', 'nom', 'adresse']
         depth = 1
 
 
 class FicheCreditSerializer(serializers.ModelSerializer):
+    selling_point = SellingPointCustomRelationQueryset(slug_field='id')
     caisse = CaisseCustomRelationField(
     slug_field='id')
-    reglement_choices=(('1',"A terme"),('2',"Espece"),('3',"Virement"), ('4',"chèque"),)
+    reglement_choices=(('A terme',"A terme"),('Espece',"Espece"),('Virement',"Virement"), ('chèque',"chèque"),)
     reglement=serializers.ChoiceField(choices=reglement_choices)
     montant_tva = serializers.ReadOnlyField(source='montantTVA')
     prix_ttc = serializers.ReadOnlyField(source='prixTTC')
@@ -91,7 +90,7 @@ class FicheCreditSerializer(serializers.ModelSerializer):
     # slug_field='id')
     class Meta:
         model = FicheCredit
-        fields = ['date', 'montant', 'TVA', 'reglement', 'caisse',
+        fields = ['id', 'selling_point', 'date', 'montant', 'TVA', 'reglement', 'caisse',
         'observ', 'saisie_le', 'modilfié_le', 'saisie_par', 'modifie_par', 'montant_tva', 'prix_ttc']
         # depth = 1
         read_only_fields = ['date', 'saisie_le', 'modilfié_le', 'saisie_par']
@@ -100,7 +99,7 @@ class FicheCreditSerializer(serializers.ModelSerializer):
 class FicheDebitSerializer(serializers.ModelSerializer):
     caisse = CaisseCustomRelationField(
     slug_field='id')
-    reglement_choices=(('1',"A terme"),('2',"Espece"),('3',"Virement"), ('4',"chèque"),)
+    reglement_choices=(('A terme',"A terme"),('Espece',"Espece"),('Virement',"Virement"), ('chèque',"chèque"),)
     reglement=serializers.ChoiceField(choices=reglement_choices)
     montant_tva = serializers.ReadOnlyField(source='montantTVA')
     prix_ttc = serializers.ReadOnlyField(source='prixTTC')
@@ -108,7 +107,7 @@ class FicheDebitSerializer(serializers.ModelSerializer):
     # slug_field='id')
     class Meta:
         model = FicheDebit
-        fields = ['date', 'montant', 'TVA', 'reglement', 'caisse',
+        fields = ['id', 'date', 'montant', 'TVA', 'reglement', 'caisse',
         'observ', 'saisie_le', 'modilfié_le', 'saisie_par', 'modifie_par', 'montant_tva', 'prix_ttc']
         # depth = 1
         read_only_fields = ['date', 'saisie_le', 'modilfié_le', 'saisie_par']
@@ -121,7 +120,7 @@ class FraisGeneralesSerializer(serializers.ModelSerializer):
     slug_field='id')
     type_data=(('1',"type1"),('2',"type2"),('3',"type3"), ('4',"type4"),)
     type=serializers.ChoiceField(default=1,choices=type_data)
-    reglement_choices=(('1',"A terme"),('2',"Espece"),('3',"Virement"), ('4',"chèque"),)
+    reglement_choices=(('A terme',"A terme"),('Espece',"Espece"),('Virement',"Virement"), ('chèque',"chèque"),)
     reglement=serializers.ChoiceField(choices=reglement_choices)
     montant_tva = serializers.ReadOnlyField(source='montantTVA')
     prix_ttc = serializers.ReadOnlyField(source='prixTTC')
@@ -129,7 +128,7 @@ class FraisGeneralesSerializer(serializers.ModelSerializer):
     # slug_field='id')
     class Meta:
         model = models.FraisGenerales
-        fields = ['selling_point', 'number', 'date', 'type', 'caisse', 'montant',
+        fields = ['id','selling_point', 'number', 'date', 'type', 'caisse', 'montant',
         'observation', 'saisie_le', 'modilfié_le', 'saisie_par', 'modifie_par', 'montant_tva',
          'prix_ttc', 'montant', 'timbre', 'reglement']
         # depth = 1
@@ -142,7 +141,7 @@ class VendeurSerializer(serializers.ModelSerializer):
     slug_field='id')
     class Meta:
         model = Vendeur
-        fields = ['selling_point', 'name', 'last_name', 'img',
+        fields = ['id','selling_point', 'name', 'last_name', 'img',
         'identity_num', 'admin', 'phone_number_1', 'phone_number_2',
          'family_situation', 'adress']
         depth = 1
@@ -151,11 +150,11 @@ class VendeurSerializer(serializers.ModelSerializer):
 class FournisseurSerializer(serializers.ModelSerializer):
     selling_point = SellingPointCustomRelationQueryset(
     slug_field='id')
-    etat_civile_data=(('1',"M."),('2',"Mme"),('3',"SARL"), ('4',"EURL"), ('5',"ETS"), ('5',"autre"),)
+    etat_civile_data=(('M.',"M."),('Mme',"Mme"),('SARL',"SARL"), ('EURL',"EURL"), ('ETS',"ETS"), ('autre',"autre"),)
     etat_civile=serializers.ChoiceField(default='1', choices=etat_civile_data)
     class Meta:
         model = Fournisseur
-        fields = ['selling_point', 'etat_civile', 'name',
+        fields = ['id','selling_point', 'etat_civile', 'name',
         'telephone', 'phone_number', 'fax', 'email', 'NRC', 'NIS',
         'RIB', 'solde', 'wilaya', 'ville', 'adresse']
         depth = 1
@@ -167,14 +166,14 @@ class ProduitAchatCommandeFournisseurSerializer(serializers.ModelSerializer):
     depot = DepotCustomRelationField(slug_field='id')
     date_de_fabrication = serializers.DateField()
     date_dexpiration = serializers.DateField()
-    unit_choices = (('1',"m²"),('2',"m"),('3',"L"), ('4',"Kg"), ('4',"g"))
+    unit_choices = (('m²',"m²"),('m',"m"),('L',"L"), ('Kg',"Kg"), ('g',"g"))
     unit = serializers.ChoiceField(unit_choices)
     prix = serializers.ReadOnlyField(source='prixProduit')
     qtteAct = serializers.ReadOnlyField(source='qtteActProduit')
 
     class Meta:
         model = models.ProduitAchatCommandeFournisseur
-        fields = ['depot', 'produit', 'quantite', 'numero_lot', 'date_de_fabrication',
+        fields = ['id','depot', 'produit', 'quantite', 'numero_lot', 'date_de_fabrication',
         'date_dexpiration', 'unit', 'prix', 'qtteAct']
 
 class FicheACFournisseurSerializer(WritableNestedModelSerializer):
@@ -183,9 +182,9 @@ class FicheACFournisseurSerializer(WritableNestedModelSerializer):
     slug_field='id', required=False)
     # type_fiche_choices = (('1',"Achat"),('2',"Commande"))
     # type_fiche=serializers.ChoiceField(default=1,choices=type_fiche_choices)
-    action_choices=(('1',"facture"),('2',"bon"),('3',"bon de commande"),)
+    action_choices=(('facture',"facture"),('bon',"bon"),('bon de commande',"bon de commande"),)
     action=serializers.ChoiceField(default=1,choices=action_choices)
-    reglement_choices=(('1',"A terme"),('2',"Espece"),('3',"Virement"), ('4',"chèque"),)
+    reglement_choices=(('A terme',"A terme"),('Espece',"Espece"),('Virement',"Virement"), ('chèque',"chèque"),)
     mode_reglement=serializers.ChoiceField(default=1,choices=reglement_choices)
     fournisseur = serializers.SlugRelatedField(queryset=models.Fournisseur.objects.all(),
     slug_field='id')
@@ -202,7 +201,7 @@ class FicheACFournisseurSerializer(WritableNestedModelSerializer):
 
     class Meta:
         model = models.FicheAchatCommandeFournisseur
-        fields = ['type_fiche', 'produits','selling_point', 'fournisseur',
+        fields = ['id','type_fiche', 'produits','selling_point', 'fournisseur',
         'saisie_le', 'modilfié_le', 'saisie_par', 'modifie_par', 'action',
          'numero', 'date', 'montantregfour', 'mode_reglement',
          'caisse', 'observation', 'totalachats', 'TVA', 'timbre', 'remise', 'montanttva', 'montantremise', 'prixttc']
@@ -267,22 +266,25 @@ class PayementFournisseurSerializer(serializers.ModelSerializer):
     fournisseur = serializers.SlugRelatedField(queryset=Fournisseur.objects.all(),
      slug_field='id')
     achat = AchatCustomRelationField(slug_field='id')
-    reglement_data=(('1',"A terme"),('2',"Espece"),('3',"Virement"), ('4',"chèque"),)
+    reglement_data=(('A terme',"A terme"),('Espece',"Espece"),('Virement',"Virement"), ('chèque',"chèque"),)
     reglement=serializers.ChoiceField(default=1,choices=reglement_data)
     caisse = CaisseCustomRelationField(
     slug_field='id')
+    # date = serializers.DateField()
     class Meta:
-        model = Fournisseur
-        fields = ['selling_point', 'date', 'fournisseur',
+        model = models.PayementFournisseur
+        fields = ['id','selling_point', 'date', 'fournisseur',
         'saisie_le', 'modilfié_le', 'saisie_par', 'modifie_par',
-         'achat', 'montant', 'solde', 'reglement', 'caisse', 'observation']
+         'achat', 'montant', 'reglement', 'caisse', 'observation']
+
         read_only_fields = ['saisie_le', 'modilfié_le', 'saisie_par', 'modifie_par']
-        depth = 1
+        # depth = 1
     
-    def validate(self, data):
-        if data['montant'] > data['fournisseur'].solde:
-            raise serializers.ValidationError({'montant':'montant is bigger than solde'})
-        return data
+    # def validate(self, data):
+    #     mont = data['montant']
+    #     if mont > data['fournisseur'].solde:
+    #         raise serializers.ValidationError({'mont':'montant is bigger than solde'})
+    #     return data
 
 class ProduitRetourFournisseurSerializer(serializers.ModelSerializer):
     produit = ProduitCustomRelationField(slug_field='id')
@@ -290,16 +292,16 @@ class ProduitRetourFournisseurSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.ProduitsRetourFournisseur
-        fields = ['quantite_retour', 'produit']
+        fields = ['id','quantite_retour', 'produit']
 
-class RetorFournisseurSerializer(serializers.ModelSerializer):
+class RetoursFournisseurSerializer(WritableNestedModelSerializer):
     produits = ProduitRetourFournisseurSerializer(many=True)
     selling_point = SellingPointCustomRelationQueryset(
     slug_field='id')
     achat = AchatCustomRelationField(slug_field='id')
     # type_fiche_choices = (('1',"Achat"),('2',"Commande"))
     # type_fiche=serializers.ChoiceField(default=1,choices=type_fiche_choices)
-    reglement_choices=(('1',"A terme"),('2',"Espece"),('3',"Virement"), ('4',"chèque"),)
+    reglement_choices=(('A terme',"A terme"),('Espece',"Espece"),('Virement',"Virement"), ('chèque',"chèque"),)
     reglement=serializers.ChoiceField(default=1,choices=reglement_choices)
     fournisseur = serializers.SlugRelatedField(queryset=models.Fournisseur.objects.all(),
     slug_field='id')
@@ -314,7 +316,7 @@ class RetorFournisseurSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.RetoursFournisseur
-        fields = ['produits','selling_point', 'fournisseur', 'achat',
+        fields = ['id','produits','selling_point', 'fournisseur', 'achat',
         'saisie_le', 'modilfié_le', 'saisie_par', 'modifie_par', 'date', 'reglement',
          'caisse', 'observation', 'montant_retour']
         
@@ -365,7 +367,7 @@ class ClientSerializer(serializers.ModelSerializer):
     slug_field='id')
     class Meta:
         model = Vendeur
-        fields = ['selling_point', 'numero', 'etat_civile', 'nom',
+        fields = ['id','selling_point', 'numero', 'etat_civile', 'nom',
         'type', 'telephone', 'phone_number', 'email',
          'numero_rc', 'NRC', 'NIS', 'RIB', 'solde', 'wilaya',
          'ville', 'adress', 'saisie_le', 'modilfié_le', 'saisie_par']
@@ -380,20 +382,20 @@ class ProduitVenteClientSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.ProduitVenteClient
-        fields = ['depot', 'produit', 'quantite', 'numero_lot', 
+        fields = ['id','depot', 'produit', 'quantite', 'numero_lot', 
          'prix', 'qtteAct']
 
-class FicheVenteSerializer(serializers.ModelSerializer):
+class FicheVenteSerializer(WritableNestedModelSerializer):
     produits = ProduitVenteClientSerializer(many=True)
     selling_point = SellingPointCustomRelationQueryset(
     slug_field='id', required=False)
     # type_fiche_choices = (('1',"Achat"),('2',"Commande"))
     # type_fiche=serializers.ChoiceField(default=1,choices=type_fiche_choices)
-    action_choices=(('1',"Bon de livraison"),('2',"Facture"),('2',"BL sans montant"),('2',"Facture proformat"),)
+    action_choices=(('Bon de livraison',"Bon de livraison"),('Facture',"Facture"),('BL sans montant',"BL sans montant"),('Facture proformat',"Facture proformat"))
     type_fiche=serializers.ChoiceField(default=1,choices=action_choices)
-    type_choices=(('détaillant',"détaillant"),('grossiste',"grossiste"),('revendeur',"revendeur"),('autre',"autre"),)
+    type_choices=(('Détaillant',"Détaillant"),('Grossiste',"Grossiste"),('Revendeur',"Revendeur"), ('autre',"autre"),)
     type_client=serializers.ChoiceField(default=1,choices=type_choices)
-    reglement_choices=(('1',"A terme"),('2',"Espece"),('3',"Virement"), ('4',"chèque"),)
+    reglement_choices=(('A terme',"A terme"),('Espece',"Espece"),('Virement',"Virement"), ('chèque',"chèque"),)
     mode_reglement=serializers.ChoiceField(default=1,choices=reglement_choices)
     client = ClientCustomRelationField(queryset=models.Fournisseur.objects.all(),
     slug_field='id')
@@ -410,7 +412,7 @@ class FicheVenteSerializer(serializers.ModelSerializer):
     reste_a_payer = serializers.SerializerMethodField()
     class Meta:
         model = models.FicheVenteClient
-        fields = ['type_fiche', 'produits','selling_point', 'client', 'type_client',
+        fields = ['id','type_fiche', 'produits','selling_point', 'client', 'type_client',
         'saisie_le', 'modilfié_le', 'saisie_par', 'modifie_par', 'reste_a_payer',
          'numero', 'date', 'montant_reg_client', 'mode_reglement',
          'caisse', 'observation', 'totalachats', 'TVA', 'timbre',
@@ -451,14 +453,14 @@ class PayementClientSerializer(serializers.ModelSerializer):
     client = ClientCustomRelationField(
      slug_field='id')
     achat = AchatCustomRelationField(slug_field='id')
-    reglement_data=(('1',"A terme"),('2',"Espece"),('3',"Virement"), ('4',"chèque"),)
+    reglement_data=(('A terme',"A terme"),('Espece',"Espece"),('Virement',"Virement"), ('chèque',"chèque"),)
     reglement=serializers.ChoiceField(default=1,choices=reglement_data)
     caisse = CaisseCustomRelationField(
     slug_field='id')
     # client_solde = serializers.SerializerMethodField()
     class Meta:
         model = PayementClient
-        fields = ['selling_point', 'date', 'client',
+        fields = ['id','selling_point', 'date', 'client',
         'saisie_le', 'modilfié_le', 'saisie_par', 'modifie_par',
          'achat', 'montant', 'reglement', 'caisse', 'observation']
         read_only_fields = ['saisie_le', 'modilfié_le', 'saisie_par', 'modifie_par']
@@ -484,17 +486,17 @@ class ProduitRetourClientSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.ProduitsRetourClient
-        fields = ['quantite_retour', 'produit']
+        fields = ['id','quantite_retour', 'produit']
 
 
-class RetorClientSerializer(serializers.ModelSerializer):
+class RetoursClientSerializer(WritableNestedModelSerializer):
     produits = ProduitRetourClientSerializer(many=True)
     selling_point = SellingPointCustomRelationQueryset(
     slug_field='id')
     vente = VenteCustomRelationField(slug_field='id')
     # type_fiche_choices = (('1',"Achat"),('2',"Commande"))
     # type_fiche=serializers.ChoiceField(default=1,choices=type_fiche_choices)
-    reglement_choices=(('1',"A terme"),('2',"Espece"),('3',"Virement"), ('4',"chèque"),)
+    reglement_choices=(('A terme',"A terme"),('Espece',"Espece"),('Virement',"Virement"), ('chèque',"chèque"),)
     reglement=serializers.ChoiceField(default=1,choices=reglement_choices)
     client = ClientCustomRelationField(
     slug_field='id')
@@ -509,7 +511,7 @@ class RetorClientSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.RetoursClient
-        fields = ['produits','selling_point', 'client', 'vente',
+        fields = ['id','produits','selling_point', 'client', 'vente',
         'saisie_le', 'modilfié_le', 'saisie_par', 'modifie_par', 'date', 'reglement',
          'caisse', 'observation', 'montant_retour']
         

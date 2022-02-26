@@ -11,7 +11,7 @@ class CustomUser(AbstractUser):
     user_type = models.CharField(default='2',choices=user_type_data,max_length=10)
     REQUIRED_FIELDS = []
     objects = CustomUserManager()
-    date_of_birth = models.DateField(blank=True, null=True)
+    # date_of_birth = models.DateField(blank=True, null=True)
     
     def __str__(self) -> str:
         return f'{self.username}'

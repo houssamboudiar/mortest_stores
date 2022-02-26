@@ -24,8 +24,8 @@ class SellingPoint(models.Model):
 
 class Caisse(models.Model):
     selling_point = models.ForeignKey(SellingPoint, on_delete=models.CASCADE, related_name='selling_point_caisse')
-    caisse_data=(('1',"principale"),('2',"secondaire"))
-    caisse=models.CharField(default=1,choices=caisse_data,max_length=10)
+    caisse_data=(('principale',"principale"),('secondaire',"secondaire"))
+    caisse=models.CharField(default=1,choices=caisse_data,max_length=20)
     nom = models.CharField(max_length=50)
     wilaya = models.CharField(max_length=50)
     ville = models.CharField(max_length=50)
@@ -68,8 +68,8 @@ class Produit(models.Model):
     reference = models.CharField(max_length=200)
     article = models.TextField(max_length=200)
     img = models.ImageField( null=True, blank=True, upload_to="images/produits/")
-    unit_data = (('1',"m²"),('2',"m"),('3',"L"), ('4',"Kg"), ('4',"g"))
-    unit=models.CharField(default=1,choices=unit_data,max_length=10)
+    unit_data = (('m²',"m²"),('m',"m"),('L',"L"), ('Kg',"Kg"), ('g',"g"))
+    unit=models.CharField(default=1,choices=unit_data,max_length=20)
     # famille_data = (('1',"1"),('2',"2"),('3',"3"), ('4',"4"), ('4',"5"))
     # famille = models.CharField(choices=famille_data,max_length=20, default=1)
     famille = models.ForeignKey(FamilleProduit, on_delete=models.CASCADE, default=1)
@@ -155,8 +155,8 @@ class FicheCredit(models.Model):
             MaxValueValidator(100),
             MinValueValidator(0)
         ], max_digits=5, decimal_places=2)
-    reglement_data=(('1',"A terme"),('2',"Espece"),('3',"Virement"), ('4',"chèque"),)
-    reglement=models.CharField(default=1,choices=reglement_data,max_length=10)
+    reglement_data=(('A terme',"A terme"),('Espece',"Espece"),('Virement',"Virement"), ('chèque',"chèque"),)
+    reglement=models.CharField(default='Espece',choices=reglement_data,max_length=20)
     caisse = models.ForeignKey(Caisse, on_delete=models.CASCADE)
     observ = models.TextField(max_length=500)
     saisie_le = models.DateField(auto_now_add=True)
@@ -183,8 +183,8 @@ class FicheDebit(models.Model):
             MaxValueValidator(100),
             MinValueValidator(0)
         ], max_digits=5, decimal_places=2)
-    reglement_data=(('1',"A terme"),('2',"Espece"),('3',"Virement"), ('4',"chèque"),)
-    reglement=models.CharField(default=1,choices=reglement_data,max_length=10)
+    reglement_data=(('A terme',"A terme"),('Espece',"Espece"),('Virement',"Virement"), ('chèque',"chèque"),)
+    reglement=models.CharField(default='Espece',choices=reglement_data,max_length=20)
     caisse = models.ForeignKey(Caisse, on_delete=models.CASCADE)
     observ = models.TextField(max_length=500)
     saisie_le = models.DateField(auto_now_add=True)
@@ -210,7 +210,7 @@ class Vendeur(models.Model):
     last_name = models.CharField(max_length=50, null=True, blank=True)
     img = models.ImageField( null=True, blank=True, upload_to="images/produits/")
     adress = models.CharField(max_length=100, null=True, blank=True)
-    identity_num = models.PositiveBigIntegerField(null=True, blank=True)
+    identity_num = models.PositiveBigIntegerField(null=True, blank=True, unique=True)
     admin = models.OneToOneField(User, on_delete=models.CASCADE)
     phone_number_1 = models.PositiveBigIntegerField(null=True, blank=True)
     phone_number_2= models.PositiveBigIntegerField(blank=True, null=True)
@@ -219,7 +219,7 @@ class Vendeur(models.Model):
     name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
     adress = models.CharField(max_length=100)
-    identity_num = models.BigIntegerField()
+    identity_num = models.BigIntegerField(unique=True)
     admin = models.OneToOneField(User, on_delete=models.CASCADE,default=1111)
     phone_number_1 = models.IntegerField()
     phone_number_2= models.IntegerField(blank=True, null=True)
@@ -241,8 +241,8 @@ class FraisGenerales(models.Model):
         ], max_digits=10, decimal_places=2)
     
     timbre = models.DecimalField(default=0, max_digits=10, decimal_places=2)
-    reglement_data=(('1',"A terme"),('2',"Espece"),('3',"Virement"), ('4',"chèque"),)
-    reglement=models.CharField(default=1,choices=reglement_data,max_length=10)
+    reglement_data=(('A terme',"A terme"),('Espece',"Espece"),('Virement',"Virement"), ('chèque',"chèque"),)
+    reglement=models.CharField(default='Espece',choices=reglement_data,max_length=20)
     saisie_le = models.DateField(auto_now_add=True)
     modilfié_le = models.DateField(auto_now=True)
     saisie_par = models.ForeignKey(User, on_delete=models.CASCADE, related_name='saisie_par_fg')
@@ -267,8 +267,8 @@ class FraisGenerales(models.Model):
 
 
 class Fournisseur(models.Model):
-    etat_civile_data=(('1',"M."),('2',"Mme"),('3',"SARL"), ('4',"EURL"), ('5',"ETS"), ('5',"autre"),)
-    etat_civile=models.CharField(default=1,choices=etat_civile_data,max_length=10)
+    etat_civile_data=(('M.',"M."),('Mme',"Mme"),('SARL',"SARL"), ('EURL',"EURL"), ('ETS',"ETS"), ('autre',"autre"),)
+    etat_civile=models.CharField(default='M.',choices=etat_civile_data,max_length=20)
     name = models.CharField(max_length=50)
     telephone = models.IntegerField( blank=True, null=True)
     phone_number = models.IntegerField(blank=True, null=True)
@@ -288,7 +288,7 @@ class Fournisseur(models.Model):
 
 
 class FicheAchatCommandeFournisseur(models.Model):
-    type_fiche_data = (('1',"Achat"),('2',"Commande"))
+    type_fiche_data = (('Achat',"Achat"),('Commande',"Commande"))
     type_fiche=models.CharField(default=1,choices=type_fiche_data,max_length=10)
     selling_point = models.ForeignKey(SellingPoint, on_delete=models.PROTECT, default=1)
     fournisseur = models.ForeignKey(Fournisseur, on_delete=models.PROTECT, default=1)
@@ -296,8 +296,8 @@ class FicheAchatCommandeFournisseur(models.Model):
     modilfié_le = models.DateField(auto_now=True)
     saisie_par = models.ForeignKey(User, on_delete=models.CASCADE,default=1111, related_name='saisie_par_fac')
     modifie_par = models.ForeignKey(User, on_delete=models.CASCADE,default=1111, null=True, related_name='modifie_par_fac')
-    action_data=(('1',"facture"),('2',"bon"),('3',"bon de commande"),)
-    action=models.CharField(default=1,choices=action_data,max_length=10)
+    action_data=(('facture',"facture"),('bon',"bon"),('bon de commande',"bon de commande"),)
+    action=models.CharField(default=1,choices=action_data,max_length=30)
     numero = models.IntegerField()
     # code = models.IntegerField()
     date = models.DateField(auto_now=True)
@@ -307,8 +307,8 @@ class FicheAchatCommandeFournisseur(models.Model):
 
     # Reglement fournisseur
     montantregfour = models.DecimalField(max_digits=10, decimal_places=2)
-    reglement_data=(('1',"A terme"),('2',"Espece"),('3',"Virement"), ('4',"chèque"),)
-    mode_reglement=models.CharField(default=1,choices=reglement_data,max_length=10)
+    reglement_data=(('A terme',"A terme"),('Espece',"Espece"),('Virement',"Virement"), ('chèque',"chèque"),)
+    mode_reglement=models.CharField(default='Espece',choices=reglement_data,max_length=20)
     caisse = models.ForeignKey(Caisse, on_delete=models.CASCADE)
     observation = models.TextField(max_length=500)
 
@@ -364,8 +364,8 @@ class ProduitAchatCommandeFournisseur(models.Model):
     numero_lot = models.IntegerField()
     date_de_fabrication = models.DateField()
     date_dexpiration = models.DateField()
-    unit_choices = (('1',"m²"),('2',"m"),('3',"L"), ('4',"Kg"), ('4',"g"))
-    unit = models.CharField(choices=unit_choices, max_length=10)
+    unit_choices = (('m²',"m²"),('m',"m"),('L',"L"), ('Kg',"Kg"), ('g',"g"))
+    unit = models.CharField(choices=unit_choices, max_length=20, default='Kg')
     #ajouter qtt stock actuel
 
     @property
@@ -388,9 +388,9 @@ class PayementFournisseur(models.Model):
     modifie_par = models.ForeignKey(User, on_delete=models.CASCADE, null=True, related_name='modifie_par_pf')
 
     achat = models.ForeignKey(FicheAchatCommandeFournisseur, on_delete=models.CASCADE)
-    montant = models.DecimalField(max_digits=5, decimal_places=2)
-    reglement_data=(('1',"A terme"),('2',"Espece"),('3',"Virement"), ('4',"chèque"),)
-    reglement=models.CharField(default=1,choices=reglement_data,max_length=10)
+    montant = models.DecimalField(max_digits=10, decimal_places=2)
+    reglement_data=(('A terme',"A terme"),('Espece',"Espece"),('Virement',"Virement"), ('chèque',"chèque"),)
+    reglement=models.CharField(default=1,choices=reglement_data,max_length=20)
     caisse = models.ForeignKey(Caisse, on_delete=models.CASCADE)
     observation = models.TextField(max_length=500)
     def __str__(self) -> str:
@@ -407,8 +407,8 @@ class RetoursFournisseur(models.Model):
     # qtte_retour = models.DecimalField(max_digits=10, decimal_places=2)
     # depot = models.ForeignKey(Depot, on_delete=models.CASCADE)
     # montant = models.DecimalField(max_digits=10, decimal_places=2) becomes a function
-    reglement_data=(('1',"A terme"),('2',"Espece"),('3',"Virement"), ('4',"chèque"),)
-    reglement=models.CharField(default=1,choices=reglement_data,max_length=10)
+    reglement_data=(('A terme',"A terme"),('Espece',"Espece"),('Virement',"Virement"), ('chèque',"chèque"),)
+    reglement=models.CharField(default=1,choices=reglement_data,max_length=20)
     caisse = models.ForeignKey(Caisse, on_delete=models.CASCADE)
     observation = models.TextField(max_length=500)
     saisie_le = models.DateField(auto_now_add=True)
@@ -447,11 +447,11 @@ class ProduitsRetourFournisseur(models.Model):
 class Client(models.Model):
     selling_point = models.ForeignKey(SellingPoint, on_delete=models.CASCADE)
     numero = models.PositiveIntegerField()
-    etat_civile_data=(('1',"M."),('2',"Mme"),('3',"SARL"), ('4',"EURL"), ('5',"ETS"), ('5',"autre"),)
-    etat_civile=models.CharField(default=1,choices=etat_civile_data,max_length=10)
+    etat_civile_data=(('M.',"M."),('Mme',"Mme"),('SARL',"SARL"), ('EURL',"EURL"), ('ETS',"ETS"), ('autre',"autre"),)
+    etat_civile=models.CharField(default=1,choices=etat_civile_data,max_length=20)
     nom = models.CharField(max_length=100)
-    type_data=(('1',"Détaillant"),('2',"Grossiste"),('3',"Revendeur"), ('5',"autre"),)
-    type=models.CharField(default=1,choices=type_data,max_length=10)
+    type_data=(('Détaillant',"Détaillant"),('Grossiste',"Grossiste"),('Revendeur',"Revendeur"), ('autre',"autre"),)
+    type=models.CharField(default=1,choices=type_data,max_length=30)
     telephone = models.IntegerField(blank=True, null=True)
     phone_number = models.IntegerField()
     email = models.EmailField(blank=True, null=True)
@@ -471,10 +471,10 @@ class Client(models.Model):
         return f'{self.etat_civile}.{self.nom}'
 
 class FicheVenteClient(models.Model):
-    type_fiche_data = (('1',"Bon de livraison"),('2',"Facture"),('2',"BL sans montant"),('2',"Facture proformat"))
-    type_fiche=models.CharField(default=1,choices=type_fiche_data,max_length=10)
+    type_fiche_data = (('Bon de livraison',"Bon de livraison"),('Facture',"Facture"),('BL sans montant',"BL sans montant"),('Facture proformat',"Facture proformat"))
+    type_fiche=models.CharField(default=1,choices=type_fiche_data,max_length=30)
     type_client_data = (('détaillant',"détaillant"),('grossiste',"grossiste"),('revendeur',"revendeur"),('autre',"autre"))
-    type_client=models.CharField(default=1,choices=type_fiche_data,max_length=10)
+    type_client=models.CharField(default=1,choices=type_fiche_data,max_length=30)
     selling_point = models.ForeignKey(SellingPoint, on_delete=models.PROTECT)
     numero = models.IntegerField()
     client = models.ForeignKey(Client, on_delete=models.PROTECT)
@@ -492,8 +492,8 @@ class FicheVenteClient(models.Model):
 
     # Reglement client
     montant_reg_client = models.DecimalField(max_digits=10, decimal_places=2)
-    reglement_data=(('1',"A terme"),('2',"Espece"),('3',"Virement"), ('4',"chèque"),)
-    mode_reglement=models.CharField(default=1,choices=reglement_data,max_length=10)
+    reglement_data=(('A terme',"A terme"),('Espece',"Espece"),('Virement',"Virement"), ('chèque',"chèque"),)
+    mode_reglement=models.CharField(default=1,choices=reglement_data,max_length=20)
     caisse = models.ForeignKey(Caisse, on_delete=models.CASCADE)
     observation = models.TextField(max_length=500)
 
@@ -576,8 +576,8 @@ class PayementClient(models.Model):
     saisie_par = models.ForeignKey(User, on_delete=models.CASCADE,default=1111, related_name='saisie_par_pc')
     achat = models.ForeignKey(FicheAchatCommandeFournisseur, on_delete=models.CASCADE)
     montant = models.DecimalField(max_digits=10, decimal_places=2)
-    reglement_data=(('1',"A terme"),('2',"Espece"),('3',"Virement"), ('4',"chèque"),)
-    reglement=models.CharField(default=1,choices=reglement_data,max_length=10)
+    reglement_data=(('A terme',"A terme"),('Espece',"Espece"),('Virement',"Virement"), ('chèque',"chèque"),)
+    reglement=models.CharField(default=1,choices=reglement_data,max_length=20)
     caisse = models.ForeignKey(Caisse, on_delete=models.CASCADE)
     observation = models.TextField(max_length=500)
 
@@ -591,8 +591,8 @@ class RetoursClient(models.Model):
     vente = models.ForeignKey(FicheVenteClient, on_delete=models.CASCADE, default=1, related_name='retours_client')
     # depot = models.ForeignKey(Depot, on_delete=models.CASCADE)
     # montant = models.DecimalField(max_digits=10, decimal_places=2)
-    reglement_data=(('1',"A terme"),('2',"Espece"),('3',"Virement"), ('4',"chèque"),)
-    reglement=models.CharField(default=1,choices=reglement_data,max_length=10)
+    reglement_data=(('A terme',"A terme"),('Espece',"Espece"),('Virement',"Virement"), ('chèque',"chèque"),)
+    reglement=models.CharField(default=1,choices=reglement_data,max_length=20)
     caisse = models.ForeignKey(Caisse, on_delete=models.CASCADE)
     observation = models.TextField(max_length=500)
     saisie_le = models.DateField(auto_now_add=True)

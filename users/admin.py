@@ -3,6 +3,7 @@ from django import forms
 from django.contrib.auth.admin import UserAdmin
 from .models import CustomUser
 from django.contrib import admin
+from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 
 class MyUserAdmin(UserAdmin):
     model = CustomUser
@@ -20,20 +21,35 @@ class UserCreationForm(forms.ModelForm):
             user.save()
         return user
 
+# class CustomUserChangeForm(UserChangeForm):
+#     """A form for updating users. Includes all the fields on
+#     the user, but replaces the password field with admin's
+#     password hash display field.
+#     """
+
+#     def __init__(self, *args, **kargs):
+#         super(CustomUserChangeForm, self).__init__(*args, **kargs)
+#         del self.fields['username']
+
+#     class Meta:
+#         model = CustomUser
+#         fields = ('username',)
 
 class CustomUserAdmin(UserAdmin):
     # The forms to add and change user instances
     add_form = UserCreationForm
+    # form = CustomUserChangeForm
     list_display = ("username",)
     ordering = ("username",)
 
     fieldsets = (
-        (None, {'fields': ('username', 'email', 'password', 'first_name', 'last_name')}),
+        (None, {'fields': ('username', 'email', 'password', 'first_name', 
+        'last_name', 'user_permissions', 'is_staff', "is_superuser")}),
         )
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('username', 'email', 'password', 'first_name', 'last_name', 'is_superuser', 'is_staff', 'is_active')}
+            'fields': ('username', 'email', 'password', 'first_name', 'last_name', 'user_permissions', 'is_superuser', 'is_staff', 'is_active')}
             ),
         )
 

@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http.response import JsonResponse
 from .models import (Depot, FicheDebit, Fournisseur, SellingPoint, Caisse, Produit, FicheCredit, Vendeur)
 from . import models
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from .serializers import (FournisseurSerializer, SellingPointSerializer, CaisseSerializer,
 ProduitSerializer, DepotSerializer, FicheCreditSerializer, FicheDebitSerializer, VendeurSerializer)
 from . import serializers
@@ -11,10 +11,13 @@ from rest_framework import status, filters
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.http import Http404
-from django.db.models import F
+from rest_framework.permissions import IsAuthenticated, IsAdminUser, DjangoModelPermissionsOrAnonReadOnly
 # Create your views here.
 
+
+
 @api_view(['GET','POST'])
+@permission_classes([IsAuthenticated, IsAdminUser])
 def sellingPointGETPOST(request):
     if request.method == 'GET':
         selling_points = SellingPoint.objects.all()
@@ -30,7 +33,10 @@ def sellingPointGETPOST(request):
             return Response (serializer.data, status=status.HTTP_201_CREATED)
         return Response (serializer.data, status=status.HTTP_400_BAD_REQUEST)
 
+
+
 @api_view(['GET','PUT', 'DELETE'])
+@permission_classes([IsAuthenticated, DjangoModelPermissionsOrAnonReadOnly])
 def sellingPointPk(request, pk):
     try:
         selling_point = SellingPoint.objects.get(id=pk)
@@ -53,6 +59,7 @@ def sellingPointPk(request, pk):
         return Response (status= status.HTTP_204_NO_CONTENT)
     
 @api_view(['GET','POST'])
+@permission_classes([IsAuthenticated, DjangoModelPermissionsOrAnonReadOnly])
 def caisseGETPOST(request):
     if request.method == 'GET':
         caisses = Caisse.objects.all()
@@ -68,6 +75,7 @@ def caisseGETPOST(request):
         return Response (serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET','PUT', 'DELETE'])
+@permission_classes([IsAuthenticated, DjangoModelPermissionsOrAnonReadOnly])
 def caissePk(request, pk):
     
     try:
@@ -91,6 +99,7 @@ def caissePk(request, pk):
         return Response (status= status.HTTP_204_NO_CONTENT)
 
 @api_view(['GET','POST'])
+@permission_classes([IsAuthenticated, DjangoModelPermissionsOrAnonReadOnly])
 def produitGETPOST(request):
     if request.method == 'GET':
         produit = Produit.objects.all()
@@ -107,6 +116,7 @@ def produitGETPOST(request):
 
 
 @api_view(['GET','PUT', 'DELETE'])
+@permission_classes([IsAuthenticated, DjangoModelPermissionsOrAnonReadOnly])
 def produitPk(request, pk):
     try:
         produit = Produit.objects.get(id=pk)
@@ -128,13 +138,14 @@ def produitPk(request, pk):
         return Response (status= status.HTTP_204_NO_CONTENT)
 
 @api_view(['GET','POST'])
+@permission_classes([IsAuthenticated, DjangoModelPermissionsOrAnonReadOnly])
 def avariesGETPOST(request):
     if request.method == 'GET':
-        ava = models.Avaries.objects.all()
+        queryset = models.Avaries.objects.all()
         if not request.user.is_superuser:
-            ava = models.Avaries.objects.filter(vendeur=request.user.vendeur)
+            queryset = models.Avaries.objects.filter(selling_point=request.user.vendeur.selling_point)
         
-        serializer = serializers.AvariesSerializer(ava, many=True)
+        serializer = serializers.AvariesSerializer(queryset, many=True)
         return Response (serializer.data)
     if request.method == 'POST':
         serializer = serializers.AvariesSerializer(data= request.data, context={'request': request})
@@ -146,6 +157,7 @@ def avariesGETPOST(request):
         return Response (serializer.data, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET','PUT', 'DELETE'])
+@permission_classes([IsAuthenticated, DjangoModelPermissionsOrAnonReadOnly])
 def avariesPk(request, pk):
     try:
         ava = models.Avaries.objects.get(id=pk)
@@ -185,6 +197,7 @@ class DepotPk(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = DepotSerializer
 
 @api_view(['GET','POST'])
+@permission_classes([IsAuthenticated, DjangoModelPermissionsOrAnonReadOnly])
 def ficheCreditGETPOST(request):
     if request.method == 'GET':
         fiche = FicheCredit.objects.all()
@@ -205,6 +218,7 @@ def ficheCreditGETPOST(request):
         return Response (serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET','PUT', 'DELETE'])
+@permission_classes([IsAuthenticated, DjangoModelPermissionsOrAnonReadOnly])
 def ficheCreditPk(request, pk):
     try:
         fiche = FicheCredit.objects.get(id=pk)
@@ -226,6 +240,7 @@ def ficheCreditPk(request, pk):
         return Response (status= status.HTTP_204_NO_CONTENT)
 
 @api_view(['GET','POST'])
+@permission_classes([IsAuthenticated, DjangoModelPermissionsOrAnonReadOnly])
 def ficheDebitGETPOST(request):
     if request.method == 'GET':
         fiche = FicheDebit.objects.all()
@@ -247,6 +262,7 @@ def ficheDebitGETPOST(request):
         return Response (serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET','PUT', 'DELETE'])
+@permission_classes([IsAuthenticated, DjangoModelPermissionsOrAnonReadOnly])
 def ficheDebitPk(request, pk):
     try:
         fiche = FicheDebit.objects.get(id=pk)
@@ -268,6 +284,7 @@ def ficheDebitPk(request, pk):
         return Response (status= status.HTTP_204_NO_CONTENT)
 
 @api_view(['GET','POST'])
+@permission_classes([IsAuthenticated, DjangoModelPermissionsOrAnonReadOnly])
 def vendeurGETPOST(request):
     if request.method == 'GET':
         vendeur = models.Vendeur.objects.all()
@@ -283,6 +300,7 @@ def vendeurGETPOST(request):
         return Response (serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET','PUT', 'DELETE'])
+@permission_classes([IsAuthenticated, DjangoModelPermissionsOrAnonReadOnly])
 def vendeurPk(request, pk):
     try:
         vendeur = models.Vendeur.objects.get(id=pk)
@@ -304,6 +322,7 @@ def vendeurPk(request, pk):
         return Response (status= status.HTTP_204_NO_CONTENT)
 
 @api_view(['GET','POST'])
+@permission_classes([IsAuthenticated, DjangoModelPermissionsOrAnonReadOnly])
 def fraisGeneralesGETPOST(request):
     if request.method == 'GET':
         frais = models.FraisGenerales.objects.all()
@@ -323,6 +342,7 @@ def fraisGeneralesGETPOST(request):
         return Response (serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET','PUT', 'DELETE'])
+@permission_classes([IsAuthenticated, DjangoModelPermissionsOrAnonReadOnly])
 def fraisGeneralesPk(request, pk):
     try:
         frais = models.FraisGenerales.objects.get(id=pk)
@@ -345,6 +365,7 @@ def fraisGeneralesPk(request, pk):
 
 
 @api_view(['GET','POST'])
+@permission_classes([IsAuthenticated, DjangoModelPermissionsOrAnonReadOnly])
 def fournisseurGETPOST(request):
     if request.method == 'GET':
         four = models.Fournisseur.objects.all()
@@ -360,6 +381,7 @@ def fournisseurGETPOST(request):
         return Response (serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET','PUT', 'DELETE'])
+@permission_classes([IsAuthenticated, DjangoModelPermissionsOrAnonReadOnly])
 def fournisseurPk(request, pk):
     try:
         four = models.Fournisseur.objects.get(id=pk)
@@ -381,9 +403,10 @@ def fournisseurPk(request, pk):
         return Response (status= status.HTTP_204_NO_CONTENT)
     
 @api_view(['GET','POST'])
+@permission_classes([IsAuthenticated, DjangoModelPermissionsOrAnonReadOnly])
 def ficheAchatFournisseurGETPOST(request):
     if request.method == 'GET':
-        fiche = models.FicheAchatCommandeFournisseur.objects.filter(type_fiche='1')
+        fiche = models.FicheAchatCommandeFournisseur.objects.filter(type_fiche='achat')
         if not request.user.is_superuser:
             fiche = models.FicheAchatCommandeFournisseur.objects.filter(type_fiche='1').filter(selling_point=request.user.vendeur.selling_point)
         serializer = serializers.FicheACFournisseurSerializer(fiche, many=True)
@@ -407,6 +430,7 @@ def ficheAchatFournisseurGETPOST(request):
         return Response (serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET','PUT', 'DELETE'])
+@permission_classes([IsAuthenticated, DjangoModelPermissionsOrAnonReadOnly])
 def ficheAchatFournisseurPk(request, pk):
     try:
         fiche = models.FicheAchatCommandeFournisseur.objects.filter(type_fiche='1').get(id=pk)
@@ -429,9 +453,10 @@ def ficheAchatFournisseurPk(request, pk):
         return Response (status= status.HTTP_204_NO_CONTENT)
 
 @api_view(['GET','POST'])
+@permission_classes([IsAuthenticated, DjangoModelPermissionsOrAnonReadOnly])
 def ficheCommandeFournisseurGETPOST(request):
     if request.method == 'GET':
-        fiche = models.FicheAchatCommandeFournisseur.objects.filter(type_fiche='2')
+        fiche = models.FicheAchatCommandeFournisseur.objects.filter(type_fiche='commande')
         if not request.user.is_superuser:
             fiche = models.FicheAchatCommandeFournisseur.objects.filter(type_fiche='2').filter(selling_point=request.user.vendeur.selling_point)
         serializer = serializers.FicheACFournisseurSerializer(fiche, many=True)
@@ -445,6 +470,7 @@ def ficheCommandeFournisseurGETPOST(request):
         return Response (serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET','PUT', 'DELETE'])
+@permission_classes([IsAuthenticated, DjangoModelPermissionsOrAnonReadOnly])
 def ficheCommandeFournisseurPk(request, pk):
     try:
         fiche = models.FicheAchatCommandeFournisseur.objects.filter(type_fiche='2').get(id=pk)
@@ -468,6 +494,7 @@ def ficheCommandeFournisseurPk(request, pk):
 
 
 @api_view(['GET','POST'])
+@permission_classes([IsAuthenticated, DjangoModelPermissionsOrAnonReadOnly])
 def payementFournisseurGETPOST(request):
     if request.method == 'GET':
         fiche = models.PayementFournisseur.objects.all()
@@ -489,6 +516,7 @@ def payementFournisseurGETPOST(request):
         return Response (serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET','PUT', 'DELETE'])
+@permission_classes([IsAuthenticated, DjangoModelPermissionsOrAnonReadOnly])
 def payementFournisseurPk(request, pk):
     try:
         fiche = models.PayementFournisseur.objects.get(id=pk)
@@ -510,6 +538,7 @@ def payementFournisseurPk(request, pk):
         return Response (status= status.HTTP_204_NO_CONTENT)
 
 @api_view(['GET','POST'])
+@permission_classes([IsAuthenticated, DjangoModelPermissionsOrAnonReadOnly])
 def retourFournisseurGETPOST(request):
     if request.method == 'GET':
         fiche = models.RetoursFournisseur.objects.all()
@@ -535,6 +564,7 @@ def retourFournisseurGETPOST(request):
         return Response (serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET','PUT', 'DELETE'])
+@permission_classes([IsAuthenticated, DjangoModelPermissionsOrAnonReadOnly])
 def retourFournisseurPk(request, pk):
     try:
         fiche = models.RetoursFournisseur.objects.get(id=pk)
@@ -558,6 +588,7 @@ def retourFournisseurPk(request, pk):
 #--------------------------------------------------CLIENT---------------------------------------
 
 @api_view(['GET','POST'])
+@permission_classes([IsAuthenticated, DjangoModelPermissionsOrAnonReadOnly])
 def clientGETPOST(request):
     if request.method == 'GET':
         client = models.Client.objects.all()
@@ -573,6 +604,7 @@ def clientGETPOST(request):
         return Response (serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET','PUT', 'DELETE'])
+@permission_classes([IsAuthenticated, DjangoModelPermissionsOrAnonReadOnly])
 def clientPk(request, pk):
     try:
         client = models.Client.objects.get(id=pk)
@@ -594,6 +626,7 @@ def clientPk(request, pk):
         return Response (status= status.HTTP_204_NO_CONTENT)
 
 @api_view(['GET','POST'])
+@permission_classes([IsAuthenticated, DjangoModelPermissionsOrAnonReadOnly])
 def venteClientGETPOST(request):
     if request.method == 'GET':
         fiche = models.FicheVenteClient.objects.all()
@@ -625,6 +658,7 @@ def venteClientGETPOST(request):
         return Response (serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET','PUT', 'DELETE'])
+@permission_classes([IsAuthenticated, DjangoModelPermissionsOrAnonReadOnly])
 def venteClientPk(request, pk):
     try:
         fiche = models.FicheVenteClient.objects.get(id=pk)
@@ -647,6 +681,7 @@ def venteClientPk(request, pk):
 
 
 @api_view(['GET','POST'])
+@permission_classes([IsAuthenticated, DjangoModelPermissionsOrAnonReadOnly])
 def payementClientGETPOST(request):
     if request.method == 'GET':
         fiche = models.PayementClient.objects.all()
@@ -670,6 +705,7 @@ def payementClientGETPOST(request):
         return Response (serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 @api_view(['GET','PUT', 'DELETE'])
+@permission_classes([IsAuthenticated, DjangoModelPermissionsOrAnonReadOnly])
 def payementClientPk(request, pk):
     try:
         fiche = models.PayementClient.objects.get(id=pk)
@@ -691,6 +727,7 @@ def payementClientPk(request, pk):
         return Response (status= status.HTTP_204_NO_CONTENT)
 
 @api_view(['GET','POST'])
+@permission_classes([IsAuthenticated, DjangoModelPermissionsOrAnonReadOnly])
 def retourClientGETPOST(request):
     if request.method == 'GET':
         fiche = models.RetoursClient.objects.all()
@@ -715,6 +752,7 @@ def retourClientGETPOST(request):
         return Response (serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET','PUT', 'DELETE'])
+@permission_classes([IsAuthenticated, DjangoModelPermissionsOrAnonReadOnly])
 def retourClientPk(request, pk):
     try:
         fiche = models.RetoursClient.objects.get(id=pk)
@@ -737,6 +775,7 @@ def retourClientPk(request, pk):
 
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated, DjangoModelPermissionsOrAnonReadOnly])
 def situationGle(request):
     ventes = models.FicheVenteClient.objects.all()
     total_ventes = 0

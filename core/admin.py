@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import (ProduitVenteClient, ProduitsRetourClient, SellingPoint, Caisse, Produit, Depot, FicheCredit,
+from .models import (Avaries, ProduitVenteClient, ProduitsRetourClient, SellingPoint, Caisse, Produit, Depot, FicheCredit,
  FicheDebit, Vendeur, Fournisseur, FicheAchatCommandeFournisseur,
  PayementFournisseur,  RetoursFournisseur, FraisGenerales, FamilleProduit, MarqueProduit,
  Client, FicheVenteClient, PayementClient, RetoursClient, ProduitAchatCommandeFournisseur, ProduitsRetourFournisseur)
@@ -48,7 +48,7 @@ admin.site.register(PayementClient)
 admin.site.register(FraisGenerales)
 admin.site.register(FicheDebit)
 admin.site.register(FicheCredit)
-
+admin.site.register(Avaries)
 
 
 
