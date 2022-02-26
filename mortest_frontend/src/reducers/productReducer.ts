@@ -1,5 +1,5 @@
 // Import Reducer type
-import { Reducer } from 'redux';
+import { AnyAction, Reducer } from 'redux';
 import { ProductActions, ProductActionTypes} from '../actions/productActions';
 
 // Define the Character type
@@ -26,20 +26,18 @@ export interface IProduct {
     marge_vente_autre: number
 }
 
-
 // Define the Character State
 export interface IProductState {
   readonly products: IProduct[];
 }
 
 // Define the initial state
-const initialCharacterState: IProductState = {
+const initialProductState: IProductState = {
     products: [],
 };
 
-export const productReducer: Reducer<IProductState, ProductActions> = (
-  state = initialCharacterState,
-  action
+export const productReducer: Reducer<IProductState, AnyAction> = (
+  state = initialProductState, action: any 
 ) => {
   switch (action.type) {
     case ProductActionTypes.GET_ALL_PRODUCTS: {
