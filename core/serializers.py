@@ -6,6 +6,9 @@ from . import models
 from .custom_serializer_field import *
 from drf_writable_nested.serializers import WritableNestedModelSerializer
 
+#---------------------------------------------- SELLING POINT ---------------------------------------------------
+
+
 class SellingPointSerializer(serializers.ModelSerializer):
     class Meta:
         model = SellingPoint
@@ -145,6 +148,9 @@ class VendeurSerializer(serializers.ModelSerializer):
         'identity_num', 'admin', 'phone_number_1', 'phone_number_2',
          'family_situation', 'adress']
         depth = 1
+
+
+#-------------------------------------------------FOURNISSEUR-------------------------------------------------------
 
 
 class FournisseurSerializer(serializers.ModelSerializer):
@@ -567,3 +573,23 @@ class RetoursClientSerializer(WritableNestedModelSerializer):
             if prod['quantite_retour'] <= 0:
                 raise serializers.ValidationError({'produit': 'you cant return 0 quantity'})
         return data
+
+
+#-----------------------------------------------TRANSPORT------------------------------------------
+
+
+class TransporteurSerializer(serializers.ModelSerializer):
+    selling_point = SellingPointCustomRelationQueryset(
+    slug_field='id')
+
+    class Meta:
+        model = models.Transporteur
+        fields = ['id', 'selling_point', 'name', 'adress', 'vehicule', 'poids', 'id_num']
+
+class ClarqueSerializer(serializers.ModelSerializer):
+    selling_point = SellingPointCustomRelationQueryset(
+    slug_field='id')
+
+    class Meta:
+        model = models.Clarque
+        fields = ['id', 'selling_point', 'name', 'adress', 'vehicule', 'poids', 'id_num']

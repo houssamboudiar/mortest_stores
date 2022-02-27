@@ -2,7 +2,8 @@ from django.contrib import admin
 from .models import (Avaries, ProduitVenteClient, ProduitsRetourClient, SellingPoint, Caisse, Produit, Depot, FicheCredit,
  FicheDebit, Vendeur, Fournisseur, FicheAchatCommandeFournisseur,
  PayementFournisseur,  RetoursFournisseur, FraisGenerales, FamilleProduit, MarqueProduit,
- Client, FicheVenteClient, PayementClient, RetoursClient, ProduitAchatCommandeFournisseur, ProduitsRetourFournisseur)
+ Client, FicheVenteClient, PayementClient, RetoursClient, ProduitAchatCommandeFournisseur, ProduitsRetourFournisseur,
+ Transporteur, Clarque)
 
 admin.site.register(SellingPoint)
 admin.site.register(Caisse)
@@ -49,6 +50,9 @@ admin.site.register(FraisGenerales)
 admin.site.register(FicheDebit)
 admin.site.register(FicheCredit)
 admin.site.register(Avaries)
+admin.site.register(Transporteur)
+admin.site.register(Clarque)
+
 
 
 

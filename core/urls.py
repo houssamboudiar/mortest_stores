@@ -6,6 +6,9 @@ from . import cbv
 from . import views
 
 urlpatterns = [
+
+#--------------------------------------------SELLING POINT--------------------------------------------
+
     path('sp_get_post', cbv.SellingPoitGetPost.as_view(), name='sp_get_post'),
     path('sp_pk/<int:pk>', cbv.SellingPoitPk.as_view(), name='sp_pk'),
     path('caisse_get_post', cbv.CaisseGetPost.as_view(), name='caisse_get_post'),
@@ -20,6 +23,9 @@ urlpatterns = [
     path('fiche_debit_pk/<int:pk>', cbv.FicheDebitPk.as_view(), name='fiche_debit_pk'),
     path('vendeur_get_post', cbv.VendeurGetPost.as_view(), name='vendeur_post'),
     path('vendeur_pk/<int:pk>', cbv.VendeurPk.as_view(), name='vendeur_pk'),
+
+#---------------------------------------------FOURNISSEUR----------------------------------------------------
+
     path('fournisseur_get_post', cbv.FournisseurGetPost.as_view(), name='fournisseur_get_post'),
     path('fournisseur_pk/<int:pk>', cbv.FournisseurPk.as_view(), name='fournisseur_pk'),
     path('ficheachatfournisseur_get_post', cbv.FicheAchatFournisseurGetPost.as_view(), name='ficheAchatfournisseur_get_post'),
@@ -32,6 +38,9 @@ urlpatterns = [
     path('fraisgenerales_pk/<int:pk>', cbv.FraisGeneralesPk.as_view(), name='raisgenerales_pk'),
     path('retourfournisseur_get_post', cbv.RetourFournisseurGetPost.as_view(), name='retourfournisseur_get_post'),
     path('retourfournisseur_pk/<int:pk>', cbv.RetoursFournisseurPk.as_view(), name='retourfournisseur_pk'),
+
+#--------------------------------------------------CLIENT--------------------------------------------------
+
     path('client_pk/<int:pk>', cbv.ClientPk.as_view(), name='client_pk'),
     path('client_get_post', cbv.ClientGetPost.as_view(), name='client_get_post'),
     path('avaries_get_post', cbv.AvariesGetPost.as_view(), name='avaries_get_post'),
@@ -42,5 +51,12 @@ urlpatterns = [
     path('payementclient_pk/<int:pk>', cbv.PayementClientPk.as_view(), name='payementclient_pk'),
     path('retourclient_get_post', cbv.RetourClientGetPost.as_view(), name='retourclient_get_post'),
     path('retourclient_pk/<int:pk>', cbv.RetoursClientPk.as_view(), name='retourclient_pk'),
+
+#------------------------------------------------TRANSPORT--------------------------------------------------
+
+    path('transporteur_get_post', cbv.TransporteurGetPost.as_view(), name='transporteur_get_post'),
+    path('transporteur_pk/<int:pk>', cbv.TransporteurPk.as_view(), name='transporteur_pk'),
+    path('clarque_get_post', cbv.ClarqueGetPost.as_view(), name='clarque_get_post'),
+    path('clrque_pk/<int:pk>', cbv.ClarquePk.as_view(), name='clrque_pk'),
     path('situationgle', views.situationGle, name='situationgle')
 ]

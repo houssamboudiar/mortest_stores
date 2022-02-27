@@ -6,6 +6,9 @@ from rest_framework.response import Response
 from rest_framework import status
 
 
+#----------------------------------------------SELLING POINT----------------------------------------------------------
+
+
 class SellingPoitGetPost(generics.ListCreateAPIView):
     queryset = models.SellingPoint.objects.all()
     serializer_class = serializers.SellingPointSerializer
@@ -366,6 +369,10 @@ class FraisGeneralesPk(generics.RetrieveUpdateDestroyAPIView):
     def perform_update(self, serializer):
         serializer.save(modifie_par = self.request.user)
 
+
+#-----------------------------------------------FOURNISSEUR------------------------------------------------
+
+
 class FournisseurGetPost(generics.ListCreateAPIView):
     queryset = models.Fournisseur.objects.all()
     serializer_class = serializers.FournisseurSerializer
@@ -572,6 +579,10 @@ class RetoursFournisseurPk(generics.RetrieveUpdateDestroyAPIView):
     def perform_update(self, serializer):
         serializer.save(modifie_par = self.request.user)
 
+
+#-------------------------------------------------CLIENT------------------------------------------------
+
+
 class ClientGetPost(generics.ListCreateAPIView):
     queryset = models.Client.objects.all()
     serializer_class = serializers.ClientSerializer
@@ -706,7 +717,7 @@ class PayementClientPk(generics.RetrieveUpdateDestroyAPIView):
 class RetourClientGetPost(generics.ListCreateAPIView):
     queryset = models.RetoursClient.objects.all()
     serializer_class = serializers.RetoursClientSerializer
-    permission_classes = [DjangoModelPermissionsOrAnonReadOnly]
+    permission_classes = [IsAuthenticated,DjangoModelPermissionsOrAnonReadOnly]
 
     def get_queryset(self):
         queryset = models.RetoursClient.objects.all()
@@ -747,3 +758,83 @@ class RetoursClientPk(generics.RetrieveUpdateDestroyAPIView):
     
     def perform_update(self, serializer):
         serializer.save(modifie_par = self.request.user)
+
+
+#------------------------------------------------TRANSPORT-------------------------------------------------
+
+
+class TransporteurGetPost(generics.ListCreateAPIView):
+    queryset = models.Transporteur.objects.all()
+    serializer_class = serializers.TransporteurSerializer
+    permission_classes = [IsAuthenticated,DjangoModelPermissionsOrAnonReadOnly]
+
+    def get_queryset(self):
+        queryset = models.Transporteur.objects.all()
+        if not self.request.user.is_superuser:
+            queryset = queryset.filter(selling_point=self.request.user.vendeur.selling_point)
+        return queryset
+
+    def list(self, request):
+        queryset = self.get_queryset()
+        serializer = serializers.TransporteurSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+        serializer = serializers.TransporteurSerializer(data= request.data, context={'request': request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response (serializer.data, status=status.HTTP_201_CREATED)
+        return Response (serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class TransporteurPk(generics.RetrieveUpdateDestroyAPIView):
+    queryset = models.Transporteur.objects.all()
+    serializer_class = serializers.TransporteurSerializer
+    permission_classes = [IsAuthenticated,DjangoModelPermissionsOrAnonReadOnly]
+
+    def get_queryset(self):
+        queryset = models.Transporteur.objects.all()
+        if not self.request.user.is_superuser:
+            queryset = queryset.filter(selling_point=self.request.user.vendeur.selling_point)
+        return queryset
+
+
+class ClarqueGetPost(generics.ListCreateAPIView):
+    queryset = models.Clarque.objects.all()
+    serializer_class = serializers.ClarqueSerializer
+    permission_classes = [IsAuthenticated,DjangoModelPermissionsOrAnonReadOnly]
+
+    def get_queryset(self):
+        queryset = models.Clarque.objects.all()
+        if not self.request.user.is_superuser:
+            queryset = queryset.filter(selling_point=self.request.user.vendeur.selling_point)
+        return queryset
+
+    def list(self, request):
+        queryset = self.get_queryset()
+        serializer = serializers.ClarqueSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+        serializer = serializers.ClarqueSerializer(data= request.data, context={'request': request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response (serializer.data, status=status.HTTP_201_CREATED)
+        return Response (serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class ClarquePk(generics.RetrieveUpdateDestroyAPIView):
+    queryset = models.Clarque.objects.all()
+    serializer_class = serializers.ClarqueSerializer
+    permission_classes = [IsAuthenticated,DjangoModelPermissionsOrAnonReadOnly]
+
+    def get_queryset(self):
+        queryset = models.Clarque.objects.all()
+        if not self.request.user.is_superuser:
+            queryset = queryset.filter(selling_point=self.request.user.vendeur.selling_point)
+        return queryset
+
+
+
+
+
+
+

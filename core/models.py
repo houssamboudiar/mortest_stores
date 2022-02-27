@@ -625,12 +625,36 @@ class RetoursClient(models.Model):
         return prix
             
 
-
-
 class ProduitsRetourClient(models.Model):
     retour = models.ForeignKey(RetoursClient, related_name='produits', on_delete=models.CASCADE)
     # depot = models.ForeignKey(Depot, on_delete=models.CASCADE)
     produit = models.ForeignKey(Produit, related_name="produit_retour_client", on_delete=models.CASCADE)
     # quantite = models.DecimalField(max_digits=10, decimal_places=2)
     quantite_retour = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    
+
+
+#---------------------------------------------TRANSPORT--------------------------------------------
+
+
+class Transporteur(models.Model):
+    selling_point = models.ForeignKey(SellingPoint, on_delete=models.CASCADE)
+    name = models.CharField(max_length=100)
+    adress = models.CharField(max_length=100)
+    vehicule = models.CharField(max_length=100)
+    poids = models.PositiveIntegerField()
+    id_num = models.PositiveBigIntegerField(unique=True)
+
+    def __str__(self) -> str:
+        return f'{self.name} - {self.vehicule} - {self.poids} kg'
+
+
+class Clarque(models.Model):
+    selling_point = models.ForeignKey(SellingPoint, on_delete=models.CASCADE)
+    name = models.CharField(max_length=100)
+    adress = models.CharField(max_length=100)
+    vehicule = models.CharField(max_length=100)
+    poids = models.PositiveIntegerField()
+    id_num = models.PositiveBigIntegerField(unique=True)
+
+    def __str__(self) -> str:
+        return f'{self.name} - {self.vehicule} - {self.poids} kg'
