@@ -2,7 +2,6 @@ from django.conf import Settings
 from django.db import models
 from users.models import CustomUser as User
 from django.core.validators import MaxValueValidator, MinValueValidator
-from django.forms import DateField
 
 
 
@@ -25,37 +24,80 @@ class SellingPoint(models.Model):
 
 class Caisse(models.Model):
     selling_point = models.ForeignKey(SellingPoint, on_delete=models.CASCADE, related_name='selling_point_caisse')
-    caisse_data=(('1',"principale"),('2',"secondaire"))
-    caisse=models.CharField(default=1,choices=caisse_data,max_length=10)
+    caisse_data=(('principale',"principale"),('secondaire',"secondaire"))
+    caisse=models.CharField(default=1,choices=caisse_data,max_length=20)
     nom = models.CharField(max_length=50)
     wilaya = models.CharField(max_length=50)
     ville = models.CharField(max_length=50)
     solde = models.DecimalField(default=0, max_digits=10, decimal_places=2)
+    montant_achats_four = models.DecimalField(default=0, max_digits=10, decimal_places=2)
+    montant_retour_four = models.DecimalField(default=0, max_digits=10, decimal_places=2)
+    montant_pay_four = models.DecimalField(default=0, max_digits=10, decimal_places=2)
+    montant_vente_client = models.DecimalField(default=0, max_digits=10, decimal_places=2)
+    montant_retour_client = models.DecimalField(default=0, max_digits=10, decimal_places=2)
+    montant_credit = models.DecimalField(default=0, max_digits=10, decimal_places=2)
+    montant_pay_client = models.DecimalField(default=0, max_digits=10, decimal_places=2)
+    montant_debit = models.DecimalField(default=0, max_digits=10, decimal_places=2)
+    montant_frais_generales = models.DecimalField(default=0, max_digits=10, decimal_places=2)
+    
+    
     def __str__(self) -> str:
         return f'{self.nom} caisse'
+    
+    def somme(self):
+        somme = (self.montant_vente_client - self.montant_achats_four 
+        + self.montant_retour_four + self.montant_credit - self.montant_pay_four +
+         self.montant_pay_client - self.montant_retour_client - self.montant_debit 
+         - self.montant_frais_generales)
+        return somme 
+
+class FamilleProduit(models.Model):
+    famille = models.CharField(max_length=10)
+
+    def __str__(self) -> str:
+        return self.famille
+
+class MarqueProduit(models.Model):
+    marque = models.CharField(max_length=10)
+
+    def __str__(self) -> str:
+        return self.marque
 
 class Produit(models.Model):
     selling_point = models.ForeignKey(SellingPoint, on_delete=models.CASCADE, default=1)
     reference = models.CharField(max_length=200)
     article = models.TextField(max_length=200)
     img = models.ImageField( null=True, blank=True, upload_to="images/produits/")
-    unit_data = (('1',"m²"),('2',"m"),('3',"L"), ('4',"Kg"), ('4',"g"))
-    unit=models.CharField(default=1,choices=unit_data,max_length=10)
-    famille_data = (('1',"1"),('2',"2"),('3',"3"), ('4',"4"), ('4',"5"))
-    famille = models.CharField(default=1,choices=famille_data,max_length=10,)
-    marque_data = (('1',"1"),('2',"2"),('3',"3"), ('4',"4"), ('5',"5"))
-    marque = models.CharField(default=1,choices=marque_data,max_length=10, blank=True, null=True)
+    unit_data = (('m²',"m²"),('m',"m"),('L',"L"), ('Kg',"Kg"), ('g',"g"))
+    unit=models.CharField(default=1,choices=unit_data,max_length=20)
+    # famille_data = (('1',"1"),('2',"2"),('3',"3"), ('4',"4"), ('4',"5"))
+    # famille = models.CharField(choices=famille_data,max_length=20, default=1)
+    famille = models.ForeignKey(FamilleProduit, on_delete=models.CASCADE, default=1)
+    # marque_data = (('1',"1"),('2',"2"),('3',"3"), ('4',"4"), ('5',"5"))
+    # marque = models.CharField(choices=marque_data,max_length=20, default=1)
+
+    marque = models.ForeignKey(MarqueProduit, on_delete=models.CASCADE, default=1)
     prix_U_achat = models.DecimalField(max_digits=10, decimal_places=2)
     prix_detail = models.DecimalField(max_digits=10, decimal_places=2)
     prix_vente_gros = models.DecimalField(max_digits=10, decimal_places=2)
     prix_vente_revendeur = models.DecimalField(max_digits=10, decimal_places=2)
     prix_vente_autre = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
     stock_alerte = models.PositiveIntegerField(blank=True, null=True)
-    stock_actuel = models.PositiveIntegerField(blank=True, null=True)
     qtte = models.PositiveIntegerField(blank=True, null=True)
+    qtte_achete = models.PositiveIntegerField(blank=True, default=0)
+    qtte_vendue = models.PositiveIntegerField(blank=True, default=0)
+    qtte_retour_four = models.PositiveIntegerField(blank=True, default=0)
+    qtte_retour_client = models.PositiveIntegerField(blank=True, default=0)
+    qtte_avarie = models.PositiveIntegerField(blank=True, default=0)
     ancien_prix = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
     def __str__(self) -> str:
         return f'{self.article}'
+
+    @property
+    def qtteActuelStock(self):
+        qtteact = self.qtte + self.qtte_achete - self.qtte_retour_four - self.qtte_vendue + self.qtte_retour_client - self.qtte_avarie
+        return qtteact
+    
     @property
     def margePprixDetail(self):
         marge = self.prix_detail - self.prix_U_achat
@@ -77,6 +119,25 @@ class Produit(models.Model):
         pourcentage_marge = (marge * 100)/self.prix_U_achat
         return pourcentage_marge
 
+class Avaries(models.Model):
+    selling_point =  models.ForeignKey(SellingPoint, on_delete=models.PROTECT)
+    produit =  models.ForeignKey(Produit, on_delete=models.PROTECT)
+    qtte = models.PositiveBigIntegerField()
+
+    @property
+    def depot(self):
+        depot = self.produit.depot
+        return depot
+
+    @property
+    def montant(self):
+        prix = self.produit.prix_U_achat * self.qtte
+        return prix
+    
+    def __str__(self) -> str:
+        return f'{self.produit.article} avarié'
+
+
 class Depot(models.Model):
     selling_point = models.ForeignKey(SellingPoint, on_delete=models.PROTECT)
     nom = models.CharField(max_length=100)
@@ -86,6 +147,7 @@ class Depot(models.Model):
         return f'{self.nom} dépot'
 
 class FicheCredit(models.Model):
+    selling_point = models.ForeignKey(SellingPoint, on_delete=models.CASCADE, related_name='selling_point_fc')
     date = models.DateField(auto_now=True)
     montant = models.DecimalField(max_digits=10, decimal_places=2)
     TVA = models.DecimalField(default=0,
@@ -93,8 +155,8 @@ class FicheCredit(models.Model):
             MaxValueValidator(100),
             MinValueValidator(0)
         ], max_digits=5, decimal_places=2)
-    reglement_data=(('1',"A terme"),('2',"Espece"),('3',"Virement"), ('4',"chèque"),)
-    reglement=models.CharField(default=1,choices=reglement_data,max_length=10)
+    reglement_data=(('A terme',"A terme"),('Espece',"Espece"),('Virement',"Virement"), ('chèque',"chèque"),)
+    reglement=models.CharField(default='Espece',choices=reglement_data,max_length=20)
     caisse = models.ForeignKey(Caisse, on_delete=models.CASCADE)
     observ = models.TextField(max_length=500)
     saisie_le = models.DateField(auto_now_add=True)
@@ -107,12 +169,13 @@ class FicheCredit(models.Model):
         return montant
     @property
     def prixTTC(self):
-        montant = self.montant-self.montantTVA
+        montant = self.montant+self.montantTVA
         return montant
     def __str__(self) -> str:
         return f'fiche crédit de la caisse {self.caisse.nom}'
 
 class FicheDebit(models.Model):
+    selling_point = models.ForeignKey(SellingPoint, on_delete=models.CASCADE, related_name='selling_point_fd', default=1)
     date = models.DateField(auto_now=True)
     montant = models.DecimalField(max_digits=10, decimal_places=2)
     TVA = models.DecimalField(default=0,
@@ -120,8 +183,8 @@ class FicheDebit(models.Model):
             MaxValueValidator(100),
             MinValueValidator(0)
         ], max_digits=5, decimal_places=2)
-    reglement_data=(('1',"A terme"),('2',"Espece"),('3',"Virement"), ('4',"chèque"),)
-    reglement=models.CharField(default=1,choices=reglement_data,max_length=10)
+    reglement_data=(('A terme',"A terme"),('Espece',"Espece"),('Virement',"Virement"), ('chèque',"chèque"),)
+    reglement=models.CharField(default='Espece',choices=reglement_data,max_length=20)
     caisse = models.ForeignKey(Caisse, on_delete=models.CASCADE)
     observ = models.TextField(max_length=500)
     saisie_le = models.DateField(auto_now_add=True)
@@ -136,18 +199,18 @@ class FicheDebit(models.Model):
     def prixTTC(self):
         montant = self.montant - self.montantTVA
         return montant
-    @property
-    def __str__(self) -> str:
+
+    def __str__(self):
         return f'fiche débit de la caisse {self.caisse.nom}'
   
 
 class Vendeur(models.Model):
-    selling_point = models.ForeignKey(SellingPoint, on_delete=models.CASCADE, null=True)
+    selling_point = models.ForeignKey(SellingPoint, on_delete=models.CASCADE)
     name = models.CharField(max_length=50, null=True, blank=True)
     last_name = models.CharField(max_length=50, null=True, blank=True)
     img = models.ImageField( null=True, blank=True, upload_to="images/produits/")
     adress = models.CharField(max_length=100, null=True, blank=True)
-    identity_num = models.PositiveBigIntegerField(null=True, blank=True)
+    identity_num = models.PositiveBigIntegerField(null=True, blank=True, unique=True)
     admin = models.OneToOneField(User, on_delete=models.CASCADE)
     phone_number_1 = models.PositiveBigIntegerField(null=True, blank=True)
     phone_number_2= models.PositiveBigIntegerField(blank=True, null=True)
@@ -156,7 +219,7 @@ class Vendeur(models.Model):
     name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
     adress = models.CharField(max_length=100)
-    identity_num = models.BigIntegerField()
+    identity_num = models.BigIntegerField(unique=True)
     admin = models.OneToOneField(User, on_delete=models.CASCADE,default=1111)
     phone_number_1 = models.IntegerField()
     phone_number_2= models.IntegerField(blank=True, null=True)
@@ -165,11 +228,12 @@ class Vendeur(models.Model):
         return f'{self.name} {self.last_name}'
 
 class FraisGenerales(models.Model):
-    number = models.IntegerField()
+    selling_point = models.ForeignKey(SellingPoint, on_delete=models.CASCADE, default=1)
+    number = models.PositiveBigIntegerField()
     date = models.DateField()
-    type_data=()
+    type_data=(('1',"type1"),('2',"type2"),('3',"type3"), ('4',"type4"),)
     type=models.CharField(default=1,choices=type_data,max_length=10)
-    montant = models.DecimalField(max_digits=10, decimal_places=2)
+    montant = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     TVA = models.DecimalField(default=0,
         validators=[
             MaxValueValidator(100),
@@ -177,11 +241,12 @@ class FraisGenerales(models.Model):
         ], max_digits=10, decimal_places=2)
     
     timbre = models.DecimalField(default=0, max_digits=10, decimal_places=2)
-    reglement_data=(('1',"A terme"),('2',"Espece"),('3',"Virement"), ('4',"chèque"),)
-    reglement=models.CharField(default=1,choices=reglement_data,max_length=10)
+    reglement_data=(('A terme',"A terme"),('Espece',"Espece"),('Virement',"Virement"), ('chèque',"chèque"),)
+    reglement=models.CharField(default='Espece',choices=reglement_data,max_length=20)
     saisie_le = models.DateField(auto_now_add=True)
     modilfié_le = models.DateField(auto_now=True)
-    saisie_par = models.ForeignKey(User, on_delete=models.CASCADE,default=1111)
+    saisie_par = models.ForeignKey(User, on_delete=models.CASCADE, related_name='saisie_par_fg')
+    modifie_par = models.ForeignKey(User, on_delete=models.CASCADE, related_name='modifie_par_fg', null=True)
     caisse = models.ForeignKey(Caisse, on_delete=models.CASCADE)
     observation = models.TextField(max_length=500)
     @property
@@ -189,7 +254,7 @@ class FraisGenerales(models.Model):
         montant = (self.TVA*self.montant)/100
         return montant
     @property
-    def montant(self):
+    def prixTTC(self):
         montant = self.montant - self.montantTVA - self.timbre
         return montant
     
@@ -198,12 +263,12 @@ class FraisGenerales(models.Model):
 
 
 
-             #---------------------------------FOURNISSEURS-----------------------------------------
+        #-----------------------------------------FOURNISSEURS---------------------------------------------
 
 
 class Fournisseur(models.Model):
-    etat_civile_data=(('1',"M."),('2',"Mme"),('3',"SARL"), ('4',"EURL"), ('5',"ETS"), ('5',"autre"),)
-    etat_civile=models.CharField(default=1,choices=etat_civile_data,max_length=10)
+    etat_civile_data=(('M.',"M."),('Mme',"Mme"),('SARL',"SARL"), ('EURL',"EURL"), ('ETS',"ETS"), ('autre',"autre"),)
+    etat_civile=models.CharField(default='M.',choices=etat_civile_data,max_length=20)
     name = models.CharField(max_length=50)
     telephone = models.IntegerField( blank=True, null=True)
     phone_number = models.IntegerField(blank=True, null=True)
@@ -220,42 +285,37 @@ class Fournisseur(models.Model):
     def __str__(self) -> str:
         return f'{self.etat_civile} {self.name}'
 
+
+
 class FicheAchatCommandeFournisseur(models.Model):
-    type_fiche_data = (('1',"Achat"),('2',"Commande"))
+    type_fiche_data = (('Achat',"Achat"),('Commande',"Commande"))
     type_fiche=models.CharField(default=1,choices=type_fiche_data,max_length=10)
-    selling_point = models.ForeignKey(SellingPoint, on_delete=models.PROTECT)
-    fournisseur = models.ForeignKey(Fournisseur, on_delete=models.PROTECT)
-    depot = models.ForeignKey(Depot, on_delete=models.PROTECT)
+    selling_point = models.ForeignKey(SellingPoint, on_delete=models.PROTECT, default=1)
+    fournisseur = models.ForeignKey(Fournisseur, on_delete=models.PROTECT, default=1)
     saisie_le = models.DateField(auto_now_add=True)
     modilfié_le = models.DateField(auto_now=True)
-    saisie_par = models.ForeignKey(User, on_delete=models.CASCADE,default=1111)
-    action_data=(('1',"facture"),('2',"bon"),('3',"bon de commande"),)
-    action=models.CharField(default=1,choices=action_data,max_length=10)
+    saisie_par = models.ForeignKey(User, on_delete=models.CASCADE,default=1111, related_name='saisie_par_fac')
+    modifie_par = models.ForeignKey(User, on_delete=models.CASCADE,default=1111, null=True, related_name='modifie_par_fac')
+    action_data=(('facture',"facture"),('bon',"bon"),('bon de commande',"bon de commande"),)
+    action=models.CharField(default=1,choices=action_data,max_length=30)
     numero = models.IntegerField()
-    code = models.IntegerField()
-    produit = models.ManyToManyField(Produit, related_name="produit_achat_fournisseur")
-    quantite = models.DecimalField(max_digits=10, decimal_places=2)
+    # code = models.IntegerField()
     date = models.DateField(auto_now=True)
-    article = models.CharField(max_length=10)
-    numero_lot = models.IntegerField()
-    date_de_fabrication = models.DateField()
-    date_dexpiration = models.DateField()
-    prix = models.DecimalField(max_digits=10, decimal_places=2)
-    unit = models.CharField(max_length=10)
-    qtt_stock_actuel = models.DecimalField(max_digits=5, decimal_places=2)
+    # prix = models.DecimalField(max_digits=10, decimal_places=2)
+    # qtt_stock_actuel = models.DecimalField(max_digits=5, decimal_places=2)
     
 
     # Reglement fournisseur
     montantregfour = models.DecimalField(max_digits=10, decimal_places=2)
-    reglement_data=(('1',"A terme"),('2',"Espece"),('3',"Virement"), ('4',"chèque"),)
-    mode_reglement=models.CharField(default=1,choices=reglement_data,max_length=10)
+    reglement_data=(('A terme',"A terme"),('Espece',"Espece"),('Virement',"Virement"), ('chèque',"chèque"),)
+    mode_reglement=models.CharField(default='Espece',choices=reglement_data,max_length=20)
     caisse = models.ForeignKey(Caisse, on_delete=models.CASCADE)
     observation = models.TextField(max_length=500)
 
     #montant de fournisseur
-    prixHT = models.DecimalField(max_digits=10, decimal_places=2)
+    # prixHT = models.DecimalField(max_digits=10, decimal_places=2)
     # montant de fournisseur
-    prixHT = models.DecimalField(max_digits=10, decimal_places=2)
+    # prixHT = models.DecimalField(max_digits=10, decimal_places=2)
     TVA = models.DecimalField(default=0,
         validators=[
             MaxValueValidator(100),
@@ -267,22 +327,57 @@ class FicheAchatCommandeFournisseur(models.Model):
             MaxValueValidator(100),
             MinValueValidator(0)
         ], max_digits=10, decimal_places=2)
+    
+    @property
+    def total(self):
+        prix=0
+        for prod in self.produits.all():
+            prix += (prod.produit.prix_U_achat * prod.quantite)
+        
+        return prix
+    
+
     @property
     def montantTVA(self):
-        montant = (self.TVA*self.prixHT)/100
+        prix = self.total
+        montant = (self.TVA*prix)/100
         return montant
     @property
     def montantRemise(self):
-        montant = (self.remise*self.prixHT)/100
+        prix = self.total
+        montant = (self.remise*prix)/100
         return montant
     @property
     def prixTTC(self):
-        montant = self.prixHT - self.montantTVA - self.montantRemise - self.timbre
+        prix = self.total
+        montant = prix + self.montantTVA - self.montantRemise + self.timbre
         return montant
         
     def __str__(self) -> str:
         return f'{self.type_fiche} {self.fournisseur.name}'
     
+class ProduitAchatCommandeFournisseur(models.Model):
+    achat = models.ForeignKey(FicheAchatCommandeFournisseur, related_name='produits', on_delete=models.CASCADE)
+    depot = models.ForeignKey(Depot, on_delete=models.CASCADE)
+    produit = models.ForeignKey(Produit, related_name="produit_achat_fournisseur", on_delete=models.CASCADE)
+    quantite = models.DecimalField(max_digits=10, decimal_places=2)
+    numero_lot = models.IntegerField()
+    date_de_fabrication = models.DateField()
+    date_dexpiration = models.DateField()
+    unit_choices = (('m²',"m²"),('m',"m"),('L',"L"), ('Kg',"Kg"), ('g',"g"))
+    unit = models.CharField(choices=unit_choices, max_length=20, default='Kg')
+    #ajouter qtt stock actuel
+
+    @property
+    def prixProduit(self):
+        prix = self.produit.prix_U_achat
+        return prix
+    @property
+    def qtteActProduit(self):
+        qtte = self.produit.qtteActuelStock
+        return qtte
+
+
 class PayementFournisseur(models.Model):
     selling_point = models.ForeignKey(SellingPoint, on_delete=models.CASCADE, default=1)
     date = models.DateField()
@@ -293,47 +388,70 @@ class PayementFournisseur(models.Model):
     modifie_par = models.ForeignKey(User, on_delete=models.CASCADE, null=True, related_name='modifie_par_pf')
 
     achat = models.ForeignKey(FicheAchatCommandeFournisseur, on_delete=models.CASCADE)
-    solde = models.DecimalField(max_digits=10, decimal_places=2)
-    montant = models.DecimalField(max_digits=5, decimal_places=2)
-    reglement_data=(('1',"A terme"),('2',"Espece"),('3',"Virement"), ('4',"chèque"),)
-    reglement=models.CharField(default=1,choices=reglement_data,max_length=10)
+    montant = models.DecimalField(max_digits=10, decimal_places=2)
+    reglement_data=(('A terme',"A terme"),('Espece',"Espece"),('Virement',"Virement"), ('chèque',"chèque"),)
+    reglement=models.CharField(default=1,choices=reglement_data,max_length=20)
     caisse = models.ForeignKey(Caisse, on_delete=models.CASCADE)
     observation = models.TextField(max_length=500)
     def __str__(self) -> str:
         return f'fiche payement {self.fournisseur.name}'
 
+
 class RetoursFournisseur(models.Model):
+    selling_point = models.ForeignKey(SellingPoint, on_delete=models.CASCADE, default=1)
     fournisseur = models.ForeignKey(Fournisseur, on_delete=models.CASCADE)
     date = models.DateField()
     achat = models.ForeignKey(FicheAchatCommandeFournisseur, on_delete=models.CASCADE)
-    produit = models.ManyToManyField(Produit, related_name="produit_fournisseur")
-    qtte_achetée = models.DecimalField(max_digits=10, decimal_places=2)
-    qtte_retour = models.DecimalField(max_digits=10, decimal_places=2)
-    depot = models.ForeignKey(Depot, on_delete=models.CASCADE)
-    montant = models.DecimalField(max_digits=10, decimal_places=2)
-    reglement_data=(('1',"A terme"),('2',"Espece"),('3',"Virement"), ('4',"chèque"),)
-    reglement=models.CharField(default=1,choices=reglement_data,max_length=10)
+    # produit = models.ManyToManyField(Produit, related_name="produit_fournisseur")
+    # qtte_achetée = models.DecimalField(max_digits=10, decimal_places=2)
+    # qtte_retour = models.DecimalField(max_digits=10, decimal_places=2)
+    # depot = models.ForeignKey(Depot, on_delete=models.CASCADE)
+    # montant = models.DecimalField(max_digits=10, decimal_places=2) becomes a function
+    reglement_data=(('A terme',"A terme"),('Espece',"Espece"),('Virement',"Virement"), ('chèque',"chèque"),)
+    reglement=models.CharField(default=1,choices=reglement_data,max_length=20)
     caisse = models.ForeignKey(Caisse, on_delete=models.CASCADE)
     observation = models.TextField(max_length=500)
     saisie_le = models.DateField(auto_now_add=True)
     modilfié_le = models.DateField(auto_now=True)
-    saisie_par = models.ForeignKey(User, on_delete=models.CASCADE,default=1111)
+    saisie_par = models.ForeignKey(User, on_delete=models.CASCADE,default=1111, related_name='saisie_par_rf')
+    modifie_par = models.ForeignKey(User, on_delete=models.CASCADE,related_name='modifie_par_rf', null=True)
+    
+    def produits(self):
+        produits = Produit.objects.filter(ficheachatcommandefournisseur_id=self.achat.id)
+        return produits
+    @property
+    def montant(self):
+        mont = 0
+        for prod in self.produits.all():
+            prix = prod.produit.prix_U_achat
+            mont += prix
+        return mont
+
 
     def __str__(self) -> str:
-        return f'fiche retour {self.fournisseur.name}'
+        return f'fiche retour {self.fournisseur.name}, achat numéro {self.achat.numero}'
 
-             #---------------------------------- CLIENTS ----------------------------------------
+class ProduitsRetourFournisseur(models.Model):
+    retour = models.ForeignKey(RetoursFournisseur, related_name='produits', on_delete=models.CASCADE)
+    # depot = models.ForeignKey(Depot, on_delete=models.CASCADE)
+    produit = models.ForeignKey(Produit, related_name="produit_retour_fournisseur", on_delete=models.CASCADE)
+    # quantite = models.DecimalField(max_digits=10, decimal_places=2)
+    quantite_retour = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+
+
+
+            #---------------------------------- CLIENTS ----------------------------------------
 
 
     
 class Client(models.Model):
     selling_point = models.ForeignKey(SellingPoint, on_delete=models.CASCADE)
     numero = models.PositiveIntegerField()
-    etat_civile_data=(('1',"M."),('2',"Mme"),('3',"SARL"), ('4',"EURL"), ('5',"ETS"), ('5',"autre"),)
-    etat_civile=models.CharField(default=1,choices=etat_civile_data,max_length=10)
+    etat_civile_data=(('M.',"M."),('Mme',"Mme"),('SARL',"SARL"), ('EURL',"EURL"), ('ETS',"ETS"), ('autre',"autre"),)
+    etat_civile=models.CharField(default=1,choices=etat_civile_data,max_length=20)
     nom = models.CharField(max_length=100)
-    type_data=(('1',"Détaillant"),('2',"Grossiste"),('3',"Revendeur"), ('5',"autre"),)
-    type=models.CharField(default=1,choices=type_data,max_length=10)
+    type_data=(('Détaillant',"Détaillant"),('Grossiste',"Grossiste"),('Revendeur',"Revendeur"), ('autre',"autre"),)
+    type=models.CharField(default=1,choices=type_data,max_length=30)
     telephone = models.IntegerField(blank=True, null=True)
     phone_number = models.IntegerField()
     email = models.EmailField(blank=True, null=True)
@@ -350,35 +468,37 @@ class Client(models.Model):
     saisie_par = models.ForeignKey(User, on_delete=models.CASCADE,default=1111)
 
     def __str__(self) -> str:
-        return f'{self.etat_civile} {self.nom}'
+        return f'{self.etat_civile}.{self.nom}'
 
 class FicheVenteClient(models.Model):
-    type_fiche_data = (('1',"Bon de livraison"),('2',"Facture"),('2',"BL sans montant"),('2',"Facture proformat"))
-    type_fiche=models.CharField(default=1,choices=type_fiche_data,max_length=10)
+    type_fiche_data = (('Bon de livraison',"Bon de livraison"),('Facture',"Facture"),('BL sans montant',"BL sans montant"),('Facture proformat',"Facture proformat"))
+    type_fiche=models.CharField(default=1,choices=type_fiche_data,max_length=30)
+    type_client_data = (('détaillant',"détaillant"),('grossiste',"grossiste"),('revendeur',"revendeur"),('autre',"autre"))
+    type_client=models.CharField(default=1,choices=type_fiche_data,max_length=30)
     selling_point = models.ForeignKey(SellingPoint, on_delete=models.PROTECT)
     numero = models.IntegerField()
     client = models.ForeignKey(Client, on_delete=models.PROTECT)
-    solde = models.DecimalField(max_digits=10, decimal_places=2)
-    depot = models.ForeignKey(Depot, on_delete=models.PROTECT)
-    quantite = models.DecimalField(max_digits=10, decimal_places=2)
+    # depot = models.ForeignKey(Depot, on_delete=models.PROTECT)
+    # quantite = models.DecimalField(max_digits=10, decimal_places=2)
     saisie_le = models.DateField(auto_now_add=True)
     modilfié_le = models.DateField(auto_now=True)
-    saisie_par = models.ForeignKey(User, on_delete=models.CASCADE,default=1111)
-    code = models.IntegerField()
-    produit = models.ManyToManyField(Produit, related_name="produit_vente_client")
+    saisie_par = models.ForeignKey(User, on_delete=models.CASCADE,default=1111, related_name='saisie_par_vc')
+    modifie_par = models.ForeignKey(User, on_delete=models.CASCADE,default=1111, related_name='modifie_par_vc', null=True)
+    reste_a_payer = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    # code = models.IntegerField()
+    # produit = models.ManyToManyField(Produit, related_name="produit_vente_client")
     date = models.DateField(auto_now=True)
-    prix = models.DecimalField(max_digits=10, decimal_places=2)
-    reste_a_payer = models.DecimalField(max_digits=5, decimal_places=2)
+    # prix = models.DecimalField(max_digits=10, decimal_places=2)
 
     # Reglement client
-    montant_reg_client = models.DecimalField(max_digits=5, decimal_places=2)
-    reglement_data=(('1',"A terme"),('2',"Espece"),('3',"Virement"), ('4',"chèque"),)
-    mode_reglement=models.CharField(default=1,choices=reglement_data,max_length=10)
+    montant_reg_client = models.DecimalField(max_digits=10, decimal_places=2)
+    reglement_data=(('A terme',"A terme"),('Espece',"Espece"),('Virement',"Virement"), ('chèque',"chèque"),)
+    mode_reglement=models.CharField(default=1,choices=reglement_data,max_length=20)
     caisse = models.ForeignKey(Caisse, on_delete=models.CASCADE)
     observation = models.TextField(max_length=500)
 
     #montant de fournisseur
-    prixHT = models.DecimalField(max_digits=10, decimal_places=2)
+    # prixHT = models.DecimalField(max_digits=10, decimal_places=2)
     TVA = models.DecimalField(default=0,
         validators=[
             MaxValueValidator(100),
@@ -390,33 +510,74 @@ class FicheVenteClient(models.Model):
             MaxValueValidator(100),
             MinValueValidator(0)
         ], max_digits=10, decimal_places=2)
+    
+    @property
+    def total(self):
+        prix=0
+        for prod in self.produits.all():
+            if self.type_client == 'détaillant':
+                prix += prod.produit.prix_detail
+            elif self.type_client == 'grossiste':
+                prix += prod.produit.prix_vente_gros
+            elif self.type_client == 'revendeur':
+                prix += prod.produit.prix_vente_revendeur
+            else:
+                prix += prod.produit.prix_vente_autre
+            
+        
+        return prix
+    
+
     @property
     def montantTVA(self):
-        montant = [(self.TVA)*(self.prixHT)]/100
+        prix = self.total
+        montant = (self.TVA*prix)/100
         return montant
     @property
     def montantRemise(self):
-        montant = [(self.remise)*(self.prixHT)]/100
+        prix = self.total
+        montant = (self.remise*prix)/100
         return montant
     @property
     def prixTTC(self):
-        montant = self.prixHT - self.montantTVA - self.montantRemise - self.timbre
+        prix = self.total
+        montant = prix + self.montantTVA - self.montantRemise + self.timbre
         return montant
     
     def __str__(self) -> str:
         return f'{self.type_fiche} {self.client.nom}'
 
+class ProduitVenteClient(models.Model):
+    vente = models.ForeignKey(FicheVenteClient, related_name='produits', on_delete=models.CASCADE)
+    depot = models.ForeignKey(Depot, on_delete=models.CASCADE)
+    produit = models.ForeignKey(Produit, related_name="produit_vente_client", on_delete=models.CASCADE)
+    quantite = models.DecimalField(max_digits=10, decimal_places=2)
+    numero_lot = models.IntegerField()
+    #ajouter qtt stock actuel
+
+    @property
+    def prixProduit(self):
+        prix = self.produit.prix_U_achat
+        return prix
+    @property
+    def qtteActProduit(self):
+        qtte = self.produit.qtteActuelStock
+        return qtte
+
+
 class PayementClient(models.Model):
+    selling_point = models.ForeignKey(SellingPoint, on_delete=models.CASCADE, default=1)
     date = models.DateField()
     client = models.ForeignKey(Client, on_delete=models.PROTECT)
     saisie_le = models.DateField(auto_now_add=True)
     modilfié_le = models.DateField(auto_now=True)
-    saisie_par = models.ForeignKey(User, on_delete=models.CASCADE,default=1111)
+    modilfie_par = models.ForeignKey(User, on_delete=models.CASCADE,default=1111, null=True, related_name='modifie_par_pc')
+    
+    saisie_par = models.ForeignKey(User, on_delete=models.CASCADE,default=1111, related_name='saisie_par_pc')
     achat = models.ForeignKey(FicheAchatCommandeFournisseur, on_delete=models.CASCADE)
-    solde = models.DecimalField(max_digits=10, decimal_places=2)
     montant = models.DecimalField(max_digits=10, decimal_places=2)
-    reglement_data=(('1',"A terme"),('2',"Espece"),('3',"Virement"), ('4',"chèque"),)
-    reglement=models.CharField(default=1,choices=reglement_data,max_length=10)
+    reglement_data=(('A terme',"A terme"),('Espece',"Espece"),('Virement',"Virement"), ('chèque',"chèque"),)
+    reglement=models.CharField(default=1,choices=reglement_data,max_length=20)
     caisse = models.ForeignKey(Caisse, on_delete=models.CASCADE)
     observation = models.TextField(max_length=500)
 
@@ -424,25 +585,76 @@ class PayementClient(models.Model):
         return f'payement {self.client.nom}'
 
 class RetoursClient(models.Model):
+    selling_point = models.ForeignKey(SellingPoint, on_delete=models.CASCADE, default=1)
     client = models.ForeignKey(Client, on_delete=models.CASCADE)
     date = models.DateField()
-    achat = models.ForeignKey(FicheAchatCommandeFournisseur, on_delete=models.CASCADE)
-    produit = models.ManyToManyField(Produit, related_name="produit_client")
-    qtte_achetée = models.DecimalField(max_digits=10, decimal_places=2)
-    qtte_retour = models.DecimalField(max_digits=10, decimal_places=2)
-    depot = models.ForeignKey(Depot, on_delete=models.CASCADE)
-    montant = models.DecimalField(max_digits=10, decimal_places=2)
-    reglement_data=(('1',"A terme"),('2',"Espece"),('3',"Virement"), ('4',"chèque"),)
-    reglement=models.CharField(default=1,choices=reglement_data,max_length=10)
+    vente = models.ForeignKey(FicheVenteClient, on_delete=models.CASCADE, default=1, related_name='retours_client')
+    # depot = models.ForeignKey(Depot, on_delete=models.CASCADE)
+    # montant = models.DecimalField(max_digits=10, decimal_places=2)
+    reglement_data=(('A terme',"A terme"),('Espece',"Espece"),('Virement',"Virement"), ('chèque',"chèque"),)
+    reglement=models.CharField(default=1,choices=reglement_data,max_length=20)
     caisse = models.ForeignKey(Caisse, on_delete=models.CASCADE)
     observation = models.TextField(max_length=500)
     saisie_le = models.DateField(auto_now_add=True)
     modilfié_le = models.DateField(auto_now=True)
-    saisie_par = models.ForeignKey(User, on_delete=models.CASCADE,default=1111)
+    saisie_par = models.ForeignKey(User, on_delete=models.CASCADE,default=1111, related_name='saisie_par_rc')
+    modifie_par = models.ForeignKey(User, on_delete=models.CASCADE,related_name='modifie_par_rc', null=True)
 
     def __str__(self) -> str:
         return f'retour {self.client.nom}'
 
+    def produits(self):
+        produits = Produit.objects.filter(ficheventeclient_id=self.vente.id)
+        return produits
     
+    @property
+    def montant(self):
+        prix = 0
+        for prod in self.produits.all():
+            
+            if self.vente.type_client == 'détaillant':
+                prix += prod.produit.prix_detail
+            elif self.vente.type_client == 'grossiste':
+                prix += prod.produit.prix_vente_gros
+            elif self.vente.type_client == 'revendeur':
+                prix += prod.produit.prix_vente_revendeur
+            else:
+                prix += prod.produit.prix_vente_autre
+            
+        
+        return prix
+            
 
-    
+class ProduitsRetourClient(models.Model):
+    retour = models.ForeignKey(RetoursClient, related_name='produits', on_delete=models.CASCADE)
+    # depot = models.ForeignKey(Depot, on_delete=models.CASCADE)
+    produit = models.ForeignKey(Produit, related_name="produit_retour_client", on_delete=models.CASCADE)
+    # quantite = models.DecimalField(max_digits=10, decimal_places=2)
+    quantite_retour = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+
+
+#---------------------------------------------TRANSPORT--------------------------------------------
+
+
+class Transporteur(models.Model):
+    selling_point = models.ForeignKey(SellingPoint, on_delete=models.CASCADE)
+    name = models.CharField(max_length=100)
+    adress = models.CharField(max_length=100)
+    vehicule = models.CharField(max_length=100)
+    poids = models.PositiveIntegerField()
+    id_num = models.PositiveBigIntegerField(unique=True)
+
+    def __str__(self) -> str:
+        return f'{self.name} - {self.vehicule} - {self.poids} kg'
+
+
+class Clarque(models.Model):
+    selling_point = models.ForeignKey(SellingPoint, on_delete=models.CASCADE)
+    name = models.CharField(max_length=100)
+    adress = models.CharField(max_length=100)
+    vehicule = models.CharField(max_length=100)
+    poids = models.PositiveIntegerField()
+    id_num = models.PositiveBigIntegerField(unique=True)
+
+    def __str__(self) -> str:
+        return f'{self.name} - {self.vehicule} - {self.poids} kg'
