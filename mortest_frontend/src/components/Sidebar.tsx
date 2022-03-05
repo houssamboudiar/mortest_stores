@@ -31,20 +31,26 @@ import {
   FiMenu,
   FiBell,
   FiChevronDown,
+  FiUser
 } from 'react-icons/fi';
+
 import { IconType } from 'react-icons';
 import { ReactText } from 'react';
-
+import { useNavigate } from 'react-router-dom';
+import { userLogout } from "../actions/userActions";
+import { useDispatch } from 'react-redux';
 interface LinkItemProps {
   name: string;
   icon: IconType;
+  route: string;
+  selected: boolean;
 }
 const LinkItems: Array<LinkItemProps> = [
-  { name: 'Home', icon: FiHome },
-  { name: 'Trending', icon: FiTrendingUp },
-  { name: 'Explore', icon: FiCompass },
-  { name: 'Favourites', icon: FiStar },
-  { name: 'Settings', icon: FiSettings },
+  { name: 'Dashboard', icon: FiHome, route: 'main',selected:false },
+  { name: 'Sales', icon: FiTrendingUp, route: 'products',selected:false },
+  { name: 'Clients', icon: FiCompass, route: '/',selected:false },
+  { name: 'Providers', icon: FiStar, route: '/',selected:false },
+  { name: 'Settings', icon: FiSettings, route: '/',selected:false },
 ];
 
 export default function SidebarWithHeader({
@@ -85,6 +91,7 @@ interface SidebarProps extends BoxProps {
 }
 
 const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
+  const navigate = useNavigate()
   return (
     <Box
       transition="3s ease"
@@ -97,15 +104,25 @@ const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
       {...rest}>
       <Flex h="20" alignItems="center" mx="8" justifyContent="space-between">
         <Text fontSize="2xl" fontFamily="monospace" fontWeight="bold">
-          Logo
+          Mortest
         </Text>
         <CloseButton display={{ base: 'flex', md: 'none' }} onClick={onClose} />
       </Flex>
-      {LinkItems.map((link) => (
-        <NavItem key={link.name} icon={link.icon}>
-          {link.name}
-        </NavItem>
-      ))}
+      <NavItem key={1} icon={FiHome} onClick={() => navigate('main')}  >
+        Dashboard
+      </NavItem>
+      <NavItem key={2} icon={FiTrendingUp} onClick={() => navigate('products')}  >
+        Products
+      </NavItem>
+      <NavItem key={3} icon={FiUser} onClick={() => navigate('/')}  >
+        Clients
+      </NavItem>
+      <NavItem key={4} icon={FiCompass} onClick={() => navigate('/')}  >
+        Providers
+      </NavItem>
+      <NavItem key={5} icon={FiSettings} onClick={() => navigate('/')}  >
+        Settings
+      </NavItem>
     </Box>
   );
 };
@@ -149,6 +166,13 @@ interface MobileProps extends FlexProps {
   onOpen: () => void;
 }
 const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
+
+  const dispatch = useDispatch();
+
+  const signout = () => {
+    dispatch(userLogout())
+  }
+
   return (
     <Flex
       ml={{ base: 0, md: 60 }}
@@ -201,7 +225,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
                   alignItems="flex-start"
                   spacing="1px"
                   ml="2">
-                  <Text fontSize="sm">Justina Clark</Text>
+                  <Text fontSize="sm">Houssam Boudiar</Text>
                   <Text fontSize="xs" color="gray.600">
                     Admin
                   </Text>
@@ -218,7 +242,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
               <MenuItem>Settings</MenuItem>
               <MenuItem>Billing</MenuItem>
               <MenuDivider />
-              <MenuItem>Sign out</MenuItem>
+              <MenuItem onClick={signout}  >Sign out</MenuItem>
             </MenuList>
           </Menu>
         </Flex>

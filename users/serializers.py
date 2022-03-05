@@ -142,7 +142,6 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CustomUser
-
         fields = ['id', 'user_type', 'username', 'email',
          'first_name', 'last_name', 'user_permissions', 'password',
          
