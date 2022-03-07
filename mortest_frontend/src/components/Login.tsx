@@ -1,4 +1,4 @@
-import React, { Dispatch, FC, useState } from 'react';
+import React, { Dispatch, FC, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import {
 	Flex,
@@ -12,7 +12,13 @@ import {
 	Button,
 	Heading,
 	Text,
-	useColorModeValue} from '@chakra-ui/react';
+	useColorModeValue,
+       useToast,
+       Alert,
+       AlertIcon,
+       AlertDescription,
+       AlertTitle,
+       CloseButton} from '@chakra-ui/react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import store, { useTypedSelector } from '../store/store';
 import { getUserData, UserActionTypes, userLogin } from '../actions/userActions';
@@ -20,24 +26,57 @@ import { connect, useDispatch, useStore } from 'react-redux';
 import { userReducer } from '../reducers/userReducer';
 import history from "../utils/history";
 import { render } from 'react-dom';
+import { ErrorActionTypes } from '../actions/errorActions';
+import { InfoOutlineIcon } from '@chakra-ui/icons'
 
 interface LoginProps {
 
 }
 
 const Login: FC<LoginProps> = () => {
-
+       
        const { user } = useTypedSelector((state) => state.userState);
-
+       const { errorstate } = useTypedSelector((state) => state.errorState);
+       
        const [myState, setMyState] = useState({
               username: "",
               password: "" 
        })
        const dispatch = useDispatch();
+       
+       const statuses = ['success', 'error', 'warning', 'info']
 
        const signin = async (myState: { username: string; password: string; }) => {
-              const user = await dispatch(userLogin(myState.username, myState.password))
-       }       
+              const userLog = await dispatch(userLogin(myState.username, myState.password))
+       }  
+
+       const toast = useToast()
+
+       useEffect(() => {
+              // Add a 401 response interceptor
+              if(errorstate==401){
+                     toast({
+                            position: 'bottom',
+                            duration:3000,
+                            render: () => (
+                                   <Box p={5} bgColor={'red.400'} color={'whiteAlpha.900'} borderRadius={'lg'}>
+                                          <Box display={'flex'} flexDir={'column'}  >
+                                                 <Box display='flex'  align-items= 'center' p={2}>
+                                                        <InfoOutlineIcon  w={6} h={6}  />
+                                                        <Text paddingLeft={4} mr={2} fontWeight={'bold'} color={'whiteAlpha.900'}>Login Failed</Text>
+                                                 </Box>
+                                                 <Text>Something wrong with your credentials.</Text>
+                                          </Box>
+                                   </Box>
+                            ),
+                     })
+                     dispatch({
+                            type: ErrorActionTypes.SET_ERRORS,
+                            payload: 0,
+                     });
+              }
+
+       },);
 
        const onChange=(e: any): void => {
               const { name, value } = e.currentTarget;

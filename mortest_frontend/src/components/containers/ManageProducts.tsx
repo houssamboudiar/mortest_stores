@@ -13,6 +13,7 @@ import { IProduct } from '../../reducers/productReducer';
 import { IAppState, useTypedSelector } from '../../store/store';
 import { ProductTable } from './ProductTable';
 import { AddProduct } from './AddProduct';
+import { getAllProducts, ProductActionTypes } from '../../actions/productActions';
 
 interface ManageProductsProps {
 }
@@ -22,7 +23,6 @@ export const ManageProducts: React.FC<ManageProductsProps> = () => {
        const { products } = useTypedSelector((state) => state.productState);
        const [viewMode, setViewMode] = useState(true);
        const { isOpen, onOpen, onClose } = useDisclosure();
-       const printer = () => console.log("wow its working !")
        return (
               <Box display="flex" flexDir="column" height="80vh" w="100%" borderRadius="4px" overflow="hidden" bg="P3White" boxShadow="task" >
                      <Box paddingTop="10" paddingBottom="5" paddingRight="6" paddingLeft="6" display="flex" w="100%" >
@@ -98,13 +98,13 @@ export const ManageProducts: React.FC<ManageProductsProps> = () => {
                             return <StudentList student={student} students={students} fetchDataPage={fetchDataPage} key={i} />
                      })}
                      </InfiniteScroll>} */}
-                            {viewMode&&products.map((product) => {
+                            {products&&viewMode&&products.map((product) => {
                                    return <ProductList product={product}
                                           //  fetchDataPage={fetchDataPage} 
                                           key={product.reference} />
                             })}
 
-                            {!viewMode&&<Box _hover={{ bg: "#f8f8f8" }} w="100%" borderRadius="4px" bg="P3White">
+                            {products&&!viewMode&&<Box _hover={{ bg: "#f8f8f8" }} w="100%" borderRadius="4px" bg="P3White">
                                    <Center>
                                           <Box marginTop="2" marginBottom="2"  display="flex" w="100%" >
                                                  <Table size='sm' variant='striped' colorScheme='blackAlpha'>
@@ -150,6 +150,7 @@ export const ManageProducts: React.FC<ManageProductsProps> = () => {
               </Box>
        );
 }
+
 
 // /** 
 //  * Manage Student Task

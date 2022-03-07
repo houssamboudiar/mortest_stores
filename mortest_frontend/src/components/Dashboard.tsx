@@ -2,6 +2,7 @@ import { Button } from '@chakra-ui/react';
 import React, { FC, useEffect, useState } from 'react';
 import { useDispatch, useSelector, useStore } from 'react-redux';
 import { Route, Routes, useNavigate } from 'react-router-dom';
+import { ProductActionTypes } from '../actions/productActions';
 import { getUserData } from '../actions/userActions';
 import { IUserState } from '../reducers/userReducer';
 import { useTypedSelector } from '../store/store';
@@ -16,7 +17,6 @@ interface DashboardProps {
 
 const Dashboard: FC<DashboardProps> = () => {
        const navigate  = useNavigate();
-       const dispatch = useDispatch();
        
        const { user } = useTypedSelector((state) => state.userState);
 

@@ -5,6 +5,7 @@ import axios from 'axios';
 
 // Import Character Typing
 import { IProduct, IProductState } from '../reducers/productReducer';
+import { useTypedSelector } from '../store/store';
 
 // Create Action Constants
 
@@ -29,8 +30,10 @@ export type ProductActions = IProductGetAllAction;
 export const getAllProducts: ActionCreator<
   ThunkAction<Promise<any>, IProductState, null, IProductGetAllAction>
 > = () => {
+  const { user } = useTypedSelector((state) => state.userState);
   return async (dispatch: Dispatch) => {
     try {
+      axios.defaults.headers.common = {'Authorization': `Bearer ${user[0].credentials.access}`}
       const response = await axios.get('http://127.0.0.1:8000/api/produit_get_post');
       dispatch({
         products: response.data,

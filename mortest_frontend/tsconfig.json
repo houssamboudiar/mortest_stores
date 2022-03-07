@@ -109,6 +109,13 @@
     "node_modules",
     "public",
     "typings/browser",
-    "typings/browser.d.ts"
+    "typings/browser.d.ts",
+    "static",
+    "migrations",
+    "../core",
+    "../env",
+    "../images",
+    "../src",
+    "../users",
   ]
 }

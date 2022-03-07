@@ -14,18 +14,21 @@
  import {productReducer, IProductState } from '../reducers/productReducer';
 
  import {userReducer, IUserState } from '../reducers/userReducer';
+ import {errorReducer, IErrorState } from '../reducers/errorReducer';
 import { TypedUseSelectorHook, useSelector } from 'react-redux';
  
  // Create an interface for the application state
  export interface IAppState {
     productState: IProductState;
     userState: IUserState;
+    errorState: IErrorState;
  }
  
  // Create the root reducer
  const rootReducer = combineReducers<IAppState>({
        productState: productReducer,
        userState: userReducer,
+       errorState: errorReducer,
  });
 
  export const useTypedSelector: TypedUseSelectorHook<IAppState> = useSelector;
