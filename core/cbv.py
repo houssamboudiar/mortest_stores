@@ -3,7 +3,7 @@ from rest_framework import generics
 from . import models
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, DjangoModelPermissionsOrAnonReadOnly
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, pagination
 
 
 #----------------------------------------------SELLING POINT----------------------------------------------------------
@@ -105,10 +105,16 @@ class CaissePk(generics.RetrieveUpdateDestroyAPIView):
         return queryset
 
 
+# class StandardResultsSetPagination(pagination.PageNumberPagination):
+#     page_size = 1
+#     page_size_query_param = 'page_size'
+#     max_page_size = 1000
+
 class ProduitGetPost(generics.ListCreateAPIView):
     queryset = models.Produit.objects.all()
     serializer_class = serializers.ProduitSerializer
     permission_classes = [IsAuthenticated, DjangoModelPermissionsOrAnonReadOnly]
+    pagination_class = pagination.PageNumberPagination
 
     def get_queryset(self):
         queryset = models.Produit.objects.all()
@@ -118,6 +124,15 @@ class ProduitGetPost(generics.ListCreateAPIView):
 
     def list(self, request):
         queryset = self.get_queryset()
+        # page = self.request.query_params.get('page')
+        # if page is not None:
+        #     paginate_queryset = self.paginate_queryset(queryset)
+        #     serializer = self.serializer_class(paginate_queryset, many=True)
+        #     return self.get_paginated_response(serializer.data)
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
         serializer = serializers.ProduitSerializer(queryset, many=True)
         return Response(serializer.data)
 
