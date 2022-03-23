@@ -1,10 +1,10 @@
 from django.shortcuts import render
 from django.http.response import JsonResponse
-from .models import (Depot, FicheDebit, Fournisseur, SellingPoint, Caisse, Produit, FicheCredit, Vendeur)
+from .models import (Depot, FicheDebit, Fournisseur, SellingPoint, Caisse, Produit, FicheCredit, Vendeur, FamilleProduit, MarqueProduit)
 from . import models
 from rest_framework.decorators import api_view, permission_classes
 from .serializers import (FournisseurSerializer, SellingPointSerializer, CaisseSerializer,
-ProduitSerializer, DepotSerializer, FicheCreditSerializer, FicheDebitSerializer, VendeurSerializer)
+ProduitSerializer, DepotSerializer, FicheCreditSerializer, FicheDebitSerializer, VendeurSerializer, FamilleSerializer, MarqueSerializer)
 from . import serializers
 from rest_framework import generics, mixins, viewsets
 from rest_framework import status, filters
@@ -34,6 +34,34 @@ def sellingPointGETPOST(request):
         return Response (serializer.data, status=status.HTTP_400_BAD_REQUEST)
 
 
+@api_view(['GET','POST'])
+@permission_classes([IsAuthenticated, IsAdminUser])
+def familleProduitGETPOST(request):
+    if request.method == 'GET':
+        famille_produit = FamilleProduit.objects.all()
+        serializer = FamilleSerializer(famille_produit, many=True)
+        return Response (serializer.data)
+    if request.method == 'POST':
+        serializer = FamilleSerializer(data= request.data, context={'request': request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response (serializer.data, status=status.HTTP_201_CREATED)
+        return Response (serializer.data, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET','POST'])
+@permission_classes([IsAuthenticated, IsAdminUser])
+def marqueProduitGETPOST(request):
+    if request.method == 'GET':
+        marque_produit = MarqueProduit.objects.all()
+        
+        serializer = MarqueSerializer(marque_produit, many=True)
+        return Response (serializer.data)
+    if request.method == 'POST':
+        serializer = MarqueSerializer(data= request.data, context={'request': request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response (serializer.data, status=status.HTTP_201_CREATED)
+        return Response (serializer.data, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET','PUT', 'DELETE'])
 @permission_classes([IsAuthenticated, DjangoModelPermissionsOrAnonReadOnly])
@@ -114,6 +142,16 @@ def produitGETPOST(request):
             return Response (serializer.data, status=status.HTTP_201_CREATED)
         return Response (serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated, DjangoModelPermissionsOrAnonReadOnly])
+def produitGETPage(request, pk):
+    if request.method == 'GET':
+        produit = Produit.objects.all()
+        if not request.user.is_superuser:
+            produit = Produit.objects.filter(selling_point=request.user.vendeur.selling_point).filter
+        serializer = ProduitSerializer(produit, many=True)
+        return Response (serializer.data)
 
 @api_view(['GET','PUT', 'DELETE'])
 @permission_classes([IsAuthenticated, DjangoModelPermissionsOrAnonReadOnly])

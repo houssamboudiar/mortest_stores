@@ -6,7 +6,6 @@ import { Route } from "react-router-dom";
 import parseJwt from "../utils/utils";
 // Import Character Typing
 import { IUser, IUserState } from '../reducers/userReducer';
-import store from '../store/store';
 import { useNavigate } from 'react-router-dom';
 import { createAction, createAsyncThunk } from '@reduxjs/toolkit';
 import { string } from 'prop-types';

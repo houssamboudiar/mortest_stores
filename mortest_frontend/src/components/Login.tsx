@@ -20,7 +20,7 @@ import {
        AlertTitle,
        CloseButton} from '@chakra-ui/react';
 import { Navigate, useNavigate } from 'react-router-dom';
-import store, { useTypedSelector } from '../store/store';
+import { useTypedSelector } from '../store/store';
 import { getUserData, UserActionTypes, userLogin } from '../actions/userActions';
 import { connect, useDispatch, useStore } from 'react-redux';
 import { userReducer } from '../reducers/userReducer';
@@ -76,7 +76,7 @@ const Login: FC<LoginProps> = () => {
                      });
               }
 
-       },);
+       }, [] );
 
        const onChange=(e: any): void => {
               const { name, value } = e.currentTarget;

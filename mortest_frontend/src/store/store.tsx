@@ -11,30 +11,40 @@
  */
  import thunk from 'redux-thunk';
  // Import reducers and state type
- import {productReducer, IProductState } from '../reducers/productReducer';
+ import {productReducer, IProductState, ISPFamilleMarqueProductState, SPFamilleMarqueReducer } from '../product/productReducer';
 
  import {userReducer, IUserState } from '../reducers/userReducer';
  import {errorReducer, IErrorState } from '../reducers/errorReducer';
 import { TypedUseSelectorHook, useSelector } from 'react-redux';
+import { configureStore } from '@reduxjs/toolkit';
  
  // Create an interface for the application state
  export interface IAppState {
     productState: IProductState;
+    SPFamilleMarque: ISPFamilleMarqueProductState;
     userState: IUserState;
     errorState: IErrorState;
  }
  
- // Create the root reducer
- const rootReducer = combineReducers<IAppState>({
-       productState: productReducer,
-       userState: userReducer,
-       errorState: errorReducer,
- });
+//  // Create the root reducer
+//  const rootReducer = combineReducers<IAppState>({
+//        productState: productReducer,
+//        userState: userReducer,
+//        errorState: errorReducer,
+//  });
 
  export const useTypedSelector: TypedUseSelectorHook<IAppState> = useSelector;
- 
+
+ export const store = configureStore({
+  reducer: {
+    productState: productReducer,
+    userState: userReducer,
+    errorState: errorReducer,
+    spfamillemarqueState: SPFamilleMarqueReducer,
+  }, 
+  middleware: [thunk],});
  // Create a configure store function of type `IAppState`
- export default function configureStore(): Store<IAppState, any> {
-   const store = createStore(rootReducer, composeWithDevTools(applyMiddleware(thunk)));
-   return store;
- }
+//  export default function configureStore(): Store<IAppState, any> {
+//    const store = createStore(rootReducer, composeWithDevTools(applyMiddleware(thunk)));
+//    return store;
+//  }

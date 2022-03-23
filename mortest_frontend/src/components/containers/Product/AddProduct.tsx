@@ -3,14 +3,15 @@ import { Avatar, Box, Button, Center, Divider, Heading, Icon, Stack, Text, Modal
 import { useForm } from "react-hook-form";
 // import AddProductForm from './AddProductForm'
 // import 'react-day-picker/lib/style.css';
-import { connect } from 'react-redux';
-import { IAppState } from '../../store/store';
-import { IProduct } from '../../reducers/productReducer';
+import { connect, useDispatch } from 'react-redux';
+import { IAppState } from '../../../store/store';
+import { IProduct } from '../../../product/productReducer';
 import { MdEdit, MdDelete } from "react-icons/md"
 import { IoIosCloseCircleOutline } from "react-icons/io"
 import { AiFillFilePdf } from "react-icons/ai"
 import { FaAddressCard } from "react-icons/fa"
 import { AddProductForm } from './AddProductForm';
+import { getSPFamilleMarque } from '../../../product/productActions';
 // import {EditStudent} from './EditStudent'
 // import download from 'downloadjs'
 // import Axios from 'axios'
@@ -54,6 +55,7 @@ export const AddProduct: React.FC<IProps> = (props:IProps) => {
        const toast = useToast();
        const { register, formState: { errors }, handleSubmit } = useForm<FormInputs>();
        // const [studentPicture, setstudentPicture] = useState("")
+
        // const [student, setStudent] = useState({
        //        firstName: '',
        //        lastName: '',
@@ -169,9 +171,15 @@ export const AddProduct: React.FC<IProps> = (props:IProps) => {
         //               })
         //        }
         // }
+       const dispatch = useDispatch();
+
+       useEffect(()=>{
+              dispatch(getSPFamilleMarque())
+       },[])
+       
        return (
               <Drawer
-                     size="md"
+                     size="sm"
                      isOpen={props.isOpen}
                      placement="right"
                      onClose={props.onClose}>

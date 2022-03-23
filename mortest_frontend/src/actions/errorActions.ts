@@ -6,7 +6,9 @@ export enum ErrorActionTypes {
 // Interface for SET AUTHENTICATED Action Type
 export interface IErrorLoginAction {
        type: ErrorActionTypes.SET_ERRORS;
-       errorstate: number;
+       payload:{
+              error:number;
+       }
 }
 
 /* 
