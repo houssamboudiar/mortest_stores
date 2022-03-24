@@ -10,6 +10,8 @@ urlpatterns = [
 #--------------------------------------------SELLING POINT--------------------------------------------
 
     path('sp_get_post', cbv.SellingPoitGetPost.as_view(), name='sp_get_post'),
+    path('famille_get_post', views.familleProduitGETPOST, name='famille_get_post'),
+    path('marque_get_post', views.marqueProduitGETPOST, name='marque_get_post'),
     path('sp_pk/<int:pk>', cbv.SellingPoitPk.as_view(), name='sp_pk'),
     path('caisse_get_post', cbv.CaisseGetPost.as_view(), name='caisse_get_post'),
     path('caisse_pk/<int:pk>', cbv.CaissePk.as_view(), name='caisse_pk'),

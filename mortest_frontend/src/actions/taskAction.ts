@@ -4,7 +4,6 @@ import { ThunkAction } from 'redux-thunk';
 import axios from 'axios';
 
 // Import Character Typing
-import { IProduct, IProductState } from '../reducers/productReducer';
 import { Itask } from '../reducers/taskReducer';
 
 // Create Action Constants

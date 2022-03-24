@@ -1,6 +1,7 @@
 // Import Reducer type
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { AnyAction, Reducer } from 'redux';
+import { ErrorActionTypes } from '../actions/errorActions';
 import { UserActions, UserActionTypes} from '../actions/userActions';
 
 export interface IUser {
@@ -12,7 +13,7 @@ export interface IUser {
        credentials:{
               access:string,
               refresh:string
-       }
+       },
 }
 
 export interface IUserState {
@@ -30,7 +31,7 @@ const initialUserState: IUserState = {
               credentials:{
                      access:'',
                      refresh:''
-              }
+              },
        }
        ],
 };
@@ -56,6 +57,11 @@ export const  userReducer: Reducer<IUserState, AnyAction> = (state=initialUserSt
                      return {
                             ...initialUserState,
                             loading: true
+                     };
+              case ErrorActionTypes.SET_ERRORS:
+                     return {
+                            ...state,
+                            error: action.payload,
                      };
               default:
                      return state;

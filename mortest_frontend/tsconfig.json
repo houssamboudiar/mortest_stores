@@ -97,7 +97,7 @@
 
     /* Completeness */
     // "skipDefaultLibCheck": true,                      /* Skip type checking .d.ts files that are included with TypeScript. */
-    "skipLibCheck": true,                                 /* Skip type checking all .d.ts files. */
+    "skipLibCheck": true,
     "outDir": "./dist/",
     "module": "es6",
     "target": "es5",
@@ -109,6 +109,13 @@
     "node_modules",
     "public",
     "typings/browser",
-    "typings/browser.d.ts"
+    "typings/browser.d.ts",
+    "static",
+    "migrations",
+    "../core",
+    "../env",
+    "../images",
+    "../src",
+    "../users",
   ]
 }

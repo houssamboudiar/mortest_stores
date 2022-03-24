@@ -1,8 +1,8 @@
 
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { IAppState } from '../../store/store';
-import { IProduct } from '../../reducers/productReducer';
+import { IAppState } from '../../../store/store';
+import { IProduct } from '../../../product/productReducer';
 import { Avatar, Box, Button, Center, Divider, Heading, Icon, Stack, Text, Modal, ModalHeader, ModalCloseButton, ModalOverlay, ModalContent, ModalFooter, ModalBody, useDisclosure, useToast, Table, TableCaption, Thead, Tr, Th, Tbody, Td, Tfoot } from '@chakra-ui/react'
 import { MdEdit, MdDelete } from "react-icons/md"
 import { IoIosCloseCircleOutline } from "react-icons/io"

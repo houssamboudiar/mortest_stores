@@ -1,6 +1,5 @@
 // Import Reducer type
 import { AnyAction, Reducer } from 'redux';
-import { ProductActions, ProductActionTypes} from '../actions/productActions';
 import { TaskActionTypes } from '../actions/taskAction';
 
 // Define the Character type
