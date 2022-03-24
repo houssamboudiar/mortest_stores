@@ -1,8 +1,10 @@
 from email.policy import default
 from rest_framework import serializers
 from users.models import CustomUser
+from core.models import Vendeur
 from django.contrib.auth.models import Permission
 from django.contrib.auth.password_validation import validate_password
+from core.serializers import VendeurSerializer 
 
 
 class PermissionSerializer(serializers.ModelSerializer):
@@ -13,8 +15,8 @@ class PermissionSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    user_type_data = (('1',"Directeur"),('2',"Vendeur"),('3',"Autre"))
-    user_type = serializers.ChoiceField(default='2',choices=user_type_data)
+    # user_type_data = (('1',"Directeur"),('2',"Vendeur"),('3',"Autre"))
+    # user_type = serializers.ChoiceField(default='2',choices=user_type_data)
 
 
     permissions_data = (
@@ -139,11 +141,13 @@ class UserSerializer(serializers.ModelSerializer):
     # user_permissions = serializers.SerializerMethodField()
     password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
     # password2 = serializers.CharField(write_only=True, required=True)
+    vendeur = VendeurSerializer()
+
 
     class Meta:
         model = CustomUser
-        fields = ['id', 'user_type', 'username', 'email',
-         'first_name', 'last_name', 'user_permissions', 'password',
+        fields = ['id', 'username', 'email',
+         'first_name', 'last_name', 'user_permissions', 'password', 'vendeur',
          
          'permissions', 'is_staff', "is_superuser"]
         # extra_kwargs = {
@@ -152,6 +156,7 @@ class UserSerializer(serializers.ModelSerializer):
         read_only_fields = ['user_permissions']
     
     def create(self, validated_data):
+        vendeur_data = validated_data.pop('vendeur')
         user = CustomUser.objects.create_user(username=validated_data['username'],
          email=validated_data['email'], password=validated_data['password'],
          first_name=validated_data['first_name'], last_name=validated_data['last_name'],
@@ -171,6 +176,7 @@ class UserSerializer(serializers.ModelSerializer):
                     raise serializers.ValidationError({'permission': 'permission does not exist'})
                 perm_list.append(permission)
             user.user_permissions.set(perm_list)
+        Vendeur.objects.create(admin=user, **vendeur_data)
         return user
 
     def update(self, instance, validated_data):

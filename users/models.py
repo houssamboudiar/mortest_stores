@@ -7,8 +7,8 @@ from .managers import CustomUserManager
 
 class CustomUser(AbstractUser):
     email = models.EmailField(_('email address'), unique=True)
-    user_type_data = (('1',"Directeur"),('2',"Vendeur"),('3',"Autre"))
-    user_type = models.CharField(default='2',choices=user_type_data,max_length=10)
+    # user_type_data = (('1',"Directeur"),('2',"Vendeur"),('3',"Autre"))
+    # user_type = models.CharField(default='2',choices=user_type_data,max_length=10)
     REQUIRED_FIELDS = []
     objects = CustomUserManager()
     # date_of_birth = models.DateField(blank=True, null=True)

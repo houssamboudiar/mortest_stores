@@ -1,3 +1,4 @@
+import datetime
 from django.conf import Settings
 from django.db import models
 from users.models import CustomUser as User
@@ -119,10 +120,22 @@ class Produit(models.Model):
         pourcentage_marge = (marge * 100)/self.prix_U_achat
         return pourcentage_marge
 
+
+class Depot(models.Model):
+    selling_point = models.ForeignKey(SellingPoint, on_delete=models.PROTECT)
+    nom = models.CharField(max_length=100)
+    adresse = models.TextField(max_length=500)
+    produits = models.ManyToManyField(Produit, related_name="produits", blank=True)
+    def __str__(self) -> str:
+        return f'{self.nom} dépot'
+
 class Avaries(models.Model):
     selling_point =  models.ForeignKey(SellingPoint, on_delete=models.PROTECT)
     produit =  models.ForeignKey(Produit, on_delete=models.PROTECT)
+    
     qtte = models.PositiveBigIntegerField()
+    depot =  models.ForeignKey(Depot, on_delete=models.PROTECT)
+    date= models.DateField(auto_now=True)
 
     @property
     def depot(self):
@@ -137,14 +150,6 @@ class Avaries(models.Model):
     def __str__(self) -> str:
         return f'{self.produit.article} avarié'
 
-
-class Depot(models.Model):
-    selling_point = models.ForeignKey(SellingPoint, on_delete=models.PROTECT)
-    nom = models.CharField(max_length=100)
-    adresse = models.TextField(max_length=500)
-    produits = models.ManyToManyField(Produit, related_name="produits", blank=True)
-    def __str__(self) -> str:
-        return f'{self.nom} dépot'
 
 class FicheCredit(models.Model):
     selling_point = models.ForeignKey(SellingPoint, on_delete=models.CASCADE, related_name='selling_point_fc')
@@ -215,7 +220,6 @@ class Vendeur(models.Model):
     phone_number_1 = models.PositiveBigIntegerField(null=True, blank=True)
     phone_number_2= models.PositiveBigIntegerField(blank=True, null=True)
     family_situation = models.CharField(max_length=100, blank=True, null=True)
-    selling_point = models.ForeignKey(SellingPoint, on_delete=models.CASCADE)
     name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
     adress = models.CharField(max_length=100)
@@ -227,12 +231,15 @@ class Vendeur(models.Model):
     def __str__(self) -> str:
         return f'{self.name} {self.last_name}'
 
+class TypeFG(models.Model):
+    type= models.CharField(max_length=100)
+
 class FraisGenerales(models.Model):
     selling_point = models.ForeignKey(SellingPoint, on_delete=models.CASCADE, default=1)
-    number = models.PositiveBigIntegerField()
-    date = models.DateField()
-    type_data=(('1',"type1"),('2',"type2"),('3',"type3"), ('4',"type4"),)
-    type=models.CharField(default=1,choices=type_data,max_length=10)
+    date= models.DateField(auto_now=True)
+    # number = models.CharField(max_length = 20, default = self.increment_booking_number, editable=False)    date = models.DateField()
+    # type_data=(('1',"type1"),('2',"type2"),('3',"type3"), ('4',"type4"),)
+    type=models.ForeignKey(TypeFG, on_delete=models.PROTECT)
     montant = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     TVA = models.DecimalField(default=0,
         validators=[
@@ -261,7 +268,18 @@ class FraisGenerales(models.Model):
     def __str__(self) -> str:
         return f'frais {self.number} de la caisse {self.caisse.nom}'
 
+    @property
+    def increment_number(self):
+        last = self.objects.all().order_by('id').last()
+        if not last:
+            # return 'RNH' + str(datetime.date.today().year) + str(datetime.date.today().month).zfill(2) + '0000'
+            return 1
 
+        booking_id = last.number
+        # booking_int = int(booking_id[9:13])
+        new_booking_id = booking_id + 1
+        # new_booking_id = 'RNH' + str(str(datetime.date.today().year)) + str(datetime.date.today().month).zfill(2) + str(new_booking_int).zfill(4)
+        return new_booking_id
 
         #-----------------------------------------FOURNISSEURS---------------------------------------------
 
@@ -294,11 +312,11 @@ class FicheAchatCommandeFournisseur(models.Model):
     fournisseur = models.ForeignKey(Fournisseur, on_delete=models.PROTECT, default=1)
     saisie_le = models.DateField(auto_now_add=True)
     modilfié_le = models.DateField(auto_now=True)
-    saisie_par = models.ForeignKey(User, on_delete=models.CASCADE,default=1111, related_name='saisie_par_fac')
-    modifie_par = models.ForeignKey(User, on_delete=models.CASCADE,default=1111, null=True, related_name='modifie_par_fac')
+    saisie_par = models.ForeignKey(User, on_delete=models.CASCADE, related_name='saisie_par_fac')
+    modifie_par = models.ForeignKey(User, on_delete=models.CASCADE, null=True, related_name='modifie_par_fac')
     action_data=(('facture',"facture"),('bon',"bon"),('bon de commande',"bon de commande"),)
     action=models.CharField(default=1,choices=action_data,max_length=30)
-    numero = models.IntegerField()
+    numero = models.PositiveIntegerField(default=1)
     # code = models.IntegerField()
     date = models.DateField(auto_now=True)
     # prix = models.DecimalField(max_digits=10, decimal_places=2)
@@ -328,6 +346,33 @@ class FicheAchatCommandeFournisseur(models.Model):
             MinValueValidator(0)
         ], max_digits=10, decimal_places=2)
     
+
+    
+    # def save(self, *args, **kwargs):
+    #     last = self.objects.all().order_by('id').last()
+    #     if not last:
+    #         # return 'RNH' + str(datetime.date.today().year) + str(datetime.date.today().month).zfill(2) + '0000'
+    #         self.numero = 1
+
+    #     last_numero = last.numero
+    #     # booking_int = int(booking_id[9:13])
+    #     self.numero = last_numero + 1
+    #     # new_booking_id = 'RNH' + str(str(datetime.date.today().year)) + str(datetime.date.today().month).zfill(2) + str(new_booking_int).zfill(4)
+    #     super(FicheAchatCommandeFournisseur, self).save()
+
+    def save(self, *args, **kwargs):
+        # This means that the model isn't saved to the database yet
+        if self._state.adding:
+            # Get the maximum display_id value from the database
+            last_id = self.__class__.objects.all().aggregate(largest=models.Max('numero'))['largest']
+
+            # aggregate can return None! Check it first.
+            # If it isn't none, just use the last ID specified (which should be the greatest) and add one to it
+            if last_id is not None:
+                self.numero = last_id + 1
+
+        super(FicheAchatCommandeFournisseur, self).save(*args, **kwargs)
+
     @property
     def total(self):
         prix=0
@@ -354,7 +399,7 @@ class FicheAchatCommandeFournisseur(models.Model):
         return montant
         
     def __str__(self) -> str:
-        return f'{self.type_fiche} {self.fournisseur.name}'
+        return f'{self.type_fiche} {self.fournisseur.name} {self.numero}'
     
 class ProduitAchatCommandeFournisseur(models.Model):
     achat = models.ForeignKey(FicheAchatCommandeFournisseur, related_name='produits', on_delete=models.CASCADE)
@@ -476,7 +521,7 @@ class FicheVenteClient(models.Model):
     type_client_data = (('détaillant',"détaillant"),('grossiste',"grossiste"),('revendeur',"revendeur"),('autre',"autre"))
     type_client=models.CharField(default=1,choices=type_fiche_data,max_length=30)
     selling_point = models.ForeignKey(SellingPoint, on_delete=models.PROTECT)
-    numero = models.IntegerField()
+    # numero = models.BigAutoField()
     client = models.ForeignKey(Client, on_delete=models.PROTECT)
     # depot = models.ForeignKey(Depot, on_delete=models.PROTECT)
     # quantite = models.DecimalField(max_digits=10, decimal_places=2)
@@ -511,6 +556,19 @@ class FicheVenteClient(models.Model):
             MinValueValidator(0)
         ], max_digits=10, decimal_places=2)
     
+    @property
+    def increment_number(self):
+        last = self.objects.all().order_by('id').last()
+        if not last:
+            # return 'RNH' + str(datetime.date.today().year) + str(datetime.date.today().month).zfill(2) + '0000'
+            return 1
+
+        booking_id = last.number
+        # booking_int = int(booking_id[9:13])
+        new_booking_id = booking_id + 1
+        # new_booking_id = 'RNH' + str(str(datetime.date.today().year)) + str(datetime.date.today().month).zfill(2) + str(new_booking_int).zfill(4)
+        return new_booking_id
+
     @property
     def total(self):
         prix=0

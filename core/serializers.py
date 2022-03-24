@@ -55,6 +55,17 @@ class ProduitSerializer(serializers.ModelSerializer):
          'marge_vente_revendeur', 'marge_vente_autre', 'qtte_achete', 'qtte_vendue',
           'qtte_retour_four', 'qtte_retour_client', 'qtte_avarie']
 
+class MarqueProduitSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.MarqueProduit
+        fields = ['id','marque']
+
+class FamilleProduitSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.FamilleProduit
+        fields = ['id','famille']
+
+
 class AvariesSerializer(serializers.ModelSerializer):
     selling_point = SellingPointCustomRelationQueryset(
     slug_field='id')
@@ -121,8 +132,7 @@ class FraisGeneralesSerializer(serializers.ModelSerializer):
     date = serializers.DateField()
     caisse = CaisseCustomRelationField(
     slug_field='id')
-    type_data=(('1',"type1"),('2',"type2"),('3',"type3"), ('4',"type4"),)
-    type=serializers.ChoiceField(default=1,choices=type_data)
+    type=serializers.SlugRelatedField(queryset=models.TypeFG.objects.all(), slug_field='id')
     reglement_choices=(('A terme',"A terme"),('Espece',"Espece"),('Virement',"Virement"), ('chèque',"chèque"),)
     reglement=serializers.ChoiceField(choices=reglement_choices)
     montant_tva = serializers.ReadOnlyField(source='montantTVA')
@@ -140,14 +150,14 @@ class FraisGeneralesSerializer(serializers.ModelSerializer):
 class VendeurSerializer(serializers.ModelSerializer):
     selling_point = serializers.SlugRelatedField(queryset=SellingPoint.objects.all(),
     slug_field='id', required=False)
-    admin = serializers.SlugRelatedField(queryset=User.objects.all(),
-    slug_field='id')
+    # admin = serializers.SlugRelatedField(queryset=User.objects.all(),
+    # slug_field='id')
     class Meta:
         model = Vendeur
         fields = ['id','selling_point', 'name', 'last_name', 'img',
-        'identity_num', 'admin', 'phone_number_1', 'phone_number_2',
-         'family_situation', 'adress']
-        depth = 1
+        'identity_num', 'phone_number_1', 'phone_number_2',
+         'family_situation', 'adress', 'admin']
+        # depth = 1
 
 
 #-------------------------------------------------FOURNISSEUR-------------------------------------------------------
@@ -199,6 +209,7 @@ class FicheACFournisseurSerializer(WritableNestedModelSerializer):
     # slug_field='id', many=True)
     caisse = CaisseCustomRelationField(
     slug_field='id')
+    # number = serializers.ReadOnlyField(source='increment_number')
 
     montanttva = serializers.ReadOnlyField(source='montantTVA')
     montantremise = serializers.ReadOnlyField(source='montantRemise')
@@ -212,7 +223,7 @@ class FicheACFournisseurSerializer(WritableNestedModelSerializer):
          'numero', 'date', 'montantregfour', 'mode_reglement',
          'caisse', 'observation', 'totalachats', 'TVA', 'timbre', 'remise', 'montanttva', 'montantremise', 'prixttc']
         
-        read_only_fields = ['saisie_le', 'modilfié_le', 'saisie_par', 'type_fiche']
+        read_only_fields = ['saisie_le', 'modilfié_le', 'saisie_par', 'type_fiche', 'modifie_par', 'numero']
         # depth = 1
 
     def create(self, validated_data):
@@ -276,10 +287,11 @@ class PayementFournisseurSerializer(serializers.ModelSerializer):
     reglement=serializers.ChoiceField(default=1,choices=reglement_data)
     caisse = CaisseCustomRelationField(
     slug_field='id')
+    number = serializers.ReadOnlyField(source='increment_number')
     # date = serializers.DateField()
     class Meta:
         model = models.PayementFournisseur
-        fields = ['id','selling_point', 'date', 'fournisseur',
+        fields = ['id','selling_point', 'date', 'fournisseur', 'number',
         'saisie_le', 'modilfié_le', 'saisie_par', 'modifie_par',
          'achat', 'montant', 'reglement', 'caisse', 'observation']
 
