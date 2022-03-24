@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'mortest_frontend',
     'core',
     'users',
+    'django_filters',
 ]
 
 MIDDLEWARE = [

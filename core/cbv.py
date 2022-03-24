@@ -4,7 +4,8 @@ from . import models
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, DjangoModelPermissionsOrAnonReadOnly
 from rest_framework.response import Response
 from rest_framework import status, pagination
-
+from django_filters.rest_framework import DjangoFilterBackend
+from datetime import datetime
 
 #----------------------------------------------SELLING POINT----------------------------------------------------------
 
@@ -115,20 +116,20 @@ class ProduitGetPost(generics.ListCreateAPIView):
     serializer_class = serializers.ProduitSerializer
     permission_classes = [IsAuthenticated, DjangoModelPermissionsOrAnonReadOnly]
     pagination_class = pagination.PageNumberPagination
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['famille', 'marque']
 
     def get_queryset(self):
-        queryset = models.Produit.objects.all()
+        sp = self.request.query_params.get('selling_point')
+        queryset = models.Produit.objects.filter(selling_point=sp)
+        if not sp:
+             queryset = models.Produit.objects.all()
         if not self.request.user.is_superuser:
-            queryset = queryset.filter(selling_point=self.request.user.vendeur.selling_point)
+            queryset = models.Produit.objects.filter(selling_point=self.request.user.vendeur.selling_point)
         return queryset
 
     def list(self, request):
-        queryset = self.get_queryset()
-        # page = self.request.query_params.get('page')
-        # if page is not None:
-        #     paginate_queryset = self.paginate_queryset(queryset)
-        #     serializer = self.serializer_class(paginate_queryset, many=True)
-        #     return self.get_paginated_response(serializer.data)
+        queryset = self.filter_queryset(self.get_queryset())
         page = self.paginate_queryset(queryset)
         if page is not None:
             serializer = self.get_serializer(page, many=True)
@@ -154,19 +155,57 @@ class ProduitPk(generics.RetrieveUpdateDestroyAPIView):
             queryset = queryset.filter(selling_point=self.request.user.vendeur.selling_point)
         return queryset
 
+class MarqueProduitGetPost(generics.ListCreateAPIView):
+    queryset = models.MarqueProduit.objects.all()
+    serializer_class = serializers.MarqueProduitSerializer
+    permission_classes = [IsAuthenticated,DjangoModelPermissionsOrAnonReadOnly]
+
+class MarqueProduitPk(generics.RetrieveUpdateDestroyAPIView):
+    queryset = models.MarqueProduit.objects.all()
+    serializer_class = serializers.MarqueProduitSerializer
+    permission_classes = [IsAuthenticated,DjangoModelPermissionsOrAnonReadOnly]
+
+class FamilleProduitGetPost(generics.ListCreateAPIView):
+    queryset = models.FamilleProduit.objects.all()
+    serializer_class = serializers.FamilleProduitSerializer
+    permission_classes = [IsAuthenticated,DjangoModelPermissionsOrAnonReadOnly]
+
+class FamilleProduitPk(generics.RetrieveUpdateDestroyAPIView):
+    queryset = models.FamilleProduit.objects.all()
+    serializer_class = serializers.FamilleProduitSerializer
+    permission_classes = [IsAuthenticated,DjangoModelPermissionsOrAnonReadOnly]
+
 class AvariesGetPost(generics.ListCreateAPIView):
     queryset = models.Avaries.objects.all()
     serializer_class = serializers.AvariesSerializer
     permission_classes = [IsAuthenticated,DjangoModelPermissionsOrAnonReadOnly]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['produit', 'depot']
 
     def get_queryset(self):
-        queryset = models.Avaries.objects.all()
+        date1 = self.request.query_params.get('date1')
+        if not date1:
+            if models.Vendeur.objects.all().first():
+                date1 = models.Vendeur.objects.all().first().date
+            else:
+                date1=datetime.today().strftime('%Y-%m-%d')
+        date2 = self.request.query_params.get('date2')
+        if not date2:
+            date2=datetime.today().strftime('%Y-%m-%d')
+        
+        sp = self.request.query_params.get('selling_point')
+        queryset = models.Avaries.objects.filter(selling_point=sp, date__range=[date1, date2])
         if not self.request.user.is_superuser:
-            queryset = queryset.filter(selling_point=self.request.user.vendeur.selling_point)
+            queryset =  models.Avaries.objects.filter(selling_point=self.request.user.vendeur.selling_point,
+             date__range=[date1, date2])
         return queryset
 
     def list(self, request):
-        queryset = self.get_queryset()
+        queryset = self.filter_queryset(self.get_queryset())
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
         serializer = serializers.AvariesSerializer(queryset, many=True)
         return Response(serializer.data)
 
@@ -229,15 +268,33 @@ class FicheCreditGetPost(generics.ListCreateAPIView):
     queryset = models.FicheCredit.objects.all()
     serializer_class = serializers.FicheCreditSerializer
     permission_classes = [IsAuthenticated,DjangoModelPermissionsOrAnonReadOnly]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['reglement', 'caisse']
 
     def get_queryset(self):
-        queryset = models.FicheCredit.objects.all()
+        date1 = self.request.query_params.get('date1')
+        if not date1:
+            if models.FicheCredit.objects.all().first():
+                date1 = models.FicheCredit.objects.all().first().date
+            else:
+                date1=datetime.today().strftime('%Y-%m-%d')
+        date2 = self.request.query_params.get('date2')
+        if not date2:
+            date2=datetime.today().strftime('%Y-%m-%d')
+        
+        sp = self.request.query_params.get('selling_point')
+        queryset = models.FicheCredit.objects.filter(selling_point=sp, date__range=[date1, date2])
         if not self.request.user.is_superuser:
-            queryset = queryset.filter(selling_point=self.request.user.vendeur.selling_point)
+            queryset = models.FicheCredit.objects.filter(selling_point=self.request.user.vendeur.selling_point,
+            date__range=[date1, date2])
         return queryset
 
     def list(self, request):
-        queryset = self.get_queryset()
+        queryset = self.filter_queryset(self.get_queryset())
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
         serializer = serializers.FicheCreditSerializer(queryset, many=True)
         return Response(serializer.data)
 
@@ -270,15 +327,34 @@ class FicheDebitGetPost(generics.ListCreateAPIView):
     queryset = models.FicheDebit.objects.all()
     serializer_class = serializers.FicheDebitSerializer
     permission_classes = [IsAuthenticated,DjangoModelPermissionsOrAnonReadOnly]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['reglement', 'caisse']
 
     def get_queryset(self):
-        queryset = models.FicheDebit.objects.all()
+        date1 = self.request.query_params.get('date1')
+        if not date1:
+            if models.FicheDebit.objects.all().first():
+                date1 = models.FicheDebit.objects.all().first().date
+            else:
+                date1=datetime.today().strftime('%Y-%m-%d')
+        date2 = self.request.query_params.get('date2')
+        if not date2:
+            date2=datetime.today().strftime('%Y-%m-%d')
+        
+        sp = self.request.query_params.get('selling_point')
+
+        queryset = models.FicheDebit.objects.filter(selling_point=sp, date__range=[date1, date2])
         if not self.request.user.is_superuser:
-            queryset = queryset.filter(selling_point=self.request.user.vendeur.selling_point)
+            queryset = models.FicheDebit.objects.filter(selling_point=self.request.user.vendeur.selling_point,
+            date__range=[date1, date2])
         return queryset
 
     def list(self, request):
-        queryset = self.get_queryset()
+        queryset = self.filter_queryset(self.get_queryset())
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
         serializer = serializers.FicheDebitSerializer(queryset, many=True)
         return Response(serializer.data)
 
@@ -314,8 +390,11 @@ class VendeurGetPost(generics.ListCreateAPIView):
     serializer_class = serializers.VendeurSerializer
     permission_classes = [IsAuthenticated,IsAdminUser]
 
-    def get_queryset(self):
-        queryset = models.Vendeur.objects.all()
+    def get_queryset(self): 
+        sp = self.request.query_params.get('selling_point')
+        queryset = models.Vendeur.objects.filter(selling_point=sp)
+        if not sp:
+            queryset = models.Vendeur.objects.all()
         if not self.request.user.is_superuser:
             queryset = queryset.filter(selling_point=self.request.user.vendeur.selling_point)
         return queryset
@@ -347,15 +426,34 @@ class FraisGeneralesGetPost(generics.ListCreateAPIView):
     queryset = models.FraisGenerales.objects.all()
     serializer_class = serializers.FraisGeneralesSerializer
     permission_classes = [IsAuthenticated,DjangoModelPermissionsOrAnonReadOnly]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['reglement', 'caisse', 'type']
+
 
     def get_queryset(self):
-        queryset = models.FraisGenerales.objects.all()
+        date1 = self.request.query_params.get('date1')
+        if not date1:
+            if models.FraisGenerales.objects.all().first():
+                date1 = models.FraisGenerales.objects.all().first().date
+            else:
+                date1=datetime.today().strftime('%Y-%m-%d')
+        date2 = self.request.query_params.get('date2')
+        if not date2:
+            date2=datetime.today().strftime('%Y-%m-%d')
+        
+        sp = self.request.query_params.get('selling_point')
+        queryset = models.FraisGenerales.objects.filter(selling_point=sp, date__range=[date1, date2])
         if not self.request.user.is_superuser:
-            queryset = queryset.filter(selling_point=self.request.user.vendeur.selling_point)
+            queryset = models.FraisGenerales.objects.filter(selling_point=self.request.user.vendeur.selling_point,
+            date__range=[date1, date2])
         return queryset
 
     def list(self, request):
-        queryset = self.get_queryset()
+        queryset = self.filter_queryset(self.get_queryset())
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
         serializer = serializers.FraisGeneralesSerializer(queryset, many=True)
         return Response(serializer.data)
 
@@ -427,15 +525,31 @@ class FicheAchatFournisseurGetPost(generics.ListCreateAPIView):
     queryset = models.FicheAchatCommandeFournisseur.objects.filter(type_fiche='Achat')
     serializer_class = serializers.FicheACFournisseurSerializer
     permission_classes = [IsAuthenticated,DjangoModelPermissionsOrAnonReadOnly]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['fournisseur', 'action', 'mode_reglement']
 
     def get_queryset(self):
-        queryset = models.FicheAchatCommandeFournisseur.objects.filter(type_fiche='Achat')
+        date1 = self.request.query_params.get('date1')
+        if not date1:
+            date1 = models.FicheAchatCommandeFournisseur.objects.filter(type_fiche='Achat').first().date
+        date2 = self.request.query_params.get('date2')
+        if not date2:
+            date2=datetime.today().strftime('%Y-%m-%d')
+        
+        sp = self.request.query_params.get('selling_point')
+
+
+        queryset = models.FicheAchatCommandeFournisseur.objects.filter(type_fiche='Achat',
+         date__range=[date1, date2], selling_point=sp)
         if not self.request.user.is_superuser:
-            queryset = queryset.filter(selling_point=self.request.user.vendeur.selling_point)
+            queryset = models.FicheAchatCommandeFournisseur.objects.filter(
+                selling_point=self.request.user.vendeur.selling_point,
+                type_fiche='Achat',
+                date__range=[date1, date2])
         return queryset
 
     def list(self, request):
-        queryset = self.get_queryset()
+        queryset = self.filter_queryset(self.get_queryset())
         serializer = serializers.FicheACFournisseurSerializer(queryset, many=True)
         return Response(serializer.data)
 
@@ -454,7 +568,7 @@ class FicheAchatFournisseurGetPost(generics.ListCreateAPIView):
             serializer.instance.fournisseur.solde += (serializer.instance.total-serializer.instance.montantregfour)
             serializer.instance.fournisseur.save()
             return Response (serializer.data, status=status.HTTP_201_CREATED)
-        return Response (serializer.data, status=status.HTTP_400_BAD_REQUEST)
+        return Response (serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class FicheAchatFournisseurPk(generics.RetrieveUpdateDestroyAPIView):
     queryset = models.FicheAchatCommandeFournisseur.objects.all()
