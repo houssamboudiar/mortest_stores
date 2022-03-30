@@ -35,7 +35,7 @@ interface LoginProps {
 
 const Login: FC<LoginProps> = () => {
        
-       const { user, loading } = useTypedSelector((state) => state.userState);
+       const { user, loading, authenticated } = useTypedSelector((state) => state.userState);
        const { errorstate } = useTypedSelector((state) => state.errorState);
        
        const [myState, setMyState] = useState({
@@ -82,7 +82,7 @@ const Login: FC<LoginProps> = () => {
 
        return(
               <>
-              { !loading && user.authenticated && <Navigate to="/"/>}
+              { !loading && authenticated && <Navigate to="/"/>}
               <Flex
               minH={'100vh'}
               align={'center'}

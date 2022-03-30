@@ -55,7 +55,7 @@ export const userLogin: ActionCreator<ThunkAction<Promise<any>, IUserState, null
               try {
                      dispatch({ type: UserActionTypes.LOADING_UI })
                      axios.post('http://127.0.0.1:8000/api/token/', { username:username, password:password})
-                     .then((res) => {
+                     .then(async (res) => {
                             dispatch({ 
                                    type: UserActionTypes.LOADING_USER,
                                    user: [{
@@ -68,11 +68,11 @@ export const userLogin: ActionCreator<ThunkAction<Promise<any>, IUserState, null
                             let access = localStorage.getItem('access token') as string ;
                             let refresh = localStorage.getItem('refresh token') as string ;
                             const userData = parseJwt(access);
-                            const userD =  [{
+                            const res2 = await axios.get(`http://127.0.0.1:8000/api/users/user_pk/${userData.user_id}`)
+                            const userD = [{
                                    id: userData.user_id,
-                                   username:'Undefined',
+                                   username:res2.data.username,
                                    authenticated: true,
-                                   loading: false,
                                    credentials:{
                                           access:access,
                                           refresh:refresh,
@@ -98,7 +98,7 @@ export const userLogin: ActionCreator<ThunkAction<Promise<any>, IUserState, null
 };
 
 //for fetching authenticated user information
-export const getUserData: ActionCreator<ThunkAction<Promise<any>, IUserState, null, IUserGetData>> = () => {
+export const getUserData: ActionCreator<ThunkAction<Promise<any>, IUserState, null, IUserGetData>> = (id:number) => {
        return async (dispatch: Dispatch) => {
               try{
                      dispatch({ 
@@ -113,21 +113,8 @@ export const getUserData: ActionCreator<ThunkAction<Promise<any>, IUserState, nu
                             });
                      }else{
                             let access = localStorage.getItem('access token') as string ;
-                            let refresh = localStorage.getItem('refresh token');
                             const userData = parseJwt(access);
-                            dispatch({
-                                   type: UserActionTypes.SET_USER,
-                                   user: [{
-                                          id: userData.user_id,
-                                          username:'Undefined',
-                                          authenticated: true,
-                                          loading: false,
-                                          credentials:{
-                                                 access:access,
-                                                 refresh:refresh,
-                                          }
-                                   }]
-                            });
+
                      }
               }catch(err){
                      console.log(err)
