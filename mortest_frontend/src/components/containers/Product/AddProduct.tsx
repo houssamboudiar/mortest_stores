@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { connect, useDispatch } from 'react-redux';
 import { IAppState, useTypedSelector } from '../../../store/store';
 import { IProduct } from '../../../product/productReducer';
-import { MdEdit, MdDelete } from "react-icons/md"
+import { MdEdit, MdDelete, MdCreate } from "react-icons/md"
 import { IoIosCloseCircleOutline } from "react-icons/io"
 import { AiFillFilePdf } from "react-icons/ai"
 import { FaAddressCard } from "react-icons/fa"
@@ -116,7 +116,7 @@ export const AddProduct: React.FC<IProps> = (props:IProps) => {
               }
               console.log(validatedProductData)
               registerProduct(validatedProductData)
-              props.onClose
+              props.onClose()
         };
  
         /** 
@@ -130,16 +130,16 @@ export const AddProduct: React.FC<IProps> = (props:IProps) => {
                      toast({
                             position: "bottom-left",
                             render: () => (
-                                   <Box p="4" color="white" display="flex" w="100%" bg="P1Blue" borderRadius="7px">
+                                   <Box p="4" color="white" display="flex" w="100%" bg="P3green" borderRadius="7px">
                                           <Center h="100%" >
-                                                 <Icon as={MdDelete} w={8} h={8} />
+                                                 <Icon as={MdCreate} w={8} h={8} />
                                           </Center>
                                           <Box w="100%" flexDir="row" >
                                                  <Heading size="md" color="white" marginTop="1" marginLeft="3" marginBottom="3" >
-                                                        Student Registration
+                                                        Product Registration
                                                  </Heading>
                                                  <Text size="md" color="white" marginLeft="3" w="100%" >
-                                                        Student has been added successfully
+                                                        The New product has been added successfully
                                                  </Text>
                                           </Box>
                                    </Box>
@@ -156,10 +156,10 @@ export const AddProduct: React.FC<IProps> = (props:IProps) => {
                                           </Center>
                                           <Box w="100%" flexDir="row" >
                                                  <Heading size="md" color="white" marginTop="1" marginLeft="3" marginBottom="3" >
-                                                        Deletion Process
+                                                        Product Registration
                                                  </Heading>
                                                  <Text size="md" color="white" marginLeft="3" w="100%" >
-                                                        Unable to delete this student
+                                                        Unable to add this product
                                                  </Text>
                                           </Box>
                                    </Box>

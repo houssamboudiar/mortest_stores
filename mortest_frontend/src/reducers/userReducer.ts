@@ -9,7 +9,6 @@ export interface IUser {
        username:string,
        token:string,
        authenticated: boolean,
-       loading: boolean,
        credentials:{
               access:string,
               refresh:string
@@ -17,23 +16,23 @@ export interface IUser {
 }
 
 export interface IUserState {
-       readonly user: IUser[];
+       readonly user: IUser;
+       loading: boolean,
 }
 
 // Define the initial state
 const initialUserState: IUserState = {
-       user: [{
+       user: {
               id:0,
               username:'Undefined',
               token:'',
               authenticated: false,
-              loading: false,
               credentials:{
                      access:'',
                      refresh:''
               },
-       }
-       ],
+       },
+       loading: false
 };
 
 export const  userReducer: Reducer<IUserState, AnyAction> = (state=initialUserState,  action: any) => {
@@ -47,11 +46,8 @@ export const  userReducer: Reducer<IUserState, AnyAction> = (state=initialUserSt
                      return initialUserState;
               case UserActionTypes.SET_USER:
                      return {
-                            user: {
-                             ...action.user,
-                             authenticated: true,
-                             loading: false,
-                            }
+                            user: action.user[0],
+                            loading: false,
                      };
               case UserActionTypes.LOADING_USER:
                      return {

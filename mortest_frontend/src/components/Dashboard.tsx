@@ -18,15 +18,15 @@ interface DashboardProps {
 const Dashboard: FC<DashboardProps> = () => {
        const navigate  = useNavigate();
        
-       const { user } = useTypedSelector((state) => state.userState);
+       const { user, loading } = useTypedSelector((state) => state.userState);
 
        useEffect(() => {
-              if(user[0].authenticated == false){
+              if(user.authenticated == false){
                      navigate("/login/");
               }
        }, [user]);
 
-       if(user[0].loading == false){
+       if(loading == false){
               return (
               <>
                      <SidebarWithHeader>

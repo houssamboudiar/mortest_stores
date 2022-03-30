@@ -39,6 +39,8 @@ import { ReactText } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { userLogout } from "../actions/userActions";
 import { useDispatch } from 'react-redux';
+import { useTypedSelector } from '../store/store';
+import { SpointActionTypes } from '../actions/spActions';
 interface LinkItemProps {
   name: string;
   icon: IconType;
@@ -168,10 +170,16 @@ interface MobileProps extends FlexProps {
 const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
 
   const dispatch = useDispatch();
-
   const signout = () => {
     dispatch(userLogout())
   }
+
+  const setSP = (spoints:any, sp:any) => {
+    dispatch({type:SpointActionTypes.LOADING_SPOINTS})
+    dispatch({type: SpointActionTypes.SET_Spoint, spoints:spoints ,selectedSpoint:sp})
+  }
+
+  const {spoints, selectedSpoint, loading} = useTypedSelector((state) => state.spointState);
 
   return (
     <Flex
@@ -197,7 +205,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
         fontSize="2xl"
         fontFamily="monospace"
         fontWeight="bold">
-        Logo
+        Mortest
       </Text>
 
       <HStack spacing={{ base: '0', md: '6' }}>
@@ -207,6 +215,31 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
           aria-label="open menu"
           icon={<FiBell />}
         />
+        {!loading&&<Flex alignItems={'center'}>
+          <Menu>
+            <MenuButton
+              py={2}
+              transition="all 0.3s"
+              _focus={{ boxShadow: 'none' }}>
+              <HStack>
+                <VStack
+                  display={{ base: 'none', md: 'flex' }}
+                  alignItems="flex-start"
+                  spacing="1px"
+                  ml="2">
+                  <Text fontSize="md" fontWeight={'bold'}>{selectedSpoint.wilaya}</Text>
+                </VStack>
+              </HStack>
+            </MenuButton>
+            <MenuList
+              bg={useColorModeValue('white', 'gray.900')}
+              borderColor={useColorModeValue('gray.200', 'gray.700')}>
+              {spoints.map((sp:any,i) => {
+                      return  <MenuItem  onClick={()=>{setSP(spoints,sp)}} value={sp.id}key={i}>{sp.name+" "+sp.wilaya}</MenuItem>
+              })}
+            </MenuList>
+          </Menu>
+        </Flex>}
         <Flex alignItems={'center'}>
           <Menu>
             <MenuButton

@@ -17,10 +17,12 @@
  import {errorReducer, IErrorState } from '../reducers/errorReducer';
 import { TypedUseSelectorHook, useSelector } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
+import { ISellingPointState, spointReducer } from '../reducers/spReducer';
  
  // Create an interface for the application state
  export interface IAppState {
     productState: IProductState;
+    spointState: ISellingPointState;
     spfamillemarqueState: ISPFamilleMarqueProductState;
     userState: IUserState;
     errorState: IErrorState;
@@ -39,6 +41,7 @@ import { configureStore } from '@reduxjs/toolkit';
   reducer: {
     productState: productReducer,
     userState: userReducer,
+    spointState: spointReducer,
     errorState: errorReducer,
     spfamillemarqueState: SPFamilleMarqueReducer,
   }, 

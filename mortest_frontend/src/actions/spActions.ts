@@ -9,7 +9,9 @@ import { ISellingPoint, ISellingPointState } from '../reducers/spReducer';
 // Create Action Constants
 
 export enum SpointActionTypes {
-       GET_ALL_Spoints = "GET_ALL_Spoints"
+  GET_ALL_Spoints = "GET_ALL_Spoints",
+  SET_Spoint = "SET_Spoint",
+  LOADING_SPOINTS = "LOADING_SPOINTS"
 }
 
 // Interface for Get All Action Type
@@ -33,7 +35,7 @@ export const getAllSpoints: ActionCreator<
     try {
       const response = await axios.get('http://127.0.0.1:8000/api/sp_get_post');
       dispatch({
-        products: response.data,
+        spoints: response.data,
         type: SpointActionTypes.GET_ALL_Spoints,
       });
     } catch (err) {

@@ -35,7 +35,7 @@ interface LoginProps {
 
 const Login: FC<LoginProps> = () => {
        
-       const { user } = useTypedSelector((state) => state.userState);
+       const { user, loading } = useTypedSelector((state) => state.userState);
        const { errorstate } = useTypedSelector((state) => state.errorState);
        
        const [myState, setMyState] = useState({
@@ -44,39 +44,36 @@ const Login: FC<LoginProps> = () => {
        })
        const dispatch = useDispatch();
        
-       const statuses = ['success', 'error', 'warning', 'info']
-
        const signin = async (myState: { username: string; password: string; }) => {
-              const userLog = await dispatch(userLogin(myState.username, myState.password))
+              await dispatch(userLogin(myState.username, myState.password))
        }  
 
        const toast = useToast()
 
        useEffect(() => {
-              // Add a 401 response interceptor
-              if(errorstate==401){
-                     toast({
-                            position: 'bottom',
-                            duration:3000,
-                            render: () => (
-                                   <Box p={5} bgColor={'red.400'} color={'whiteAlpha.900'} borderRadius={'lg'}>
-                                          <Box display={'flex'} flexDir={'column'}  >
-                                                 <Box display='flex'  align-items= 'center' p={2}>
-                                                        <InfoOutlineIcon  w={6} h={6}  />
-                                                        <Text paddingLeft={4} mr={2} fontWeight={'bold'} color={'whiteAlpha.900'}>Login Failed</Text>
-                                                 </Box>
-                                                 <Text>Something wrong with your credentials.</Text>
-                                          </Box>
-                                   </Box>
-                            ),
-                     })
-                     dispatch({
-                            type: ErrorActionTypes.SET_ERRORS,
-                            payload: 0,
-                     });
-              }
-
-       }, [] );
+              // // Add a 401 response interceptor
+              // if(errorstate==401){
+              //        toast({
+              //               position: 'bottom',
+              //               duration:3000,
+              //               render: () => (
+              //                      <Box p={5} bgColor={'red.400'} color={'whiteAlpha.900'} borderRadius={'lg'}>
+              //                             <Box display={'flex'} flexDir={'column'}  >
+              //                                    <Box display='flex'  align-items= 'center' p={2}>
+              //                                           <InfoOutlineIcon  w={6} h={6}  />
+              //                                           <Text paddingLeft={4} mr={2} fontWeight={'bold'} color={'whiteAlpha.900'}>Login Failed</Text>
+              //                                    </Box>
+              //                                    <Text>Something wrong with your credentials.</Text>
+              //                             </Box>
+              //                      </Box>
+              //               ),
+              //        })
+              //        dispatch({
+              //               type: ErrorActionTypes.SET_ERRORS,
+              //               payload: 0,
+              //        });
+              // }
+       },[]);
 
        const onChange=(e: any): void => {
               const { name, value } = e.currentTarget;
@@ -85,7 +82,7 @@ const Login: FC<LoginProps> = () => {
 
        return(
               <>
-              { !user[0].loading && user[0].authenticated && (<Navigate to="/" replace={true} />) }
+              { !loading && user.authenticated && <Navigate to="/"/>}
               <Flex
               minH={'100vh'}
               align={'center'}

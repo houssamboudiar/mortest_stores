@@ -10,7 +10,8 @@ import { getUserData } from '../actions/userActions';
 import { useTypedSelector } from '../store/store';
 import ManageProducts from './containers/Product/ManageProducts';
 import MainTask from './MainTask';
-import { fetchProducts, getAllProducts, getProductPage, loadProduct, ProductActionTypes } from '../product/productActions';
+import { fetchProducts, getAllProducts, getProductPage, getSPFamilleMarque, loadProduct, ProductActionTypes } from '../product/productActions';
+import { getAllSpoints } from '../actions/spActions';
   
 interface AppProps {
 }
@@ -18,6 +19,8 @@ interface AppProps {
 const App: React.FC<AppProps> = () => {
   const dispatch = useDispatch();
   dispatch(getUserData())
+  dispatch(getSPFamilleMarque())
+  dispatch(getAllSpoints())
   return (
             <Fragment>
               <Routes>
