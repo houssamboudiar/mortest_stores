@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 // import AddProductForm from './AddProductForm'
 // import 'react-day-picker/lib/style.css';
 import { connect, useDispatch } from 'react-redux';
-import { IAppState } from '../../../store/store';
+import { IAppState, useTypedSelector } from '../../../store/store';
 import { IProduct } from '../../../product/productReducer';
 import { MdEdit, MdDelete } from "react-icons/md"
 import { IoIosCloseCircleOutline } from "react-icons/io"
@@ -12,6 +12,7 @@ import { AiFillFilePdf } from "react-icons/ai"
 import { FaAddressCard } from "react-icons/fa"
 import { AddProductForm } from './AddProductForm';
 import { getSPFamilleMarque } from '../../../product/productActions';
+import axios from 'axios';
 // import {EditStudent} from './EditStudent'
 // import download from 'downloadjs'
 // import Axios from 'axios'
@@ -54,6 +55,7 @@ export const AddProduct: React.FC<IProps> = (props:IProps) => {
  * */
        const toast = useToast();
        const { register, formState: { errors }, handleSubmit } = useForm<FormInputs>();
+
        // const [studentPicture, setstudentPicture] = useState("")
 
        // const [student, setStudent] = useState({
@@ -98,88 +100,83 @@ export const AddProduct: React.FC<IProps> = (props:IProps) => {
          * */
         const onSubmit = (data:any) => {
               const validatedProductData = {
-                     firstName: data.firstName,
-                     lastName: data.lastName,
+                     selling_point: parseInt(data.sp),
+                     reference: data.reference,
+                     article: data.article,
+                     img: null,
+                     unit: data.unit,
+                     famille: parseInt(data.famille),
+                     marque: parseInt(data.marque),
+                     qtte: parseInt(data.qty),
+                     prix_U_achat: data.prixachat,
+                     prix_detail: data.prixd,
+                     prix_vente_gros: data.prixvg,
+                     prix_vente_revendeur: data.prixvr,
+                     prix_vente_autre: data.prixva,
               }
               console.log(validatedProductData)
+              registerProduct(validatedProductData)
               props.onClose
         };
  
         /** 
         * Send axios post request then shows a toast depending on its status 
         * */
-        // async function registerStudent(data) {
-        //        const res = await server.post(`/registerStudent`, data)
-        //        if (res.status == 200) {
-        //               toast({
-        //                      position: "bottom-left",
-        //                      render: () => (
-        //                             <Box p="4" color="white" display="flex" w="100%" bg="P1Blue" borderRadius="7px" p="5" >
-        //                                    <Center h="100%" >
-        //                                           <Icon as={MdDelete} w={8} h={8} />
-        //                                    </Center>
-        //                                    <Box w="100%" flexDir="row" >
-        //                                           <Heading size="md" color="white" marginTop="1" marginLeft="3" marginBottom="3" >
-        //                                                  Student Registration
-        //                                           </Heading>
-        //                                           <Text size="md" color="white" marginLeft="3" w="100%" >
-        //                                                  Student has been added successfully
-        //                                           </Text>
-        //                                    </Box>
-        //                             </Box>
-        //                      ),
-        //                      duration: 5000,
-        //               })
-        //               props.fetchDataPage(props.students);
-        //               setStudent({
-        //                      firstName: '',
-        //                      lastName: '',
-        //                      sex: 'Male',
-        //                      dateBirth: '',
-        //                      address: '',
-        //                      parent: {
-        //                             firstNameFather: '',
-        //                             lastNameFather: '',
-        //                             firstNameMother: '',
-        //                             lastNameMother: '',
-        //                             phoneParent: '',
-        //                             emailParent: '',
-        //                      },
-        //                      allergies: '',
-        //                      diseases: '',
-        //                      intolerances: '',
-        //               })
-        //        } else {
-        //               toast({
-        //                      position: "bottom",
-        //                      render: () => (
-        //                             <Box p="4" color="white" display="flex" w="100%" bg="P1red" borderRadius="7px" p="5" >
-        //                                    <Center h="100%" >
-        //                                           <Icon as={MdDelete} w={8} h={8} />
-        //                                    </Center>
-        //                                    <Box w="100%" flexDir="row" >
-        //                                           <Heading size="md" color="white" marginTop="1" marginLeft="3" marginBottom="3" >
-        //                                                  Deletion Process
-        //                                           </Heading>
-        //                                           <Text size="md" color="white" marginLeft="3" w="100%" >
-        //                                                  Unable to delete this student
-        //                                           </Text>
-        //                                    </Box>
-        //                             </Box>
-        //                      ),
-        //                      duration: 700,
-        //               })
-        //        }
-        // }
+       async function registerProduct(data: any) {
+              let access = localStorage.getItem('access token') as string ;
+              axios.defaults.headers.common = {'Authorization': `Bearer ${access}`}
+              const res = await axios.post('http://127.0.0.1:8000/api/produit_get_post', data)
+              if (res.status == 201) {
+                     toast({
+                            position: "bottom-left",
+                            render: () => (
+                                   <Box p="4" color="white" display="flex" w="100%" bg="P1Blue" borderRadius="7px">
+                                          <Center h="100%" >
+                                                 <Icon as={MdDelete} w={8} h={8} />
+                                          </Center>
+                                          <Box w="100%" flexDir="row" >
+                                                 <Heading size="md" color="white" marginTop="1" marginLeft="3" marginBottom="3" >
+                                                        Student Registration
+                                                 </Heading>
+                                                 <Text size="md" color="white" marginLeft="3" w="100%" >
+                                                        Student has been added successfully
+                                                 </Text>
+                                          </Box>
+                                   </Box>
+                            ),
+                            duration: 5000,
+                     })
+              } else {
+                     toast({
+                            position: "bottom",
+                            render: () => (
+                                   <Box p="4" color="white" display="flex" w="100%" bg="P1red" borderRadius="7px">
+                                          <Center h="100%" >
+                                                 <Icon as={MdDelete} w={8} h={8} />
+                                          </Center>
+                                          <Box w="100%" flexDir="row" >
+                                                 <Heading size="md" color="white" marginTop="1" marginLeft="3" marginBottom="3" >
+                                                        Deletion Process
+                                                 </Heading>
+                                                 <Text size="md" color="white" marginLeft="3" w="100%" >
+                                                        Unable to delete this student
+                                                 </Text>
+                                          </Box>
+                                   </Box>
+                            ),
+                            duration: 700,
+                     })
+              }
+       }
        const dispatch = useDispatch();
-
+       const {selling_point, famille, marque} = useTypedSelector((state) => state.spfamillemarqueState);
        useEffect(()=>{
               dispatch(getSPFamilleMarque())
        },[])
        
        return (
               <Drawer
-                     size="sm"
+                     size="xs"
                      isOpen={props.isOpen}
                      placement="right"
                      onClose={props.onClose}>
@@ -193,7 +190,14 @@ export const AddProduct: React.FC<IProps> = (props:IProps) => {
                                           </Box>
                                    </DrawerHeader>
                                    <Divider color="P3IconGray"></Divider>
-                                   <AddProductForm register={register} handleSubmit={handleSubmit} /*onSubmit={onSubmit}*/ errors={errors} />
+                                   <AddProductForm 
+                                          selling_point={selling_point}
+                                          famille={famille}
+                                          marque={marque}
+                                          register={register} 
+                                          handleSubmit={handleSubmit} 
+                                          onSubmit={onSubmit} 
+                                          errors={errors} />
                                    <Divider color="P3IconGray"></Divider>
                                    <DrawerFooter>
                                           <form onSubmit={handleSubmit(onSubmit)}>

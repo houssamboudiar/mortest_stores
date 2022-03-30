@@ -21,7 +21,7 @@ import { configureStore } from '@reduxjs/toolkit';
  // Create an interface for the application state
  export interface IAppState {
     productState: IProductState;
-    SPFamilleMarque: ISPFamilleMarqueProductState;
+    spfamillemarqueState: ISPFamilleMarqueProductState;
     userState: IUserState;
     errorState: IErrorState;
  }

@@ -44,7 +44,7 @@ export const getAllProducts: ActionCreator<ThunkAction<Promise<any>, IProductSta
   const { user } = useTypedSelector((state) => state.userState);
   return async (dispatch: Dispatch) => {
     try {
-      axios.defaults.headers.common = {'Authorization': `Bearer ${user[0].credentials.access}`}
+      let access = localStorage.getItem('access token') as string ;
       const response = await axios.get('http://127.0.0.1:8000/api/produit_get_post');
       dispatch({
         products: response.data,

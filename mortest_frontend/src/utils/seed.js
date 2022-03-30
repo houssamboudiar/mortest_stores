@@ -46,7 +46,7 @@ app.listen(3000, 'localhost');
 const seedProducts = async (req,res) => {
   try {
     let i = 0
-    for ( i = 0; i < 100; i++) {
+    for ( i = 0; i < 300; i++) {
        const product = {
           selling_point: faker.datatype.number(),
           reference: faker.datatype.number(),
@@ -82,7 +82,7 @@ const seedProducts = async (req,res) => {
    } 
    return true
    }catch (error) {
-    console.log(error)
+    console.log(eror)
   }
 }
 
