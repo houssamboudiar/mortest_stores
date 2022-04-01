@@ -4,6 +4,7 @@ import { ProductActions, ProductActionTypes, SPFamilleMarqueProductActionTypes} 
 
 // Define the Character type
 export interface IProduct {
+    id: number;
     selling_point: number,
     reference: number,
     article: string,
@@ -83,6 +84,12 @@ export const productReducer: Reducer<IProductState, AnyAction> = (
         previous:action.previous,
         count:action.count,
         loading: false
+      };
+    }
+    case ProductActionTypes.DELETE_PRODUCT: {
+      return {
+        ...state,
+        products: action.products,
       };
     }
     case ProductActionTypes.GET_ALL_PRODUCTS: {

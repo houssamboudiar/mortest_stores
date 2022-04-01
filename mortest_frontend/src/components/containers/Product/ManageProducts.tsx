@@ -58,29 +58,33 @@ import { isAbsolute } from 'path';
 interface IProps {
        getProductPage(next:any):void,
        loadProduct():void,
+       inComptoir:boolean,
 }
 
 const ManageProducts: React.FC<IProps> = (props:IProps) => {
 
+       const dispatch = useDispatch();
        const {products, loading, next, count} = useTypedSelector((state) => state.productState);
        const [viewMode, setViewMode] = useState(true);
        const { isOpen, onOpen, onClose } = useDisclosure();
+
        useEffect(() => {
               props.loadProduct();
-
-              // props.getSPUnitFamilleMarque()
-              // var resPerPage = configList.users.resPerPage;
-              // props.ListUsersAction(resPerPage, 1);
        },[])
-
+       
+       // const deleteProduct = (id:number) => {
+       //        dispatch(deleteProduct(id));
+       // }
+       
        const loadNextPage = () => {
               props.getProductPage(next)
+              console.log(products)
        }
        return (
               <Box display="flex" flexDir="column" height="80vh" w="100%" borderRadius="4px" overflow="hidden" bg="P3White" boxShadow="task" >
                      <Box paddingTop="10" paddingBottom="5" paddingRight="6" paddingLeft="6" display="flex" w="100%" >
                      <Heading size="lg" color="P3DarkBlueText" >Products</Heading>
-                     <Box w="100%" display="flex"  justifyContent="flex-end" >
+                     {!props.inComptoir&&<Box w="100%" display="flex"  justifyContent="flex-end" >
                             <Button 
                                    onClick={()=>{setViewMode(!viewMode)}}
                                    size="sm"
@@ -111,7 +115,7 @@ const ManageProducts: React.FC<IProps> = (props:IProps) => {
                             Add Product
                             <Icon as={BsPlus} w={7} h={7} />
                             </Button>
-                     </Box>
+                     </Box>}
                      </Box>
                      <Box paddingRight="6" paddingBottom="8" paddingLeft="6" >
                      <InputGroup size="md">
@@ -148,7 +152,10 @@ const ManageProducts: React.FC<IProps> = (props:IProps) => {
                      scrollableTarget="scrollableDiv"
                      >
                             {viewMode&&products.map((product:any,i) => {
-                                   return <ProductList product={product}
+                                   return <ProductList 
+                                          product={product}
+                                          inComptoir={props.inComptoir}
+                                          // deleteProduct={deleteProduct}
                                           key={i} />
                             })}
                             

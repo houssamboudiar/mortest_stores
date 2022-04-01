@@ -9,6 +9,7 @@ import { useTypedSelector } from '../store/store';
 import ManageProducts from './containers/Product/ManageProducts';
 import MainTask from './MainTask';
 import SidebarWithHeader from './Sidebar';
+import ManageCounter from './containers/Comptoir/ManageCounter';
 
 interface DashboardProps {
 
@@ -32,7 +33,8 @@ const Dashboard: FC<DashboardProps> = () => {
                      <SidebarWithHeader>
                             <Routes>
                                    <Route path="/main/" element={<MainTask/>} />
-                                   <Route path="/products/" element={<ManageProducts />} />
+                                   <Route path="/comptoir/" element={<ManageCounter/>} />
+                                   <Route path="/products/" element={<ManageProducts inComptoir={false} />} />
                             </Routes>
                      </SidebarWithHeader>
               </>);
