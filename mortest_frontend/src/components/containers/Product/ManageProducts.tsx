@@ -129,7 +129,7 @@ const ManageProducts: React.FC<IProps> = (props:IProps) => {
                                    _focus={{bg: "#f5f8fa"}}
                                    _disabled={{bg:"#f5f8fa"}} />                
                      </InputGroup>
-                     <AddProduct isOpen={isOpen} onClose={onClose}  />
+                     <AddProduct isOpen={isOpen} onClose={onClose} onOpen={onOpen} />
                      </Box>
                      <Divider color="P3IconGray"/>
                      <Box

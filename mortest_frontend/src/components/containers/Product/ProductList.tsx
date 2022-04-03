@@ -9,6 +9,8 @@ import { IoIosCloseCircleOutline } from "react-icons/io"
 import { AiFillFilePdf } from "react-icons/ai"
 import { FaAddressCard } from "react-icons/fa"
 import { deleteProduct } from '../../../product/productActions';
+import { AddProduct } from './AddProduct';
+import { EditProduct } from './EditProduct';
 // import {EditStudent} from './EditStudent'
 // import download from 'downloadjs'
 // import Axios from 'axios'
@@ -44,6 +46,11 @@ interface IProps {
 
 export const ProductList: React.FC<IProps> = (props:IProps) => {
     const { isOpen, onOpen, onClose } = useDisclosure();
+    const {
+        isOpen:isOpenEdit ,
+        onOpen:onOpenEdit,
+        onClose:onCloseEdit,
+      } = useDisclosure() 
     const dispatch = useDispatch();
     if(props.product===undefined){
         return (
@@ -68,7 +75,13 @@ export const ProductList: React.FC<IProps> = (props:IProps) => {
                             display="flex" 
                             alignItems="center" >
                                 
-                            {/* <EditStudent fetchData={props.fetchData} student={props.student} onOpen={onOpenEdit} isOpen={isOpenEdit} onClose={onCloseEdit} /> */}
+                            <EditProduct 
+                                chosenProduct={props.product} 
+                                onOpenEdit={onOpenEdit} 
+                                isOpenEdit={isOpenEdit} 
+                                onCloseEdit={onCloseEdit} 
+                            />
+                            
                             {/* <Modal size="5xl" isOpen={isOpen1} onClose={onClose1}>
                                 <ModalOverlay />
                                 <ModalContent > 
@@ -277,7 +290,7 @@ export const ProductList: React.FC<IProps> = (props:IProps) => {
                                 <Stack  direction="row" spacing={7}>
                                     {!props.inComptoir&&<>
                                     <Button 
-                                            // onClick={onOpenEdit}
+                                            onClick={onOpenEdit}
                                             margin="0"
                                             bg="P3White" 
                                             color="P1yellow"

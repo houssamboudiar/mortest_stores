@@ -20,13 +20,13 @@ import axios from 'axios';
 
 // Create the containers interface
 interface IProps {
-       isOpen:any,
-       onOpen:any,
-       onClose:any,
+       chosenProduct: any
+       isOpenEdit:any,
+       onOpenEdit:any,
+       onCloseEdit:any,
 }
 
 interface FormInputs {
-       firstName: string,
        selling_point: string,
        reference: number,
        article: string,
@@ -42,26 +42,10 @@ interface FormInputs {
        prix_vente_autre: string,
 }
 
-export const AddProduct: React.FC<IProps> = (props:IProps) => {
+export const EditProduct: React.FC<IProps> = (props:IProps) => {
 
        const toast = useToast();
        const { register, formState: { errors }, handleSubmit } = useForm<FormInputs>();
-       const [editedProduct, setEditedProduct] = useState({
-              firstName: null,
-              selling_point: null,
-              reference: null,
-              article: null,
-              img: null,
-              unit: null,
-              famille: null,
-              marque: null,
-              qtte: null,
-              prix_U_achat: null,
-              prix_detail: null,
-              prix_vente_gros: null,
-              prix_vente_revendeur: null,
-              prix_vente_autre: null,
-       });
 
        const onSubmit = (data:any) => {
               const validatedProductData = {
@@ -72,27 +56,27 @@ export const AddProduct: React.FC<IProps> = (props:IProps) => {
                      unit: data.unit,
                      famille: parseInt(data.famille),
                      marque: parseInt(data.marque),
-                     qtte: parseInt(data.qty),
-                     prix_U_achat: data.prixachat,
-                     prix_detail: data.prixd,
-                     prix_vente_gros: data.prixvg,
-                     prix_vente_revendeur: data.prixvr,
-                     prix_vente_autre: data.prixva,
+                     qtte: parseInt(data.qtte),
+                     prix_U_achat: data.prix_U_achat,
+                     prix_detail: data.prix_detail,
+                     prix_vente_gros: data.prix_vente_gros,
+                     prix_vente_revendeur: data.prix_vente_revendeur,
+                     prix_vente_autre: data.prix_vente_autre,
               }
               console.log(validatedProductData)
-              registerAddedProduct(validatedProductData)
-              props.onClose()
+              registerEditedProduct(props.chosenProduct.id, validatedProductData)
+              props.onCloseEdit()
         };
  
         /** 
         * Send axios post request then shows a toast depending on its status 
         * */
-       async function registerAddedProduct(data: any) {
-              dispatch({type:ProductActionTypes.ADD_PRODUCT})
+       async function registerEditedProduct(id:any,data: any) {
+              dispatch({type:ProductActionTypes.EDIT_PRODUCT})
               let access = localStorage.getItem('access token') as string ;
               axios.defaults.headers.common = {'Authorization': `Bearer ${access}`}
-              const res = await axios.post('http://127.0.0.1:8000/api/produit_get_post', data)
-              if (res.status == 201) {
+              const res = await axios.put(`http://127.0.0.1:8000/api/produit_pk/${id}`, data)
+              if (res.status == 200) {
                      toast({
                             position: "bottom-left",
                             render: () => (
@@ -105,7 +89,7 @@ export const AddProduct: React.FC<IProps> = (props:IProps) => {
                                                         Product Registration
                                                  </Heading>
                                                  <Text size="md" color="white" marginLeft="3" w="100%" >
-                                                        The product has been added successfully
+                                                        The New product has been edited successfully
                                                  </Text>
                                           </Box>
                                    </Box>
@@ -144,8 +128,8 @@ export const AddProduct: React.FC<IProps> = (props:IProps) => {
        return (
               <Drawer
               size="xs"
-              isOpen={props.isOpen}
-              onClose={props.onClose}
+              isOpen={props.isOpenEdit}
+              onClose={props.onCloseEdit}
               placement="right"
               >
                      <DrawerOverlay>
@@ -159,7 +143,8 @@ export const AddProduct: React.FC<IProps> = (props:IProps) => {
                                    </DrawerHeader>
                                    <Divider color="P3IconGray"></Divider>
 
-                                   <AddProductForm 
+                                   <EditProductForm 
+                                          product={props.chosenProduct}
                                           selling_point={selling_point}
                                           famille={famille}
                                           marque={marque}
@@ -178,7 +163,7 @@ export const AddProduct: React.FC<IProps> = (props:IProps) => {
                                                                size="sm"
                                                                marginRight="1rem"
                                                                variant="outline"
-                                                               onClick={props.onClose}
+                                                               onClick={props.onCloseEdit}
                                                                color="P1red"
                                                                fontWeight="bold"
                                                                _hover={{ color: "#f89f96" }}

@@ -15,7 +15,9 @@ export enum ProductActionTypes {
   LOADING_PRODUCTS = "LOADING_PRODUCTS",
   LOAD_PAGE = "LOAD_PAGE",
   DELETE_PRODUCT = "DELETE_PRODUCT",
-  loadProduct = "loadProduct"
+  loadProduct = "loadProduct",
+  EDIT_PRODUCT = "EDIT_PRODUCT",
+  ADD_PRODUCT = "ADD_PRODUCT"
 }
 
 export enum SPFamilleMarqueProductActionTypes {

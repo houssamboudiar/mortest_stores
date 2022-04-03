@@ -92,6 +92,16 @@ export const productReducer: Reducer<IProductState, AnyAction> = (
         products: action.products,
       };
     }
+    case ProductActionTypes.ADD_PRODUCT: {
+      return {
+        ...state,
+      };
+    }
+    case ProductActionTypes.EDIT_PRODUCT: {
+      return {
+        ...state,
+      };
+    }
     case ProductActionTypes.GET_ALL_PRODUCTS: {
       return {
         ...state,
