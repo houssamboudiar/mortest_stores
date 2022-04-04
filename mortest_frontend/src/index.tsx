@@ -102,17 +102,12 @@ const theme = {
 // Store type from Redux
 import { combineReducers, Store } from 'redux';
 // Import the store function and state
-import configureStore, { IAppState } from './store/store';
-import { getAllProducts } from './actions/productActions';
+import { IAppState } from './store/store';
+import { getAllProducts } from './product/productActions';
 import { Provider, useDispatch } from 'react-redux';
 import { getUserData, UserActionTypes, userLogin } from './actions/userActions';
-
-interface IProps {
-  store: Store<IAppState>;
-}
-
+import {store} from './store/store'
 // Generate the store
-const store = configureStore();
 
 const routing = (
                   <Router>

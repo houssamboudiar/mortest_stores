@@ -15,24 +15,28 @@ interface IProps {
 }
 
 export const AddProductForm: React.FC<IProps> = (props:IProps) => {
-       //     const [birthdate, setBirthdate] = useState('')
-       //     const [student, setStudent] = useState({firstName:'',
-       //                                             lastName:'',
-       //                                             sex:'Male',
-       //                                             dateBirth:'',
-       //                                             address:'',
-       //                                             parent:{
-       //                                                 firstNameFather:'',
-       //                                                 lastNameFather:'',
-       //                                                 firstNameMother:'',
-       //                                                 lastNameMother:'',
-       //                                                 phoneParent:'',
-       //                                                 emailParent:'',
-       //                                             },
-       //                                             allergies:'',
-       //                                             diseases:'',
-       //                                             intolerances:'',
-       //                                         })  
+       // export interface IProduct {
+       //        selling_point: number,
+       //        reference: number,
+       //        article: string,
+       //        img: null,
+       //        unit: number,
+       //        famille: number,
+       //        marque: number,
+       //        prix_U_achat: number,
+       //        prix_detail: number,
+       //        prix_vente_gros: number,
+       //        prix_vente_revendeur: number,
+       //        prix_vente_autre: number,
+       //        stock_alerte: null,
+       //        stock_actuel: null,
+       //        qtte: null,
+       //        ancien_prix: null,
+       //        marge_vente_detail: number,
+       //        marge_vente_grossiste: number,
+       //        marge_vente_revendeur: number,
+       //        marge_vente_autre: number
+       // }
        useEffect(() => {
        }, [])
 
@@ -51,7 +55,6 @@ export const AddProductForm: React.FC<IProps> = (props:IProps) => {
               <DrawerBody paddingTop="1rem" bg="P3White" >
                      <form /*onSubmit={props.handleSubmit(props.onSubmit)}*/>
                             <Stack paddingTop="1rem" paddingBottom="1rem" paddingLeft="1rem" paddingRight="1em" spacing="24px">
-                                   <Heading size="md" fontWeight="500" color="P3DarkBlueText" >Basic Informations</Heading>     
                                           <Box display="flex" flexDir="column" >
                                                  <Box width="50%" paddingRight="1em">
                                                         <FormLabel color="P2TableGray" htmlFor="firstName">First Name</FormLabel>

@@ -1,35 +1,87 @@
-import React, { useState, useEffect} from 'react'
+
+// interface ManageProductsProps extends PropsFromRedux {
+//        products: IProduct[];
+// }
+
+
+// const ManageProducts: FC<ManageProductsProps> = (props: ManageProductsProps) => {
+       
+//        const products = props.products;
+//        const [viewMode, setViewMode] = useState(true);
+//        const { isOpen, onOpen, onClose } = useDisclosure();
+//        // props.fetchProducts();
+
+// }
+
+// // Grab the characters from the store and make them available on props
+// const mapStateToProps = (store: IAppState) => {
+//        return {
+//          products: store.productState.products,
+//        };
+// };
+
+// const mapDispatchToProps = (dispatch: ThunkDispatch<IProductState, null, IProductGetAllAction> & Dispatch ) => {
+//        return {
+//               getAllProducts: () => dispatch(getAllProducts()),
+//               fetchProducts: () => dispatch(fetchProducts()),
+//        };
+// }
+
+// const connector = connect(mapStateToProps, mapDispatchToProps)
+
+// type PropsFromRedux = ConnectedProps<typeof connector>
+
+// export default connector(ManageProducts);
+
+import React, { useState, useEffect, useCallback, FC} from 'react'
 import { Box, Button, Center, Divider, Heading, Icon, Input, 
-    InputGroup, InputLeftElement, Table, TableCaption, Tbody, Td, Tfoot, Th, Thead, Tr, useDisclosure, useToast } from '@chakra-ui/react'
+    InputGroup, InputLeftElement, propNames, Table, TableCaption, Tbody, Td, Tfoot, Th, Thead, Tr, useDisclosure, useToast } from '@chakra-ui/react'
 import { ProductList } from './ProductList'
-// import { AddStudent } from './AddStudent'
-// import { Search2Icon } from '@chakra-ui/icons'
 import { BsPlus, BsSearch } from 'react-icons/bs';
 import { BiRefresh } from 'react-icons/bi';
-// import 'react-day-picker/lib/style.css';
-import {connect, useDispatch, useSelector} from 'react-redux'
+import {connect, ConnectedProps, useDispatch, useSelector} from 'react-redux'
 import InfiniteScroll from 'react-infinite-scroll-component'
-import { IProduct } from '../../reducers/productReducer';
-import { IAppState, useTypedSelector } from '../../store/store';
+import { IAppState, useTypedSelector } from '../../../store/store';
 import { ProductTable } from './ProductTable';
 import { AddProduct } from './AddProduct';
+import { fetchProducts, getAllProducts, getProductPage, getSPFamilleMarque, IProductGetAllAction, IProductGetSPFamilleMarqueAction, loadProduct } from '../../../product/productActions';
+import { ActionCreator, AnyAction } from 'redux';
+import { ThunkAction, ThunkDispatch } from 'redux-thunk';
+import { Dispatch } from 'redux';
+import { AsyncThunkAction } from '@reduxjs/toolkit';
+import { any } from 'prop-types';
+import { FaKeyboard } from 'react-icons/fa';
+import faker from '@faker-js/faker';
+import { IProductState, ISPFamilleMarqueProductState } from '../../../product/productReducer';
+import { isAbsolute } from 'path';
 
-interface ManageProductsProps {
+interface IProps {
+       getProductPage(next:any):void,
+       loadProduct():void,
 }
 
-export const ManageProducts: React.FC<ManageProductsProps> = () => {
+const ManageProducts: React.FC<IProps> = (props:IProps) => {
 
-       const { products } = useTypedSelector((state) => state.productState);
+       const {products, loading, next, count} = useTypedSelector((state) => state.productState);
        const [viewMode, setViewMode] = useState(true);
        const { isOpen, onOpen, onClose } = useDisclosure();
-       const printer = () => console.log("wow its working !")
+       useEffect(() => {
+              props.loadProduct();
+
+              // props.getSPUnitFamilleMarque()
+              // var resPerPage = configList.users.resPerPage;
+              // props.ListUsersAction(resPerPage, 1);
+       },[])
+
+       const loadNextPage = () => {
+              props.getProductPage(next)
+       }
        return (
               <Box display="flex" flexDir="column" height="80vh" w="100%" borderRadius="4px" overflow="hidden" bg="P3White" boxShadow="task" >
                      <Box paddingTop="10" paddingBottom="5" paddingRight="6" paddingLeft="6" display="flex" w="100%" >
                      <Heading size="lg" color="P3DarkBlueText" >Products</Heading>
                      <Box w="100%" display="flex"  justifyContent="flex-end" >
                             <Button 
-                                   //   onClick={()=>{dispatch(studentActions.getStudentPage(store.getState().students.lastStudent))}}
                                    onClick={()=>{setViewMode(!viewMode)}}
                                    size="sm"
                                    marginRight="10px" 
@@ -83,27 +135,23 @@ export const ManageProducts: React.FC<ManageProductsProps> = () => {
                      display="flex"
                      flexDirection="column"
                      id="scrollableDiv">
-                     {/* {!s.loading && <div style={{alignSelf: "center"}}><div className="lds-ellipsis"><div></div><div></div><div></div><div></div></div></div>}
-                     {s.page &&
+                     {loading && <div style={{alignSelf: "center"}}><div className="lds-ellipsis"><div></div><div></div><div></div><div></div></div></div>}
+                     {!loading &&
                      <InfiniteScroll
-                     dataLength={s.page.length}
-                     next={()=>{dispatch(studentActions.getStudentPage())}}
+                     dataLength={products.length}
+                     next={()=>{loadNextPage()}}
                      style={{ display: 'flex', flexDirection: 'column' }}
-                     hasMore={s.page.length!=s.count}
+                     hasMore={products.length!=count}
                      inverse={false}
                      loader={<div style={{alignSelf: "center"}}><div className="lds-ellipsis"><div></div><div></div><div></div><div></div></div></div>}
                      endMessage={<span></span>}
-                     scrollableTarget="scrollableDiv">
-                     {s.page.map(function(student,i){
-                            return <StudentList student={student} students={students} fetchDataPage={fetchDataPage} key={i} />
-                     })}
-                     </InfiniteScroll>} */}
-                            {viewMode&&products.map((product) => {
+                     scrollableTarget="scrollableDiv"
+                     >
+                            {viewMode&&products.map((product:any,i) => {
                                    return <ProductList product={product}
-                                          //  fetchDataPage={fetchDataPage} 
-                                          key={product.reference} />
+                                          key={i} />
                             })}
-
+                            
                             {!viewMode&&<Box _hover={{ bg: "#f8f8f8" }} w="100%" borderRadius="4px" bg="P3White">
                                    <Center>
                                           <Box marginTop="2" marginBottom="2"  display="flex" w="100%" >
@@ -121,11 +169,11 @@ export const ManageProducts: React.FC<ManageProductsProps> = () => {
                                                                </Tr>
                                                         </Thead>
                                                         <Tbody>
-                                                        {products.map((product) => {
+                                                        {products.map((product:any) => {
                                                                return <>
                                                                              <ProductTable product={product}
                                                                                            //  fetchDataPage={fetchDataPage} 
-                                                                                           key={product.reference} />
+                                                                                           key={product.reference+product.qtte} />
                                                                       </>
                                                         })}
                                                         </Tbody>
@@ -145,34 +193,31 @@ export const ManageProducts: React.FC<ManageProductsProps> = () => {
                                           </Box>
                                    </Center>
                             </Box>}
+                     </InfiniteScroll>}
+
 
                      </Box>
               </Box>
        );
 }
 
-// /** 
-//  * Manage Student Task
-//  * */
-// const ManageStudents = () => {
-//     const dispatch = useDispatch()
-//     const toast = useToast()
-//     const { isOpen, onOpen, onClose } = useDisclosure()
-//     const [students, setStudents] = useState([])
-//     const s = useSelector(state => state.students)
-//     const history = useHistory()
-//     /** 
-//      * Get students page from API
-//      * */
-//     function fetchDataPage() {
-//     }
-    
-//     useEffect(() => {
+// Grab the characters from the store and make them available on props
+const mapStateToProps = (store: IAppState) => {
+       return {
+         products: store.productState.products,
+       };
+};
 
-//         dispatch(studentActions.getStudentCount())
-//         dispatch(studentActions.getStudentPage())
-//     }, [])
+const mapDispatchToProps = (dispatch: ThunkDispatch<IProductState, null, IProductGetAllAction> & Dispatch) => {
+       return {
+              getProductPage: (url:string) => dispatch(getProductPage(url)),
+              loadProduct: () => dispatch(loadProduct()),
+       };
+}
 
-// }
+const connector = connect(mapStateToProps, mapDispatchToProps)
 
+type PropsFromRedux = ConnectedProps<typeof connector>
+
+export default connector(ManageProducts);
 

@@ -8,19 +8,16 @@ import Dashboard from './Dashboard';
 import { useDispatch } from 'react-redux';
 import { getUserData } from '../actions/userActions';
 import { useTypedSelector } from '../store/store';
-import { ManageProducts } from './containers/ManageProducts';
+import ManageProducts from './containers/Product/ManageProducts';
 import MainTask from './MainTask';
-import { getAllProducts } from '../actions/productActions';
+import { fetchProducts, getAllProducts, getProductPage, loadProduct, ProductActionTypes } from '../product/productActions';
   
 interface AppProps {
 }
 
-const App: FC<AppProps> = ({}) => {
-
+const App: React.FC<AppProps> = () => {
   const dispatch = useDispatch();
   dispatch(getUserData())
-  dispatch(getAllProducts())
-
   return (
             <Fragment>
               <Routes>

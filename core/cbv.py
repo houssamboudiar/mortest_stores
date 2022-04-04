@@ -7,8 +7,6 @@ from rest_framework import status, pagination
 from django_filters.rest_framework import DjangoFilterBackend
 from datetime import datetime
 
-
-
 #----------------------------------------------SELLING POINT----------------------------------------------------------
 
 
@@ -962,10 +960,3 @@ class ClarquePk(generics.RetrieveUpdateDestroyAPIView):
         if not self.request.user.is_superuser:
             queryset = queryset.filter(selling_point=self.request.user.vendeur.selling_point)
         return queryset
-
-
-
-
-
-
-
