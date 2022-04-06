@@ -4,13 +4,15 @@ import { connect, useDispatch } from 'react-redux';
 import { IAppState } from '../../../store/store';
 import { IProduct } from '../../../product/productReducer';
 import {  Avatar, Box, Button, Center, Divider, Heading, Icon, Stack, Text, Modal, ModalHeader, ModalCloseButton, ModalOverlay, ModalContent, ModalFooter, ModalBody ,useDisclosure ,useToast} from '@chakra-ui/react'
-import { MdEdit, MdDelete } from "react-icons/md"
+import { MdEdit, MdDelete, MdAdd, MdRemove } from "react-icons/md"
 import { IoIosCloseCircleOutline } from "react-icons/io"
 import { AiFillFilePdf } from "react-icons/ai"
 import { FaAddressCard } from "react-icons/fa"
 import { deleteProduct } from '../../../product/productActions';
 import { AddProduct } from './AddProduct';
 import { EditProduct } from './EditProduct';
+import { addItem, removeItem } from '../../../cart/cartActions';
+import { IItem } from '../../../cart/cartReducers';
 // import {EditStudent} from './EditStudent'
 // import download from 'downloadjs'
 // import Axios from 'axios'
@@ -52,6 +54,17 @@ export const ProductList: React.FC<IProps> = (props:IProps) => {
         onClose:onCloseEdit,
       } = useDisclosure() 
     const dispatch = useDispatch();
+
+    const addItemCart = () => {
+        let item: IItem = {item:props.product,price:props.product.prix_U_achat,qty:1}
+        dispatch(addItem(item))
+    }
+
+    const removeItemCart = () => {
+        let item: IItem = {item:props.product,price:props.product.prix_U_achat,qty:1}
+        dispatch(removeItem(item))
+    }
+
     if(props.product===undefined){
         return (
             <Box h="100%" w="100%" borderRadius="4px" overflow="hidden" bg="P3White">
@@ -288,6 +301,31 @@ export const ProductList: React.FC<IProps> = (props:IProps) => {
                             </Box>
                             <Box  display="flex"  justifyContent="flex-end" >
                                 <Stack  direction="row" spacing={7}>
+                                    {props.inComptoir&&<>
+                                    <Button 
+                                            onClick={()=>{addItemCart()}}
+                                            margin="0"
+                                            bg="P3White" 
+                                            color="P1Blue"
+                                            fontWeight="bold"
+                                            _hover={{ color: "#fbd28e" , bg: "#f8f8f8" }} 
+                                            _active={{ color : "#fea40f" }}
+                                            _focus={{border:"0px"}}
+                                            _disabled={{color:"#fbd28e"  }}>
+                                        <Icon as={MdAdd} w={5} h={5} />
+                                    </Button>
+                                    {/* <Button  
+                                            onClick={()=>{removeItemCart()}}
+                                            bg="P3White" 
+                                            color="P1red"
+                                            fontWeight="bold"
+                                            _hover={{ color: "#fa958c" , bg: "#f8f8f8" }} 
+                                            _active={{ color : "#fa3422"}}
+                                            _focus={{border:"0px"}}
+                                            _disabled={{color:"#fbd28e"}}>
+                                        <Icon as={MdRemove} w={5} h={5} />
+                                    </Button> */}
+                                    </>}
                                     {!props.inComptoir&&<>
                                     <Button 
                                             onClick={onOpenEdit}

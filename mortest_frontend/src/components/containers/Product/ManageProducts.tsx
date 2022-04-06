@@ -44,7 +44,7 @@ import InfiniteScroll from 'react-infinite-scroll-component'
 import { IAppState, useTypedSelector } from '../../../store/store';
 import { ProductTable } from './ProductTable';
 import { AddProduct } from './AddProduct';
-import { fetchProducts, getAllProducts, getProductPage, getSPFamilleMarque, IProductGetAllAction, IProductGetSPFamilleMarqueAction, loadProduct } from '../../../product/productActions';
+import { getAllProducts, getProductPage, getSPFamilleMarque, IProductGetAllAction, IProductGetSPFamilleMarqueAction, loadProduct } from '../../../product/productActions';
 import { ActionCreator, AnyAction } from 'redux';
 import { ThunkAction, ThunkDispatch } from 'redux-thunk';
 import { Dispatch } from 'redux';

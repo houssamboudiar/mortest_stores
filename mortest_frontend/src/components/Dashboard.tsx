@@ -22,12 +22,12 @@ const Dashboard: FC<DashboardProps> = () => {
        const { user, loading, authenticated } = useTypedSelector((state) => state.userState);
 
        useEffect(() => {
-              if(authenticated == false){
-                     navigate("/login/");
+              if(authenticated == true){
+                     navigate("/login");
               }
        }, [user]);
 
-       if(loading == false){
+       if(loading == true){
               return (
               <>
                      <SidebarWithHeader>

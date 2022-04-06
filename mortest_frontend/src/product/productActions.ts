@@ -60,20 +60,13 @@ export const getAllProducts: ActionCreator<ThunkAction<Promise<any>, IProductSta
   };
 };
 
-export const fetchProducts = createAsyncThunk('products/fetchProducts', async () => {
-  const { user } = useTypedSelector((state) => state.userState);
-  axios.defaults.headers.common = {'Authorization': `Bearer ${user.credentials.access}`}
-  const response = await axios.get('http://127.0.0.1:8000/api/produit_get_post');
-  console.log(response.data)
-  return response.data
-})
-
 export const loadProduct: ActionCreator<ThunkAction<Promise<any>, IProductState, null, IProductGetAllAction>> = () => {
   return async (dispatch: Dispatch) => {
     try {
       let access = localStorage.getItem('access token') as string ;
       axios.defaults.headers.common = {'Authorization': `Bearer ${access}`}
       const response = await axios.get('http://127.0.0.1:8000/api/produit_get_post');
+      console.log(response.data.results)
       dispatch({
         products: response.data.results,
         next:response.data.next,

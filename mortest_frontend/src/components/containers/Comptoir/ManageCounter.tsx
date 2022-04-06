@@ -6,12 +6,13 @@ import { BiRefresh } from 'react-icons/bi';
 import {connect, ConnectedProps, useDispatch, useSelector} from 'react-redux'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import { IAppState, useTypedSelector } from '../../../store/store';
-import { fetchProducts, getAllProducts, getProductPage, getSPFamilleMarque, IProductGetAllAction, IProductGetSPFamilleMarqueAction, loadProduct } from '../../../product/productActions';
+import { getAllProducts, getProductPage, getSPFamilleMarque, IProductGetAllAction, IProductGetSPFamilleMarqueAction, loadProduct } from '../../../product/productActions';
 import { ActionCreator, AnyAction } from 'redux';
 import { ThunkAction, ThunkDispatch } from 'redux-thunk';
 import { Dispatch } from 'redux';
 import { IProductState, ISPFamilleMarqueProductState } from '../../../product/productReducer';
 import ManageProducts from '../Product/ManageProducts';
+import Cart from './Cart';
 
 interface IProps {
 
@@ -24,8 +25,18 @@ const ManageCounter: React.FC<IProps> = (props:IProps) => {
        },[])
 
        return (
-              <Box width={"50%"} height={"50%"}>
-                     <ManageProducts inComptoir={true} ></ManageProducts>
+              <Box
+                     flexDirection="row"
+                     display="flex"
+                     w="100%"
+                     h="100%"
+              >
+                     <Box width={"50%"} paddingRight={3}>
+                            <ManageProducts inComptoir={true} ></ManageProducts>
+                     </Box>
+                     <Box width={"50%"}>
+                            <Cart ></Cart>
+                     </Box>
               </Box>
        );
 }

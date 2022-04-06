@@ -18,6 +18,7 @@
 import { TypedUseSelectorHook, useSelector } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
 import { ISellingPointState, spointReducer } from '../reducers/spReducer';
+import { cartReducer, ICartState } from '../cart/cartReducers';
  
  // Create an interface for the application state
  export interface IAppState {
@@ -26,6 +27,7 @@ import { ISellingPointState, spointReducer } from '../reducers/spReducer';
     spfamillemarqueState: ISPFamilleMarqueProductState;
     userState: IUserState;
     errorState: IErrorState;
+    cartState: ICartState;
  }
  
 //  // Create the root reducer
@@ -40,6 +42,7 @@ import { ISellingPointState, spointReducer } from '../reducers/spReducer';
  export const store = configureStore({
   reducer: {
     productState: productReducer,
+    cartState: cartReducer,
     userState: userReducer,
     spointState: spointReducer,
     errorState: errorReducer,
