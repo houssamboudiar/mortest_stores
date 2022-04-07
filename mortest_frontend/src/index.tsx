@@ -19,6 +19,7 @@ const theme = {
       login :"Indie Flower , sans-serif"
   },
   size: {
+      xxs: "6px",
       xs: "12px",
       sm: "14px",
       md: "16px",

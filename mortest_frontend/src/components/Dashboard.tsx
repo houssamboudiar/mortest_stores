@@ -10,6 +10,7 @@ import ManageProducts from './containers/Product/ManageProducts';
 import MainTask from './MainTask';
 import SidebarWithHeader from './Sidebar';
 import ManageCounter from './containers/Comptoir/ManageCounter';
+import Loader from './Loader';
 
 interface DashboardProps {
 
@@ -22,12 +23,12 @@ const Dashboard: FC<DashboardProps> = () => {
        const { user, loading, authenticated } = useTypedSelector((state) => state.userState);
 
        useEffect(() => {
-              if(authenticated == true){
+              if(authenticated == false && loading == false){
                      navigate("/login");
               }
        }, [user]);
 
-       if(loading == true){
+       if(loading == false){
               return (
               <>
                      <SidebarWithHeader>
@@ -39,7 +40,7 @@ const Dashboard: FC<DashboardProps> = () => {
                      </SidebarWithHeader>
               </>);
        }else{
-              return <h1>LOADING</h1>
+              return <Loader></Loader>
        }
 };
 

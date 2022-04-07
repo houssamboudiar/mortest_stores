@@ -10,10 +10,12 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 import { ICartState, IItem } from './cartReducers';
 
 // Create Action Constants
+
 export enum CartActionTypes {
        REMOVE_ITEM = "REMOVE_ITEM",
        EDIT_ITEM = "EDIT_ITEM",
-       ADD_ITEM = "ADD_ITEM"
+       ADD_ITEM = "ADD_ITEM",
+       CLEAR_ALL = "CLEAR_ALL"
 }
 
 export type CartActions = AnyAction;
@@ -44,5 +46,11 @@ export const removeItem = (item:IItem) => {
        }
        return (dispatch: Dispatch) => {
               dispatch({type:CartActionTypes.REMOVE_ITEM,payload:cartItems})
+       };
+};
+
+export const clearItems = () => {
+       return (dispatch: Dispatch) => {
+              dispatch({type:CartActionTypes.CLEAR_ALL})
        };
 };

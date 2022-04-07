@@ -112,8 +112,26 @@ export const getUserData: ActionCreator<ThunkAction<Promise<any>, IUserState, nu
                                    type: UserActionTypes.SET_UNAUTHENTICATED,
                             });
                      }else{
+                            dispatch({
+                                   type: UserActionTypes.LOADING_USER,
+                            }); 
                             let access = localStorage.getItem('access token') as string ;
-                            const userData = parseJwt(access);
+                            let refresh = localStorage.getItem('refresh token') as string ;
+                            const userTokenData = parseJwt(access);
+                            const res2 = await axios.get(`http://127.0.0.1:8000/api/users/user_pk/${userTokenData.user_id}`)
+                            const userD = [{
+                                   id: userTokenData.user_id,
+                                   username:res2.data.username,
+                                   authenticated: true,
+                                   credentials:{
+                                          access:access,
+                                          refresh:refresh,
+                                   }
+                            }]
+                            dispatch({
+                                   type: UserActionTypes.SET_USER,
+                                   user: userD
+                            }); 
 
                      }
               }catch(err){

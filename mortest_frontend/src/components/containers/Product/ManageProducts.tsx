@@ -35,7 +35,7 @@
 
 import React, { useState, useEffect, useCallback, FC} from 'react'
 import { Box, Button, Center, Divider, Heading, Icon, Input, 
-    InputGroup, InputLeftElement, propNames, Table, TableCaption, Tbody, Td, Tfoot, Th, Thead, Tr, useDisclosure, useToast } from '@chakra-ui/react'
+    InputGroup, InputLeftElement, propNames, Skeleton, Spinner, Table, TableCaption, Tbody, Td, Tfoot, Th, Thead, Tr, useDisclosure, useToast } from '@chakra-ui/react'
 import { ProductList } from './ProductList'
 import { BsPlus, BsSearch } from 'react-icons/bs';
 import { BiRefresh } from 'react-icons/bi';
@@ -132,6 +132,19 @@ const ManageProducts: React.FC<IProps> = (props:IProps) => {
                      <AddProduct isOpen={isOpen} onClose={onClose} onOpen={onOpen} />
                      </Box>
                      <Divider color="P3IconGray"/>
+                     {loading &&
+                     <Skeleton startColor='P3White' endColor='P3Gray'>
+                            <Box
+                            itemID="scrollableDiv"
+                            height="80vh"
+                            overflow="auto"
+                            display="flex"
+                            flexDirection="column"
+                            id="scrollableDiv">
+                            </Box>
+                     </Skeleton>
+                     }
+                     {!loading &&
                      <Box
                      itemID="scrollableDiv"
                      height="80vh"
@@ -139,8 +152,7 @@ const ManageProducts: React.FC<IProps> = (props:IProps) => {
                      display="flex"
                      flexDirection="column"
                      id="scrollableDiv">
-                     {loading && <div style={{alignSelf: "center"}}><div className="lds-ellipsis"><div></div><div></div><div></div><div></div></div></div>}
-                     {!loading &&
+                     {/* {loading && <div style={{alignSelf: "center"}}><div className="lds-ellipsis"><div></div><div></div><div></div><div></div></div></div>} */}
                      <InfiniteScroll
                      dataLength={products.length}
                      next={()=>{loadNextPage()}}
@@ -200,10 +212,9 @@ const ManageProducts: React.FC<IProps> = (props:IProps) => {
                                           </Box>
                                    </Center>
                             </Box>}
-                     </InfiniteScroll>}
-
-
+                     </InfiniteScroll>
                      </Box>
+                     }
               </Box>
        );
 }

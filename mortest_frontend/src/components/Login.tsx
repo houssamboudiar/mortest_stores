@@ -28,6 +28,7 @@ import history from "../utils/history";
 import { render } from 'react-dom';
 import { ErrorActionTypes } from '../actions/errorActions';
 import { InfoOutlineIcon } from '@chakra-ui/icons'
+import Loader from './Loader';
 
 interface LoginProps {
 
@@ -51,28 +52,6 @@ const Login: FC<LoginProps> = () => {
        const toast = useToast()
 
        useEffect(() => {
-              // // Add a 401 response interceptor
-              // if(errorstate==401){
-              //        toast({
-              //               position: 'bottom',
-              //               duration:3000,
-              //               render: () => (
-              //                      <Box p={5} bgColor={'red.400'} color={'whiteAlpha.900'} borderRadius={'lg'}>
-              //                             <Box display={'flex'} flexDir={'column'}  >
-              //                                    <Box display='flex'  align-items= 'center' p={2}>
-              //                                           <InfoOutlineIcon  w={6} h={6}  />
-              //                                           <Text paddingLeft={4} mr={2} fontWeight={'bold'} color={'whiteAlpha.900'}>Login Failed</Text>
-              //                                    </Box>
-              //                                    <Text>Something wrong with your credentials.</Text>
-              //                             </Box>
-              //                      </Box>
-              //               ),
-              //        })
-              //        dispatch({
-              //               type: ErrorActionTypes.SET_ERRORS,
-              //               payload: 0,
-              //        });
-              // }
        },[]);
 
        const onChange=(e: any): void => {
@@ -80,59 +59,63 @@ const Login: FC<LoginProps> = () => {
               setMyState({ ...myState, [name]: value });
        }
 
-       return(
-              <>
-              { !loading && authenticated && <Navigate to="/"/>}
-              <Flex
-              minH={'100vh'}
-              align={'center'}
-              justify={'center'}
-              bg={useColorModeValue('gray.50', 'gray.800')}>
-                     <Stack spacing={8} mx={'auto'} maxW={'lg'} py={12} px={6}>
-                     <Stack align={'center'}>
-                            <Heading fontSize={'4xl'}>Sign in to your account</Heading>
-                            <Text fontSize={'lg'} color={'gray.600'}>
-                            to enjoy all of our cool <Link color={'blue.400'}>features</Link> ✌️
-                            </Text>
-                     </Stack>
-                     <Box
-                            rounded={'lg'}
-                            bg={useColorModeValue('white', 'gray.700')}
-                            boxShadow={'lg'}
-                            p={8}>
-                            <Stack spacing={4}>
-                            <FormControl id="email">
-                            <FormLabel>Username</FormLabel>
-                            <Input name="username" type="text" onChange={onChange}/>
-                            </FormControl>
-                            <FormControl id="password">
-                            <FormLabel>Password</FormLabel>
-                            <Input name="password" type="password" onChange={onChange} />
-                            </FormControl>
-                            <Stack spacing={10}>
-                            <Stack
-                            direction={{ base: 'column', sm: 'row' }}
-                            align={'start'}
-                            justify={'space-between'}>
-                            <Checkbox>Remember me</Checkbox>
-                            <Link color={'blue.400'}>Forgot password?</Link>
+       if(!loading && authenticated){
+              return <Navigate to="/"/>
+       }else{   
+              if(loading){
+                     return <Loader></Loader>
+              }
+              return(
+                     <Flex
+                     minH={'100vh'}
+                     align={'center'}
+                     justify={'center'}
+                     bg={useColorModeValue('gray.50', 'gray.800')}>
+                            <Stack spacing={8} mx={'auto'} maxW={'lg'} py={12} px={6}>
+                            <Stack align={'center'}>
+                                   <Heading fontSize={'4xl'}>Sign in to your account</Heading>
+                                   <Text fontSize={'lg'} color={'gray.600'}>
+                                   to enjoy all of our cool <Link color={'blue.400'}>features</Link> ✌️
+                                   </Text>
                             </Stack>
-                            <Button
-                            onClick={()=>{signin(myState)}}
-                            bg={'blue.400'}
-                            color={'white'}
-                            _hover={{
-                                   bg: 'blue.500',
-                            }}>
-                            Sign in
-                            </Button>
+                            <Box
+                                   rounded={'lg'}
+                                   bg={useColorModeValue('white', 'gray.700')}
+                                   boxShadow={'lg'}
+                                   p={8}>
+                                   <Stack spacing={4}>
+                                   <FormControl id="email">
+                                   <FormLabel>Username</FormLabel>
+                                   <Input name="username" type="text" onChange={onChange}/>
+                                   </FormControl>
+                                   <FormControl id="password">
+                                   <FormLabel>Password</FormLabel>
+                                   <Input name="password" type="password" onChange={onChange} />
+                                   </FormControl>
+                                   <Stack spacing={10}>
+                                   <Stack
+                                   direction={{ base: 'column', sm: 'row' }}
+                                   align={'start'}
+                                   justify={'space-between'}>
+                                   <Checkbox>Remember me</Checkbox>
+                                   <Link color={'blue.400'}>Forgot password?</Link>
+                                   </Stack>
+                                   <Button
+                                   onClick={()=>{signin(myState)}}
+                                   bg={'blue.400'}
+                                   color={'white'}
+                                   _hover={{
+                                          bg: 'blue.500',
+                                   }}>
+                                   Sign in
+                                   </Button>
+                                   </Stack>
+                                   </Stack>
+                            </Box>
                             </Stack>
-                            </Stack>
-                     </Box>
-                     </Stack>
-              </Flex>
-       </>
-       )
+                     </Flex>
+              )
+       }
 }
 
 export default Login

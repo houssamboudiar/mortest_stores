@@ -46,18 +46,21 @@ export const ItemList: React.FC<IProps> = (props:IProps) => {
                                     </Text>
                                     <Text fontSize="xs" fontWeight="regular" color="P3Gray" >#{props.item.item.reference}</Text>
                                 </Box>
-                                <Box  marginLeft="1rem">
-                                    <Tag size='lg' colorScheme='purple' borderRadius='full'>
-                                        <Icon mr="2px" as={BiBasket} w={4} h={4} />
-                                        <TagLabel fontWeight="bold">{props.item.qty}</TagLabel>
-                                    </Tag>
-                                    <Tag marginLeft="1rem" size='lg' colorScheme='green' borderRadius='full'>
-                                        <Icon mr="2px" as={BiMoney} w={4} h={4} />
-                                        <TagLabel fontWeight="bold" >{props.item.price} DA</TagLabel>
-                                    </Tag>
-                                </Box>
                             </Box>
                             <Box  display="flex"  justifyContent="flex-end" >
+                                <Box    alignSelf="center" 
+                                        display="flex" 
+                                        alignItems="center"
+                                        marginLeft="1rem">
+                                    <Tag size='lg' colorScheme='purple' borderRadius='full'>
+                                        <Icon mr="3px" as={BiBasket} w={5} h={5} />
+                                        <TagLabel fontWeight="light" >{props.item.qty}</TagLabel>
+                                    </Tag>
+                                    <Tag marginLeft="1rem" size='lg' colorScheme='green' borderRadius='full'>
+                                        <Icon mr="3px" as={BiMoney} w={5} h={5} />
+                                        <TagLabel fontWeight="light" >{props.item.price} DA</TagLabel>
+                                    </Tag>
+                                </Box>
                                 <Stack  direction="row" spacing={7}>
                                     <Button  
                                             onClick={()=>{removeItemCart()}}

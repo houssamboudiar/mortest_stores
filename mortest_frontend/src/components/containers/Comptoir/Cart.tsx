@@ -1,15 +1,21 @@
 import React, { useState, useEffect, useCallback, FC} from 'react'
 import { Box, Button, Center, Divider, Heading, Icon, Input, 
-    InputGroup, InputLeftElement, propNames, Table, TableCaption, Tbody, Td, Tfoot, Th, Thead, Tr, useDisclosure, useToast } from '@chakra-ui/react'
+    InputGroup, InputLeftElement, propNames, Stack, Table, TableCaption, Tbody, Td, Tfoot, Th, Thead, Tr, useDisclosure, useToast } from '@chakra-ui/react'
 import { BsSearch } from 'react-icons/bs';
 import { useTypedSelector } from '../../../store/store';
 import { ItemList } from './ItemList';
+import { MdBuild , MdCall, MdCheck, MdClearAll } from "react-icons/md"
+import { clearItems } from '../../../cart/cartActions';
+import { useDispatch } from 'react-redux';
+import { Image } from '@chakra-ui/react'
+import EmptyData from './../../../../images/nodata.svg';
 
 interface IProps {
 
 }
 
 const Cart: React.FC<IProps> = (props:IProps) => {
+       const dispatch = useDispatch();
        const {items} = useTypedSelector((state) => state.cartState);
 
        useEffect(() => {
@@ -21,32 +27,49 @@ const Cart: React.FC<IProps> = (props:IProps) => {
                      <Box paddingTop="10" paddingBottom="5" paddingRight="6" paddingLeft="6" display="flex" w="100%" >
                      <Heading size="lg" color="P3DarkBlueText" >Cart</Heading>
                      </Box>
-                     <Box paddingRight="6" paddingBottom="8" paddingLeft="6" >
-                     <InputGroup size="md">
-                            <InputLeftElement pointerEvents="none" children={<BsSearch color="P1Blue" />} />
-                            <Input  variant="filled" bg="#eaecee"  
-                                   placeholder="Search"
-                                   color="black"
-                                   _placeholder={{color:"P1Blue"}}
-                                   _hover={{ bg: "#f5f8fa" }} 
-                                   _active={{ bg: "#f5f8fa"}}
-                                   _focus={{bg: "#f5f8fa"}}
-                                   _disabled={{bg:"#f5f8fa"}} />                
-                     </InputGroup>
-                     </Box>
+                     {/* <Box p={3} >
+                     </Box> */}
                      <Divider color="P3IconGray"/>
-                     <Box
+                     {(items.length==0)&&
+                     <Box 
+                            display="flex"
+                            alignSelf="center" 
+                            alignItems="center" 
+                            height="80vh"
+                     >
+                            <Box>
+                                   <Image src={EmptyData} maxW='xs' maxH='xs' alt='Empty Cart'/>
+                            </Box>
+                     </Box>}
+                     {(items.length!=0)&&<Box
                      itemID="scrollableDiv"
                      height="80vh"
                      overflow="auto"
                      display="flex"
                      flexDirection="column"
-                     id="scrollableDiv">
+                     id="scrollableDiv"
+                     >
                             {items.map((item:any,i) => {
                                    return <ItemList 
                                           item={item}
                                           key={i} />
                             })}
+                     </Box>}
+                     <Divider color="P3IconGray"/>
+                     <Box p={4} justifyContent="flex-end" display="flex">
+                            <Stack direction='row' spacing={4}>
+                                   <Button 
+                                          disabled={items.length==0}
+                                          onClick={()=>{dispatch(clearItems())}}
+                                          leftIcon={<MdClearAll />} 
+                                          colorScheme='telegram' 
+                                          variant='solid'>
+                                          Clear
+                                   </Button>
+                                   <Button leftIcon={<MdCheck />} colorScheme='green' variant='solid'>
+                                          Validate
+                                   </Button>
+                            </Stack>
                      </Box>
               </Box>
        );

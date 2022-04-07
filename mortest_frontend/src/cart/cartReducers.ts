@@ -21,6 +21,11 @@ const initialCartState: ICartState = {
 
 export const cartReducer: Reducer<ICartState, AnyAction> = (state = initialCartState, action: any ) => {
   switch (action.type) {
+       case CartActionTypes.CLEAR_ALL: {
+              return {
+                     ...initialCartState,
+              };
+       }
        case CartActionTypes.ADD_ITEM: {
               return {
                      ...state,
