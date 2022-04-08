@@ -1,13 +1,18 @@
 
 import * as React from 'react';
-import { connect } from 'react-redux';
+import { connect, useDispatch } from 'react-redux';
 import { IAppState } from '../../../store/store';
 import { IProduct } from '../../../product/productReducer';
 import {  Avatar, Box, Button, Center, Divider, Heading, Icon, Stack, Text, Modal, ModalHeader, ModalCloseButton, ModalOverlay, ModalContent, ModalFooter, ModalBody ,useDisclosure ,useToast} from '@chakra-ui/react'
-import { MdEdit, MdDelete } from "react-icons/md"
+import { MdEdit, MdDelete, MdAdd, MdRemove } from "react-icons/md"
 import { IoIosCloseCircleOutline } from "react-icons/io"
 import { AiFillFilePdf } from "react-icons/ai"
 import { FaAddressCard } from "react-icons/fa"
+import { deleteProduct } from '../../../product/productActions';
+import { AddProduct } from './AddProduct';
+import { EditProduct } from './EditProduct';
+import { addItem, removeItem } from '../../../cart/cartActions';
+import { IItem } from '../../../cart/cartReducers';
 // import {EditStudent} from './EditStudent'
 // import download from 'downloadjs'
 // import Axios from 'axios'
@@ -15,6 +20,7 @@ import { FaAddressCard } from "react-icons/fa"
 // Create the containers interface
 interface IProps {
   product:{   
+    id:number,
     selling_point: number,
     reference: number,
     article: string,
@@ -35,267 +41,327 @@ interface IProps {
     marge_vente_grossiste: number,
     marge_vente_revendeur: number,
     marge_vente_autre: number
-  }
+  },
+  inComptoir:boolean,
+//   deleteProduct(id:number):void,
 }
 
-export const ProductList: React.FC<IProps> = (product) => {
-  if(product===undefined){
-      return (
-          <Box h="100%" w="100%" borderRadius="4px" overflow="hidden" bg="P3White">
-              <Box p="6" >
-                  <Heading>
-                      Loading . . .
-                  </Heading>
-              </Box>
-              <Divider color="P3IconGray"/>
-          </Box>
-      )
-  }else{
-      return (
-          <Box   _hover={{ bg: "#f8f8f8" }} w="100%" borderRadius="4px" bg="P3White">
-              <Center>
-                  <Box  marginTop="2" marginBottom="2" marginRight="6" marginLeft="6" display="flex" w="100%" >
-                      <Box 
-                          // onClick={onOpen1}  
-                          w="95%" 
-                          alignSelf="center" 
-                          display="flex" 
-                          alignItems="center" >
-                              
-                          {/* <EditStudent fetchData={props.fetchData} student={props.student} onOpen={onOpenEdit} isOpen={isOpenEdit} onClose={onCloseEdit} /> */}
-                          {/* <Modal size="5xl" isOpen={isOpen1} onClose={onClose1}>
-                              <ModalOverlay />
-                              <ModalContent > 
-                                  <ModalHeader  fontSize="26px" color="P3DarkBlueText" fontWeight="500" fontFamily="body">Student Review</ModalHeader>
-                                  <ModalCloseButton _focus="_disabled" />
-                                  <ModalBody>
-                                  <Box marginBottom="20px"  display="flex" flexDirection="row" >
+export const ProductList: React.FC<IProps> = (props:IProps) => {
+    const { isOpen, onOpen, onClose } = useDisclosure();
+    const {
+        isOpen:isOpenEdit ,
+        onOpen:onOpenEdit,
+        onClose:onCloseEdit,
+      } = useDisclosure() 
+    const dispatch = useDispatch();
+
+    const addItemCart = () => {
+        let item: IItem = {item:props.product,price:props.product.prix_U_achat,qty:1}
+        dispatch(addItem(item))
+    }
+
+    const removeItemCart = () => {
+        let item: IItem = {item:props.product,price:props.product.prix_U_achat,qty:1}
+        dispatch(removeItem(item))
+    }
+
+    if(props.product===undefined){
+        return (
+            <Box h="100%" w="100%" borderRadius="4px" overflow="hidden" bg="P3White">
+                <Box p="6" >
+                    <Heading>
+                        Loading . . .
+                    </Heading>
+                </Box>
+                <Divider color="P3IconGray"/>
+            </Box>
+        )
+    }else{
+        return (
+            <Box   _hover={{ bg: "#f8f8f8" }} w="100%" borderRadius="4px" bg="P3White">
+                <Center>
+                    <Box  marginTop="2" marginBottom="2" marginRight="6" marginLeft="6" display="flex" w="100%" >
+                        <Box 
+                            // onClick={onOpen1}  
+                            w="95%" 
+                            alignSelf="center" 
+                            display="flex" 
+                            alignItems="center" >
+                                
+                            <EditProduct 
+                                chosenProduct={props.product} 
+                                onOpenEdit={onOpenEdit} 
+                                isOpenEdit={isOpenEdit} 
+                                onCloseEdit={onCloseEdit} 
+                            />
+                            
+                            {/* <Modal size="5xl" isOpen={isOpen1} onClose={onClose1}>
+                                <ModalOverlay />
+                                <ModalContent > 
+                                    <ModalHeader  fontSize="26px" color="P3DarkBlueText" fontWeight="500" fontFamily="body">Student Review</ModalHeader>
+                                    <ModalCloseButton _focus="_disabled" />
+                                    <ModalBody>
+                                    <Box marginBottom="20px"  display="flex" flexDirection="row" >
                                         
-                                          <Box marginLeft="35px" width="100%" display="flex" flexDir='column' >
-                                              <Box width="100%" justifyContent="space-between"  display="flex" flexDir='column'>
-                                              <Text marginTop="10px" fontSize="20px" color="P3DarkBlueText" fontFamily="body">Basic Informations</Text>
-                                                  
-                                                  <Box flexDir="row" display="flex">
-                                                      <Box width="50%" justifyContent="space-between" marginTop="5px" display="flex" flex="1" flexDirection="column">
-                                                          <Text color="P2TableGray" fontFamily="body" >First Name:</Text> 
-                                                          <Text fontWeight="bold" color="P2Black" fontFamily="body" >{props.student.firstName} </Text> 
-                                                          
-                                                      </Box>
-                                                      <Box width="50%" justifyContent="space-between" marginTop="5px" display="flex" flex="1" flexDirection="column">
-                                                          <Text color="P2TableGray" fontFamily="body" >Last Name:</Text>
-                                                          <Text fontWeight="bold" color="P2Black" fontFamily="body" >{props.student.lastName}</Text>
-                                                      </Box>
-                                                  </Box>
-                                                  
-                                                  <Box display="flex" flexDirection="row">
-                                                      <Box width="50%" justifyContent="space-between" marginTop="5px" display="flex" flex="1" flexDirection="column">
-                                                          <Text color="P2TableGray" fontFamily="body" >Birthday:</Text> 
-                                                          <Text fontWeight="bold" color="P2Black" fontFamily="body"> {props.student.dateBirth} </Text> 
-                                                      </Box>
-                                                          <Box width="50%" justifyContent="space-between" marginTop="5px" display="flex" flex="1" flexDirection="column"> 
-                                                              <Text color="P2TableGray" fontFamily="body">Gender:</Text>
-                                                              <Text fontWeight="bold" color="P2Black" fontFamily="body">{props.student.sex}</Text>
-                                                          </Box>
-                                                  </Box>
+                                            <Box marginLeft="35px" width="100%" display="flex" flexDir='column' >
+                                                <Box width="100%" justifyContent="space-between"  display="flex" flexDir='column'>
+                                                <Text marginTop="10px" fontSize="20px" color="P3DarkBlueText" fontFamily="body">Basic Informations</Text>
+                                                    
+                                                    <Box flexDir="row" display="flex">
+                                                        <Box width="50%" justifyContent="space-between" marginTop="5px" display="flex" flex="1" flexDirection="column">
+                                                            <Text color="P2TableGray" fontFamily="body" >First Name:</Text> 
+                                                            <Text fontWeight="bold" color="P2Black" fontFamily="body" >{props.student.firstName} </Text> 
+                                                            
+                                                        </Box>
+                                                        <Box width="50%" justifyContent="space-between" marginTop="5px" display="flex" flex="1" flexDirection="column">
+                                                            <Text color="P2TableGray" fontFamily="body" >Last Name:</Text>
+                                                            <Text fontWeight="bold" color="P2Black" fontFamily="body" >{props.student.lastName}</Text>
+                                                        </Box>
+                                                    </Box>
+                                                    
+                                                    <Box display="flex" flexDirection="row">
+                                                        <Box width="50%" justifyContent="space-between" marginTop="5px" display="flex" flex="1" flexDirection="column">
+                                                            <Text color="P2TableGray" fontFamily="body" >Birthday:</Text> 
+                                                            <Text fontWeight="bold" color="P2Black" fontFamily="body"> {props.student.dateBirth} </Text> 
+                                                        </Box>
+                                                            <Box width="50%" justifyContent="space-between" marginTop="5px" display="flex" flex="1" flexDirection="column"> 
+                                                                <Text color="P2TableGray" fontFamily="body">Gender:</Text>
+                                                                <Text fontWeight="bold" color="P2Black" fontFamily="body">{props.student.sex}</Text>
+                                                            </Box>
+                                                    </Box>
 
-                                          </Box>
-                                          <Box width="100%" justifyContent="space-between"  display="flex" flexDir='column'>
-                                              <Text marginTop="10px" fontSize="20px" color="P3DarkBlueText" fontFamily="body">Parental Informations</Text>
-                                                  <Box display="flex" flexDirection="row">
-                                                      
-                                                      <Box width="50%" justifyContent="space-between" marginTop="5px" display="flex" flex="1" flexDirection="column">
-                                                          <Text color="P2TableGray" fontFamily="body" >Section:</Text>
-                                                          <Text fontWeight="bold" color="P2Black" fontFamily="body">{props.student.section}</Text>
-                                                      </Box>
-                                                      
-                                                      <Box width="50%" justifyContent="space-between" marginTop="5px" display="flex" flex="1" flexDirection="column">
-                                                          <Text color="P2TableGray" fontFamily="body" >Email Parent:</Text> 
-                                                          <Text fontWeight="bold" color="P2Black" fontFamily="body">{props.student.parent[0].emailParent} </Text> 
-                                                      </Box>
-                                                  </Box>
-
-
-                                          </Box>
-
-                                          <Box justifyContent="space-between" marginTop="10px" display="flex" flex="1">
-                                              
-                                              <Box width="50%" justifyContent="space-between" marginTop="10px" display="flex" flex="1" flexDirection="column">
+                                            </Box>
+                                            <Box width="100%" justifyContent="space-between"  display="flex" flexDir='column'>
+                                                <Text marginTop="10px" fontSize="20px" color="P3DarkBlueText" fontFamily="body">Parental Informations</Text>
+                                                    <Box display="flex" flexDirection="row">
+                                                        
+                                                        <Box width="50%" justifyContent="space-between" marginTop="5px" display="flex" flex="1" flexDirection="column">
+                                                            <Text color="P2TableGray" fontFamily="body" >Section:</Text>
+                                                            <Text fontWeight="bold" color="P2Black" fontFamily="body">{props.student.section}</Text>
+                                                        </Box>
+                                                        
+                                                        <Box width="50%" justifyContent="space-between" marginTop="5px" display="flex" flex="1" flexDirection="column">
+                                                            <Text color="P2TableGray" fontFamily="body" >Email Parent:</Text> 
+                                                            <Text fontWeight="bold" color="P2Black" fontFamily="body">{props.student.parent[0].emailParent} </Text> 
+                                                        </Box>
+                                                    </Box>
 
 
-                                                  <Text color="P2TableGray" fontFamily="body">Father Name :</Text> 
-                                                  <Text fontWeight="bold" color="P2Black" fontFamily="body">{props.student.parent[0].firstNameFather + " " + props.student.parent[0].lastNameFather}   </Text> 
-                                              </Box>
-                                              <Box width="50%" justifyContent="space-between" marginTop="10px" display="flex" flex="1" flexDirection="column">
+                                            </Box>
 
-                                                      <Text color="P2TableGray" fontFamily="body">Mother Name:</Text> 
-                                                      <Text fontWeight="bold" color="P2Black" fontFamily="body">{props.student.parent[0].firstNameMother + " " + props.student.parent[0].lastNameMother} </Text> 
+                                            <Box justifyContent="space-between" marginTop="10px" display="flex" flex="1">
+                                                
+                                                <Box width="50%" justifyContent="space-between" marginTop="10px" display="flex" flex="1" flexDirection="column">
 
-                                              </Box>
 
-                                              
-                                          </Box>
-                                          
-                                          <Box justifyContent="space-between" marginTop="10px" display="flex" flex="1" >
+                                                    <Text color="P2TableGray" fontFamily="body">Father Name :</Text> 
+                                                    <Text fontWeight="bold" color="P2Black" fontFamily="body">{props.student.parent[0].firstNameFather + " " + props.student.parent[0].lastNameFather}   </Text> 
+                                                </Box>
+                                                <Box width="50%" justifyContent="space-between" marginTop="10px" display="flex" flex="1" flexDirection="column">
 
-                                             
-                                                      <Box width="50%" justifyContent="space-between" marginTop="5px" display="flex" flex="1" flexDirection="column">
-                                                          <Text color="P2TableGray" fontFamily="body" >Parent Number:</Text> 
-                                                          <Text fontWeight="bold" color="P2Black" fontFamily="body"> {props.student.parent[0].phoneParent} </Text> 
-                                                      </Box>
+                                                        <Text color="P2TableGray" fontFamily="body">Mother Name:</Text> 
+                                                        <Text fontWeight="bold" color="P2Black" fontFamily="body">{props.student.parent[0].firstNameMother + " " + props.student.parent[0].lastNameMother} </Text> 
 
-                                                      <Box width="50%" justifyContent="space-between" marginTop="5px" display="flex" flex="1" flexDirection="column">
-                                                          <Text color="P2TableGray" fontFamily="body" >address:</Text> 
-                                                          <Text fontWeight="bold" color="P2Black" fontFamily="body">{props.student.address} </Text>
-                                                      </Box>
+                                                </Box>
 
-                                          
+                                                
+                                            </Box>
+                                            
+                                            <Box justifyContent="space-between" marginTop="10px" display="flex" flex="1" >
+
+                                                
+                                                        <Box width="50%" justifyContent="space-between" marginTop="5px" display="flex" flex="1" flexDirection="column">
+                                                            <Text color="P2TableGray" fontFamily="body" >Parent Number:</Text> 
+                                                            <Text fontWeight="bold" color="P2Black" fontFamily="body"> {props.student.parent[0].phoneParent} </Text> 
+                                                        </Box>
+
+                                                        <Box width="50%" justifyContent="space-between" marginTop="5px" display="flex" flex="1" flexDirection="column">
+                                                            <Text color="P2TableGray" fontFamily="body" >address:</Text> 
+                                                            <Text fontWeight="bold" color="P2Black" fontFamily="body">{props.student.address} </Text>
+                                                        </Box>
+
+                                            
                                                 
 
-                                      </Box>
-                                      <Box width="100%" justifyContent="space-between"  display="flex" flexDir='column'>
-                                              <Text marginTop="10px" fontSize="20px" color="P3DarkBlueText" fontFamily="body">Secondary Informations</Text>
-                                              <Box justifyContent="space-between"  display="flex" flex="1">
+                                        </Box>
+                                        <Box width="100%" justifyContent="space-between"  display="flex" flexDir='column'>
+                                                <Text marginTop="10px" fontSize="20px" color="P3DarkBlueText" fontFamily="body">Secondary Informations</Text>
+                                                <Box justifyContent="space-between"  display="flex" flex="1">
 
-                                                  <Box  width="50%" justifyContent="space-between" marginTop="5px" display="flex" flex="1" flexDirection="column">
-                                                      <Text color="P2TableGray" fontFamily="body" >Allergies:</Text> 
-                                                      <Text fontWeight="bold" color="P2Black" fontFamily="body">{props.student.allergies} </Text>
-                                                  </Box>
-                                                  <Box  width="50%" justifyContent="space-between" marginTop="5px" display="flex" flex="1" flexDirection="column">
-                                                      <Text color="P2TableGray" fontFamily="body" >Intolerances:</Text>
-                                                      <Text fontWeight="bold" color="P2Black" fontFamily="body">{props.student.intolerances}</Text>
-                                                  </Box>
-                                                  <Box  width="50%" justifyContent="space-between" marginTop="5px" display="flex" flex="1" flexDirection="column">
-                                                      <Text color="P2TableGray" fontFamily="body">diseases:</Text>
-                                                      <Text fontWeight="bold" color="P2Black" fontFamily="body">{props.student.diseases}</Text>
-                                                  </Box>
+                                                    <Box  width="50%" justifyContent="space-between" marginTop="5px" display="flex" flex="1" flexDirection="column">
+                                                        <Text color="P2TableGray" fontFamily="body" >Allergies:</Text> 
+                                                        <Text fontWeight="bold" color="P2Black" fontFamily="body">{props.student.allergies} </Text>
+                                                    </Box>
+                                                    <Box  width="50%" justifyContent="space-between" marginTop="5px" display="flex" flex="1" flexDirection="column">
+                                                        <Text color="P2TableGray" fontFamily="body" >Intolerances:</Text>
+                                                        <Text fontWeight="bold" color="P2Black" fontFamily="body">{props.student.intolerances}</Text>
+                                                    </Box>
+                                                    <Box  width="50%" justifyContent="space-between" marginTop="5px" display="flex" flex="1" flexDirection="column">
+                                                        <Text color="P2TableGray" fontFamily="body">diseases:</Text>
+                                                        <Text fontWeight="bold" color="P2Black" fontFamily="body">{props.student.diseases}</Text>
+                                                    </Box>
 
-                                              </Box>
-                                          </Box>
-                                          
-                                      </Box>
-                                      <Box justifyContent="space-around" marginLeft="35px" marginRight="35px" display="flex" flexDirection="column">
-                                              <Box>
-                                                  <Avatar  size="3xl" name="Ryan Florence" src="https://bit.ly/ryan-florence" />
-                                                  
-                                              </Box>
-                                              <Box >
-                                                  <Text textAlign="center">Code Bare</Text>
-                                              </Box>
-                                          </Box>
+                                                </Box>
+                                            </Box>
+                                            
+                                        </Box>
+                                        <Box justifyContent="space-around" marginLeft="35px" marginRight="35px" display="flex" flexDirection="column">
+                                                <Box>
+                                                    <Avatar  size="3xl" name="Ryan Florence" src="https://bit.ly/ryan-florence" />
+                                                    
+                                                </Box>
+                                                <Box >
+                                                    <Text textAlign="center">Code Bare</Text>
+                                                </Box>
+                                            </Box>
 
-                                  </Box>
-                                  
-                                  </ModalBody>
-                                  <ModalFooter justifyContent="flex-end" alignItems="center" flexDir="row"  >
-                                          <Box  margin="10px" >
-                                              <Button 
-                                              leftIcon={<AiFillFilePdf />}
-                                              onClick={downloadFile}
-                                              bg="P3DarkBlueText" 
-                                              color="P3White"
-                                              fontWeight="bold"
-                                              _hover={{ bg: "#6abcf0" }} 
-                                              _active={{ bg : "#0080d1"}}
-                                              _focus={{border:"0px"}}
-                                              _disabled={{bg:"#aed8f3"}}>Documents</Button>
-                                          </Box>
-                                          <Box margin="10px">
-                                              <Button leftIcon={<FaAddressCard />}
-                                              bg="P3DarkBlueText" 
-                                              color="P3White"
-                                              fontWeight="bold"
-                                              _hover={{ bg: "#6abcf0" }} 
-                                              _active={{ bg : "#0080d1"}}
-                                              _focus={{border:"0px"}}
-                                              _disabled={{bg:"#aed8f3"}}>Print Card</Button>
-                                          </Box>
-                                  </ModalFooter>
-                              </ModalContent>
-                          </Modal> */}
+                                    </Box>
+                                    
+                                    </ModalBody>
+                                    <ModalFooter justifyContent="flex-end" alignItems="center" flexDir="row"  >
+                                            <Box  margin="10px" >
+                                                <Button 
+                                                leftIcon={<AiFillFilePdf />}
+                                                onClick={downloadFile}
+                                                bg="P3DarkBlueText" 
+                                                color="P3White"
+                                                fontWeight="bold"
+                                                _hover={{ bg: "#6abcf0" }} 
+                                                _active={{ bg : "#0080d1"}}
+                                                _focus={{border:"0px"}}
+                                                _disabled={{bg:"#aed8f3"}}>Documents</Button>
+                                            </Box>
+                                            <Box margin="10px">
+                                                <Button leftIcon={<FaAddressCard />}
+                                                bg="P3DarkBlueText" 
+                                                color="P3White"
+                                                fontWeight="bold"
+                                                _hover={{ bg: "#6abcf0" }} 
+                                                _active={{ bg : "#0080d1"}}
+                                                _focus={{border:"0px"}}
+                                                _disabled={{bg:"#aed8f3"}}>Print Card</Button>
+                                            </Box>
+                                    </ModalFooter>
+                                </ModalContent>
+                            </Modal> */}
 
-                          {/* modal of delete  */}
-                         
-                          {/* <Modal  isOpen={isOpen} onClose={onClose}>
-                              <ModalOverlay />
-                             
-                              <ModalContent top='10rem'>
-                              <Center marginTop="10px">
-                                  <Icon  color="P1red" as={IoIosCloseCircleOutline} w={20} h={20} />
-                              </Center>
-                                  
-                                  <ModalBody>
-                                  <Text marginBottom="15px" fontSize='25px' textAlign='center'>
-                                      Are Your Sure?
-                                          </Text>
-                                  <Box textAlign="center" marginBottom="10px">
-                                      <Text>You will not able to recover this student</Text>
-                                  </Box>
-                                  </ModalBody>
-                                  <ModalFooter justifyContent='center'>
-                                      <Button
-                                      onClick={onClose}
-                                       mr={10} 
-                                       _focus={{ border: "0px" }}
-                                       colorScheme="gray"
-                                       >Cancel</Button>
-                                      <Button
-                                          onClick={()=>{deleteStudent();onClose()}} 
-                                          bg="P1red"
-                                          color="P3White"
-                                          fontWeight="bold"
-                                          _hover={{ bg: "P1red" }}
-                                          _active={{ bg: "red.500" }}
-                                          _focus={{ border: "0px" }}
-                                          _disabled={{ color: "#fbd28e" }}>
-                                  
-                                      Delete
-                                  </Button>
-                                  </ModalFooter>
-                              </ModalContent>
-                          </Modal> */}
+                            {/* modal of delete  */}
+                            
+                            <Modal  isOpen={isOpen} onClose={onClose}>
+                                <ModalOverlay />
+                                
+                                <ModalContent top='10rem'>
+                                <Center marginTop="10px">
+                                    <Icon  color="P1red" as={IoIosCloseCircleOutline} w={20} h={20} />
+                                </Center>
+                                    
+                                    <ModalBody>
+                                    <Text marginBottom="15px" fontSize='25px' textAlign='center'>
+                                        Are Your Sure?
+                                            </Text>
+                                    <Box textAlign="center" marginBottom="10px">
+                                        <Text>You will not able to recover this product</Text>
+                                    </Box>
+                                    </ModalBody>
+                                    <ModalFooter justifyContent='center'>
+                                        <Button
+                                        onClick={onClose}
+                                        mr={10} 
+                                        _focus={{ border: "0px" }}
+                                        colorScheme="gray"
+                                        >Cancel</Button>
+                                        <Button
+                                            onClick={()=>{
+                                                // props.deleteProduct(props.product.id);
+                                                dispatch(deleteProduct(props.product.id));
+                                                onClose();
+                                                }
+                                            }
+                                            bg="P1red"
+                                            color="P3White"
+                                            fontWeight="bold"
+                                            _hover={{ bg: "P1red" }}
+                                            _active={{ bg: "red.500" }}
+                                            _focus={{ border: "0px" }}
+                                            _disabled={{ color: "#fbd28e" }}>
+                                    
+                                        Delete
+                                    </Button>
+                                    </ModalFooter>
+                                </ModalContent>
+                            </Modal>
 
-                              <Avatar size="sm" fontWeight="400" name={product.product.article} />
-                              <Box marginLeft="1rem" >
-                                  <Text fontSize="lg" overflow="hidden" color="P2Black" >
-                                        {product.product.article}
-                                  </Text>
-                                  <Text fontSize="xs" fontWeight="regular" color="P3Gray" >#{product.product.reference}</Text>
-                              </Box>
-                          </Box>
-                          <Box  display="flex"  justifyContent="flex-end" >
-                              <Stack  direction="row" spacing={7}>
-                                  <Button 
-                                          // onClick={onOpenEdit}
-                                          margin="0"
-                                          bg="P3White" 
-                                          color="P1yellow"
-                                          fontWeight="bold"
-                                          _hover={{ color: "#fbd28e" , bg: "#f8f8f8" }} 
-                                          _active={{ color : "#fea40f" }}
-                                          _focus={{border:"0px"}}
-                                          _disabled={{color:"#fbd28e"  }}>
-                                      <Icon as={MdEdit} w={5} h={5} />
-                                  </Button>
-                                  <Button  
-                                          // onClick={onOpen}
-                                          bg="P3White" 
-                                          color="P1red"
-                                          fontWeight="bold"
-                                          _hover={{ color: "#fa958c" , bg: "#f8f8f8" }} 
-                                          _active={{ color : "#fa3422"}}
-                                          _focus={{border:"0px"}}
-                                          _disabled={{color:"#fbd28e"}}>
-                                      <Icon as={MdDelete} w={5} h={5} />
-                                  </Button>
-                                  
-                              </Stack>
-                      </Box>
-                  </Box>
-              </Center>
-              <Divider color="P3IconGray"/>
-          </Box>
-      )
-  }
+                                <Avatar size="sm" fontWeight="400" name={props.product.article} />
+                                <Box marginLeft="1rem" >
+                                    <Text fontSize="lg" overflow="hidden" color="P2Black" >
+                                        {props.product.article}
+                                    </Text>
+                                    <Text fontSize="xs" fontWeight="regular" color="P3Gray" >#{props.product.reference}</Text>
+                                </Box>
+                            </Box>
+                            <Box  display="flex"  justifyContent="flex-end" >
+                                <Stack  direction="row" spacing={7}>
+                                    {props.inComptoir&&<>
+                                    <Button 
+                                            onClick={()=>{addItemCart()}}
+                                            bg="P3White" 
+                                            color="#109cf1"
+                                            fontWeight="bold"
+                                            _hover={{ color: "#34aff9" }} 
+                                            _active={{ color: "#098edf"}}
+                                            _focus={{border:"0px"}}
+                                            _disabled={{color:"#c2cfe0"}}
+                                            margin="0"
+                                    >
+                                        <Icon as={MdAdd} w={5} h={5} />
+                                    </Button>
+                                    {/* <Button  
+                                            onClick={()=>{removeItemCart()}}
+                                            bg="P3White" 
+                                            color="P1red"
+                                            fontWeight="bold"
+                                            _hover={{ color: "#fa958c" , bg: "#f8f8f8" }} 
+                                            _active={{ color : "#fa3422"}}
+                                            _focus={{border:"0px"}}
+                                            _disabled={{color:"#fbd28e"}}>
+                                        <Icon as={MdRemove} w={5} h={5} />
+                                    </Button> */}
+                                    </>}
+                                    {!props.inComptoir&&<>
+                                    <Button 
+                                            onClick={onOpenEdit}
+                                            margin="0"
+                                            bg="P3White" 
+                                            color="P1yellow"
+                                            fontWeight="bold"
+                                            _hover={{ color: "#fbd28e" , bg: "#f8f8f8" }} 
+                                            _active={{ color : "#fea40f" }}
+                                            _focus={{border:"0px"}}
+                                            _disabled={{color:"#fbd28e"  }}>
+                                        <Icon as={MdEdit} w={5} h={5} />
+                                    </Button>
+                                    <Button  
+                                            onClick={()=>{dispatch(deleteProduct(props.product.id));}}
+                                            // onClick={onOpen}
+                                            bg="P3White" 
+                                            color="P1red"
+                                            fontWeight="bold"
+                                            _hover={{ color: "#fa958c" , bg: "#f8f8f8" }} 
+                                            _active={{ color : "#fa3422"}}
+                                            _focus={{border:"0px"}}
+                                            _disabled={{color:"#fbd28e"}}>
+                                        <Icon as={MdDelete} w={5} h={5} />
+                                    </Button>
+                                    </>}
+                                    
+                                </Stack>
+                        </Box>
+                    </Box>
+                </Center>
+                <Divider color="P3IconGray"/>
+            </Box>
+        )
+    }
 }
 
 // Grab the characters from the store and make them available on props
