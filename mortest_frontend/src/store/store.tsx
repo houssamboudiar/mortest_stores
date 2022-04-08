@@ -19,10 +19,12 @@ import { TypedUseSelectorHook, useSelector } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
 import { ISellingPointState, spointReducer } from '../reducers/spReducer';
 import { cartReducer, ICartState } from '../cart/cartReducers';
+import { caisseReducer, ICaisseState } from '../reducers/caisseReducer';
  
  // Create an interface for the application state
  export interface IAppState {
     productState: IProductState;
+    caisseState: ICaisseState;
     spointState: ISellingPointState;
     spfamillemarqueState: ISPFamilleMarqueProductState;
     userState: IUserState;
@@ -42,6 +44,7 @@ import { cartReducer, ICartState } from '../cart/cartReducers';
  export const store = configureStore({
   reducer: {
     productState: productReducer,
+    caisseState: caisseReducer,
     cartState: cartReducer,
     userState: userReducer,
     spointState: spointReducer,

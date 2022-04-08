@@ -11,7 +11,7 @@ import { useTypedSelector } from '../store/store';
 import ManageProducts from './containers/Product/ManageProducts';
 import MainTask from './MainTask';
 import { getAllProducts, getProductPage, getSPFamilleMarque, loadProduct, ProductActionTypes } from '../product/productActions';
-import { getAllSpoints } from '../actions/spActions';
+import { getAllCaisses, getAllSpoints } from '../actions/spActions';
 import ManageCounter from './containers/Comptoir/ManageCounter';
   
 interface AppProps {
@@ -21,6 +21,7 @@ const App: React.FC<AppProps> = () => {
   const dispatch = useDispatch();
   dispatch(getUserData())
   dispatch(getAllSpoints())
+  dispatch(getAllCaisses())
   dispatch(getSPFamilleMarque())
   return (
             <Fragment>

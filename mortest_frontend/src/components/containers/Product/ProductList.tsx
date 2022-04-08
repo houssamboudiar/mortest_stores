@@ -304,14 +304,15 @@ export const ProductList: React.FC<IProps> = (props:IProps) => {
                                     {props.inComptoir&&<>
                                     <Button 
                                             onClick={()=>{addItemCart()}}
-                                            margin="0"
                                             bg="P3White" 
-                                            color="P1Blue"
+                                            color="#109cf1"
                                             fontWeight="bold"
-                                            _hover={{ color: "#fbd28e" , bg: "#f8f8f8" }} 
-                                            _active={{ color : "#fea40f" }}
+                                            _hover={{ color: "#34aff9" }} 
+                                            _active={{ color: "#098edf"}}
                                             _focus={{border:"0px"}}
-                                            _disabled={{color:"#fbd28e"  }}>
+                                            _disabled={{color:"#c2cfe0"}}
+                                            margin="0"
+                                    >
                                         <Icon as={MdAdd} w={5} h={5} />
                                     </Button>
                                     {/* <Button  

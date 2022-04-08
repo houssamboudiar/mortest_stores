@@ -53,7 +53,6 @@ import { any } from 'prop-types';
 import { FaKeyboard } from 'react-icons/fa';
 import faker from '@faker-js/faker';
 import { IProductState, ISPFamilleMarqueProductState } from '../../../product/productReducer';
-import { isAbsolute } from 'path';
 
 interface IProps {
        getProductPage(next:any):void,
@@ -84,7 +83,7 @@ const ManageProducts: React.FC<IProps> = (props:IProps) => {
               <Box display="flex" flexDir="column" height="80vh" w="100%" borderRadius="4px" overflow="hidden" bg="P3White" boxShadow="task" >
                      <Box paddingTop="10" paddingBottom="5" paddingRight="6" paddingLeft="6" display="flex" w="100%" >
                      <Heading size="lg" color="P3DarkBlueText" >Products</Heading>
-                     {!props.inComptoir&&<Box w="100%" display="flex"  justifyContent="flex-end" >
+                     {!props.inComptoir&&<Box w="100%" display="flex"  justifyContent="flex-end">
                             <Button 
                                    onClick={()=>{setViewMode(!viewMode)}}
                                    size="sm"
@@ -133,7 +132,6 @@ const ManageProducts: React.FC<IProps> = (props:IProps) => {
                      </Box>
                      <Divider color="P3IconGray"/>
                      {loading &&
-                     <Skeleton startColor='P3White' endColor='P3Gray'>
                             <Box
                             itemID="scrollableDiv"
                             height="80vh"
@@ -141,8 +139,10 @@ const ManageProducts: React.FC<IProps> = (props:IProps) => {
                             display="flex"
                             flexDirection="column"
                             id="scrollableDiv">
+                                   <Center>
+                                          <Spinner size='xl' />
+                                   </Center>
                             </Box>
-                     </Skeleton>
                      }
                      {!loading &&
                      <Box
