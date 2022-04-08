@@ -1,8 +1,8 @@
 from rest_framework import serializers
 from django.conf import settings
 from users.models import CustomUser as User
-from .models import (Fournisseur, PayementClient, ProduitAchatCommandeFournisseur,
-                     SellingPoint, Caisse, Produit, Depot, FicheCredit, FicheDebit, Vendeur)
+from .models import (Fournisseur, PayementClient, ProduitAchatCommandeFournisseur, MarqueProduit,
+                     SellingPoint, Caisse, Produit, Depot, FicheCredit, FicheDebit, Vendeur, FamilleProduit)
 from . import models
 from .custom_serializer_field import *
 from drf_writable_nested.serializers import WritableNestedModelSerializer
@@ -15,6 +15,18 @@ class SellingPointSerializer(serializers.ModelSerializer):
         model = SellingPoint
         fields = ['id', 'name', 'societé', 'adress', 'wilaya',
                   'ville', 'telephone', 'fax', 'email', 'articles_dimposition']
+
+
+class FamilleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FamilleProduit
+        fields = ['id', 'famille']
+
+
+class MarqueSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MarqueProduit
+        fields = ['id', 'marque']
 
 
 class CaisseSerializer(serializers.ModelSerializer):
