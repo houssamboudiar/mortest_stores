@@ -439,13 +439,12 @@ class ClientSerializer(serializers.ModelSerializer):
         slug_field='id')
 
     class Meta:
-        model = Vendeur
+        model = Client
         fields = ['id', 'selling_point', 'numero', 'etat_civile', 'nom',
                   'type', 'telephone', 'phone_number', 'email',
                   'numero_rc', 'NRC', 'NIS', 'RIB', 'solde', 'wilaya',
                   'ville', 'adress', 'saisie_le', 'modilfié_le', 'saisie_par']
         read_only_fields = ['saisie_le', 'modilfié_le', 'saisie_par']
-        depth = 1
 
 
 class ProduitVenteClientSerializer(serializers.ModelSerializer):
@@ -459,7 +458,6 @@ class ProduitVenteClientSerializer(serializers.ModelSerializer):
         fields = ['id', 'depot', 'produit', 'quantite', 'numero_lot',
                   'prix', 'qtteAct']
 
-
 class FicheVenteSerializer(WritableNestedModelSerializer):
     produits = ProduitVenteClientSerializer(many=True)
     selling_point = SellingPointCustomRelationQueryset(
@@ -470,7 +468,7 @@ class FicheVenteSerializer(WritableNestedModelSerializer):
                       ('BL sans montant', "BL sans montant"), ('Facture proformat', "Facture proformat"))
     type_fiche = serializers.ChoiceField(default=1, choices=action_choices)
     type_choices = (('Détaillant', "Détaillant"), ('Grossiste',
-                    "Grossiste"), ('Revendeur', "Revendeur"), ('autre', "autre"),)
+                    "Grossiste"), ('Revendeur', "Revendeur"), ('Autre', "Autre"),)
     type_client = serializers.ChoiceField(default=1, choices=type_choices)
     reglement_choices = (('A terme', "A terme"), ('Espece', "Espece"),
                          ('Virement', "Virement"), ('chèque', "chèque"),)

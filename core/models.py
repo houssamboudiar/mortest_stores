@@ -591,7 +591,7 @@ class Client(models.Model):
     NIS = models.CharField(max_length=50, blank=True, null=True)
     RIB = models.CharField(max_length=50, blank=True, null=True)
     solde = models.DecimalField(
-        max_digits=10, decimal_places=2, blank=True, null=True)
+        max_digits=10, decimal_places=2, default=0)
     wilaya = models.CharField(max_length=50)
     ville = models.CharField(max_length=50)
     adress = models.CharField(max_length=100)
@@ -609,8 +609,8 @@ class FicheVenteClient(models.Model):
         'BL sans montant', "BL sans montant"), ('Facture proformat', "Facture proformat"))
     type_fiche = models.CharField(
         default=1, choices=type_fiche_data, max_length=30)
-    type_client_data = (('détaillant', "détaillant"), ('grossiste',
-                        "grossiste"), ('revendeur', "revendeur"), ('autre', "autre"))
+    type_client_data = (('Détaillant', "Détaillant"), ('Grossiste',
+                        "Grossiste"), ('Revendeur', "Revendeur"), ('Autre', "Autre"))
     type_client = models.CharField(
         default=1, choices=type_client_data, max_length=30)
     selling_point = models.ForeignKey(SellingPoint, on_delete=models.PROTECT)

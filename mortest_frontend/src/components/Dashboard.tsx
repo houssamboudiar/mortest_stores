@@ -11,6 +11,7 @@ import MainTask from './MainTask';
 import SidebarWithHeader from './Sidebar';
 import ManageCounter from './containers/Comptoir/ManageCounter';
 import Loader from './Loader';
+import ManageFicheVentes from './containers/FicheVentes/ManageFicheVentes';
 
 interface DashboardProps {
 
@@ -34,6 +35,7 @@ const Dashboard: FC<DashboardProps> = () => {
                      <SidebarWithHeader>
                             <Routes>
                                    <Route path="/main/" element={<MainTask/>} />
+                                   <Route path="/sales/" element={<ManageFicheVentes/>} />
                                    <Route path="/comptoir/" element={<ManageCounter/>} />
                                    <Route path="/products/" element={<ManageProducts inComptoir={false} />} />
                             </Routes>
