@@ -10,52 +10,64 @@ class SellingPointCustomRelationQueryset(serializers.SlugRelatedField):
             queryset = queryset.filter(vendeur=request.user.vendeur)
         return queryset
 
+
 class ProduitCustomRelationField(serializers.SlugRelatedField):
     def get_queryset(self):
         queryset = Produit.objects.all()
         request = self.context.get('request', None)
         if not request.user.is_superuser:
-            queryset = queryset.filter(selling_point=request.user.vendeur.selling_point)
+            queryset = queryset.filter(
+                selling_point=request.user.vendeur.selling_point)
         return queryset
-    
+
+
 class CaisseCustomRelationField(serializers.SlugRelatedField):
     def get_queryset(self):
         queryset = Caisse.objects.all()
         request = self.context.get('request', None)
         if not request.user.is_superuser:
-            queryset = queryset.filter(selling_point=request.user.vendeur.selling_point)
+            queryset = queryset.filter(
+                selling_point=request.user.vendeur.selling_point)
         return queryset
+
 
 class ClientCustomRelationField(serializers.SlugRelatedField):
     def get_queryset(self):
         queryset = Client.objects.all()
         request = self.context.get('request', None)
         if not request.user.is_superuser:
-            queryset = queryset.filter(selling_point=request.user.vendeur.selling_point)
+            queryset = queryset.filter(
+                selling_point=request.user.vendeur.selling_point)
         return queryset
+
 
 class DepotCustomRelationField(serializers.SlugRelatedField):
     def get_queryset(self):
         queryset = Depot.objects.all()
         request = self.context.get('request', None)
         if not request.user.is_superuser:
-            queryset = queryset.filter(selling_point=request.user.vendeur.selling_point)
+            queryset = queryset.filter(
+                selling_point=request.user.vendeur.selling_point)
         return queryset
+
 
 class AchatCustomRelationField(serializers.SlugRelatedField):
     def get_queryset(self):
         queryset = FicheAchatCommandeFournisseur.objects.filter(type_fiche=1)
         request = self.context.get('request', None)
         if not request.user.is_superuser:
-            queryset = queryset.filter(selling_point=request.user.vendeur.selling_point)
+            queryset = queryset.filter(
+                selling_point=request.user.vendeur.selling_point)
         return queryset
+
 
 class AchatCustomRelationField(serializers.SlugRelatedField):
     def get_queryset(self):
         queryset = FicheAchatCommandeFournisseur.objects.all()
         request = self.context.get('request', None)
         if not request.user.is_superuser:
-            queryset = queryset.filter(selling_point=request.user.vendeur.selling_point)
+            queryset = queryset.filter(
+                selling_point=request.user.vendeur.selling_point)
         return queryset
 
 
@@ -64,15 +76,18 @@ class VenteCustomRelationField(serializers.SlugRelatedField):
         queryset = FicheVenteClient.objects.all()
         request = self.context.get('request', None)
         if not request.user.is_superuser:
-            queryset = queryset.filter(selling_point=request.user.vendeur.selling_point)
+            queryset = queryset.filter(
+                selling_point=request.user.vendeur.selling_point)
         return queryset
+
 
 class ClientCustomRelationField(serializers.SlugRelatedField):
     def get_queryset(self):
         queryset = Client.objects.all()
         request = self.context.get('request', None)
         if not request.user.is_superuser:
-            queryset = queryset.filter(selling_point=request.user.vendeur.selling_point)
+            queryset = queryset.filter(
+                selling_point=request.user.vendeur.selling_point)
         return queryset
 
 # class CaisseSerializer(serializers.Serializer):
@@ -82,7 +97,7 @@ class ClientCustomRelationField(serializers.SlugRelatedField):
 #     wilaya = serializers.CharField(max_length=200)
 #     ville = serializers.CharField(max_length=200)
 #     solde = serializers.IntegerField()
-    
+
 
 #     def create(self, validated_data):
 #         selling_point = SellingPoint.objects.get(id=int(validated_data["selling_point"]))
