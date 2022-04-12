@@ -154,7 +154,7 @@ class ProduitGetPost(generics.ListCreateAPIView):
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.data, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ProduitPk(generics.RetrieveUpdateDestroyAPIView):
@@ -882,7 +882,7 @@ class FicheVenteClientGetPost(generics.ListCreateAPIView):
 
                 prod.produit.qtte_vendue += prod.quantite
                 prod.produit.save()
-            solde = serializer.instance.total - serializer.instance.montant_reg_client
+            solde = serializer.instance.prixTTC - serializer.instance.montant_reg_client
             serializer.instance.client.solde += solde
             serializer.instance.client.save()
             caisse = serializer.instance.caisse

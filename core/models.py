@@ -96,10 +96,12 @@ class Produit(models.Model):
         MarqueProduit, on_delete=models.CASCADE, default=1)
     prix_U_achat = models.DecimalField(max_digits=10, decimal_places=2)
     prix_detail = models.DecimalField(max_digits=10, decimal_places=2)
-    prix_vente_gros = models.DecimalField(max_digits=10, decimal_places=2)
-    prix_vente_revendeur = models.DecimalField(max_digits=10, decimal_places=2)
+    prix_vente_gros = models.DecimalField(
+        max_digits=10, decimal_places=2)
+    prix_vente_revendeur = models.DecimalField(
+        max_digits=10, decimal_places=2)
     prix_vente_autre = models.DecimalField(
-        max_digits=10, decimal_places=2, blank=True, null=True)
+        max_digits=10, decimal_places=2, blank=True)
     stock_alerte = models.PositiveIntegerField(blank=True, null=True)
     qtte = models.PositiveIntegerField(blank=True, null=True)
     qtte_achete = models.PositiveIntegerField(blank=True, default=0)
@@ -127,18 +129,24 @@ class Produit(models.Model):
 
     @property
     def margeVenteGrossiste(self):
+        if not self.prix_vente_gros and self.prix_U_achat:
+            return None
         marge = self.prix_vente_gros - self.prix_U_achat
         pourcentage_marge = (marge * 100)/self.prix_U_achat
         return pourcentage_marge
 
     @property
     def margeVenteRevendeur(self):
+        if not self.prix_vente_revendeur and self.prix_U_achat:
+            return None
         marge = self.prix_vente_revendeur - self.prix_U_achat
         pourcentage_marge = (marge * 100)/self.prix_U_achat
         return pourcentage_marge
 
     @property
     def margeVenteAutre(self):
+        if not self.prix_vente_autre and self.prix_U_achat:
+            return None
         marge = self.prix_vente_autre - self.prix_U_achat
         pourcentage_marge = (marge * 100)/self.prix_U_achat
         return pourcentage_marge
@@ -609,8 +617,7 @@ class FicheVenteClient(models.Model):
         'BL sans montant', "BL sans montant"), ('Facture proformat', "Facture proformat"))
     type_fiche = models.CharField(
         default=1, choices=type_fiche_data, max_length=30)
-    type_client_data = (('Détaillant', "Détaillant"), ('Grossiste',
-                        "Grossiste"), ('Revendeur', "Revendeur"), ('Autre', "Autre"))
+    type_client_data = (('Détaillant', "Détaillant"), ('Grossiste',"Grossiste"), ('Revendeur', "Revendeur"), ('Autre', "Autre"))
     type_client = models.CharField(
         default=1, choices=type_client_data, max_length=30)
     selling_point = models.ForeignKey(SellingPoint, on_delete=models.PROTECT)
@@ -673,11 +680,11 @@ class FicheVenteClient(models.Model):
     def total(self):
         prix = 0
         for prod in self.produits.all():
-            if self.type_client == 'détaillant':
+            if self.type_client == 'Détaillant':
                 prix += prod.produit.prix_detail
-            elif self.type_client == 'grossiste':
+            elif self.type_client == 'Grossiste':
                 prix += prod.produit.prix_vente_gros
-            elif self.type_client == 'revendeur':
+            elif self.type_client == 'Revendeur':
                 prix += prod.produit.prix_vente_revendeur
             else:
                 prix += prod.produit.prix_vente_autre

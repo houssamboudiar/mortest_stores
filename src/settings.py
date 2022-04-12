@@ -83,28 +83,28 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'src.wsgi.application'
 # Touares comment "don't fuck me up".
-DATABASES = {
-  'default': {
-    # MySQL engine. Powered by the mysqlclient module.
-    'ENGINE': 'django.db.backends.mysql',
-    'NAME': 'mortestdb',
-    'USER': 'houssamboudiar',
-    'PASSWORD': 'stormspirit99',
-    'HOST': 'localhost',
-    'PORT': '3306',
-  }
-}
-# Touares Uncomment that for your mysql settings.
 # DATABASES = {
-#      'default': {
-#          'ENGINE': 'django.db.backends.mysql',
-#          'NAME': 'mortestdb',
-#          'HOST': '127.0.0.1',
-#          'PORT': '3306',
-#          'USER': 'root',
-#          'PASSWORD': '0663058639',
-#      }
-#  }
+#   'default': {
+#     # MySQL engine. Powered by the mysqlclient module.
+#     'ENGINE': 'django.db.backends.mysql',
+#     'NAME': 'mortestdb',
+#     'USER': 'houssamboudiar',
+#     'PASSWORD': 'stormspirit99',
+#     'HOST': 'localhost',
+#     'PORT': '3306',
+#   }
+# }
+# Touares Uncomment that for your mysql settings.
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'mortestdb',
+        'HOST': '127.0.0.1',
+        'PORT': '3306',
+        'USER': 'root',
+        'PASSWORD': '0663058639',
+    }
+}
 
 # Authentication Classes
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
@@ -187,7 +187,7 @@ SIMPLE_JWT = {
     'AUDIENCE': None,
     'ISSUER': None,
 
-    'AUTH_HEADER_TYPES': ('Bearer','JWT'),
+    'AUTH_HEADER_TYPES': ('Bearer', 'JWT'),
     'AUTH_HEADER_NAME': 'HTTP_AUTHORIZATION',
     'USER_ID_FIELD': 'id',
     'USER_ID_CLAIM': 'user_id',
@@ -201,4 +201,3 @@ SIMPLE_JWT = {
     'SLIDING_TOKEN_LIFETIME': timedelta(minutes=5),
     'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
 }
-

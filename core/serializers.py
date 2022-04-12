@@ -74,6 +74,13 @@ class ProduitSerializer(serializers.ModelSerializer):
                             'marge_vente_revendeur', 'marge_vente_autre', 'qtte_achete', 'qtte_vendue',
                             'qtte_retour_four', 'qtte_retour_client', 'qtte_avarie']
 
+    def validate(self, data):
+
+        if not data['prix_U_achat'] and data['prix_detail']:
+            raise serializers.ValidationError(
+                f"you should at least enter retail and buying price")
+        return data
+
 
 class MarqueProduitSerializer(serializers.ModelSerializer):
     class Meta:
@@ -445,18 +452,41 @@ class ClientSerializer(serializers.ModelSerializer):
                   'numero_rc', 'NRC', 'NIS', 'RIB', 'solde', 'wilaya',
                   'ville', 'adress', 'saisie_le', 'modilfié_le', 'saisie_par']
         read_only_fields = ['saisie_le', 'modilfié_le', 'saisie_par']
-
+        # depth = 1
 
 class ProduitVenteClientSerializer(serializers.ModelSerializer):
     produit = ProduitCustomRelationField(slug_field='id')
     depot = DepotCustomRelationField(slug_field='id')
     prix = serializers.ReadOnlyField(source='prixProduit')
     qtteAct = serializers.ReadOnlyField(source='qtteActProduit')
+    produit_reference = serializers.SerializerMethodField()
+    article = serializers.SerializerMethodField()
+    prix_produit = serializers.SerializerMethodField()
 
     class Meta:
         model = models.ProduitVenteClient
         fields = ['id', 'depot', 'produit', 'quantite', 'numero_lot',
-                  'prix', 'qtteAct']
+                  'prix', 'qtteAct', 'produit_reference', 'article', 'prix_produit']
+
+    def get_produit_reference(self, obj):
+        ref = obj.produit.reference
+        return ref
+
+    def get_article(self, obj):
+        art = obj.produit.article
+        return art
+
+    def get_prix_produit(self, obj):
+        prix = 0
+        if obj.vente.type_client == 'Détaillant':
+            prix = obj.produit.prix_detail
+        elif obj.vente.type_client == 'Grossiste':
+            prix = obj.produit.prix_vente_gros
+        elif obj.vente.type_client == 'Revendeur':
+            prix = obj.produit.prix_vente_revendeur
+        else:
+            prix = obj.produit.prix_vente_autre
+        return prix
 
 class FicheVenteSerializer(WritableNestedModelSerializer):
     produits = ProduitVenteClientSerializer(many=True)
@@ -474,8 +504,8 @@ class FicheVenteSerializer(WritableNestedModelSerializer):
                          ('Virement', "Virement"), ('chèque', "chèque"),)
     mode_reglement = serializers.ChoiceField(
         default=1, choices=reglement_choices)
-    client = ClientCustomRelationField(queryset=models.Fournisseur.objects.all(),
-                                       slug_field='id')
+    client = ClientCustomRelationField(
+        slug_field='id')
     # depot = DepotCustomRelationField(slug_field='id')
     # produit = ProduitCustomRelationField(
     # slug_field='id', many=True)
@@ -487,6 +517,8 @@ class FicheVenteSerializer(WritableNestedModelSerializer):
     prixttc = serializers.ReadOnlyField(source='prixTTC')
     totalachats = serializers.ReadOnlyField(source='total')
     reste_a_payer = serializers.SerializerMethodField()
+    client_name = serializers.SerializerMethodField()
+    client_solde = serializers.SerializerMethodField()
 
     class Meta:
         model = models.FicheVenteClient
@@ -494,7 +526,8 @@ class FicheVenteSerializer(WritableNestedModelSerializer):
                   'saisie_le', 'modilfié_le', 'saisie_par', 'modifie_par', 'reste_a_payer',
                   'numero', 'date', 'montant_reg_client', 'mode_reglement',
                   'caisse', 'observation', 'totalachats', 'TVA', 'timbre',
-                  'remise', 'montanttva', 'montantremise', 'prixttc', 'reste_a_payer']
+                  'remise', 'montanttva', 'montantremise', 'prixttc', 'reste_a_payer', 'client_name',
+                  'client_solde']
 
         read_only_fields = ['saisie_le', 'modilfié_le',
                             'numero', 'saisie_par', 'type_fiche', 'reste_a_payer']
@@ -520,11 +553,23 @@ class FicheVenteSerializer(WritableNestedModelSerializer):
                 missing = prod['produit'].qtteActuelStock - prod['quantite']
                 raise serializers.ValidationError(
                     f"you dont have enough of {prod['produit'].article}, you miss {missing} pieces")
+
+        # if data['montant_reg_client'] > data['prixttc']:
+        #     raise serializers.ValidationError(
+        #         f"the client is overpaying")
         return data
 
     def get_reste_a_payer(self, obj):
         reste = obj.total - obj.montant_reg_client
         return reste
+
+    def get_client_name(self, obj):
+        name = obj.client.nom
+        return name
+
+    def get_client_solde(self, obj):
+        solde = obj.client.solde
+        return solde
 
 
 class PayementClientSerializer(serializers.ModelSerializer):
