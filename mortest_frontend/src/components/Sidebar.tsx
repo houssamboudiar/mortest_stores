@@ -21,6 +21,9 @@ import {
   MenuDivider,
   MenuItem,
   MenuList,
+  Tag,
+  TagLabel,
+  TagLeftIcon,
 } from '@chakra-ui/react';
 import {
   FiHome,
@@ -31,7 +34,8 @@ import {
   FiMenu,
   FiBell,
   FiChevronDown,
-  FiUser
+  FiUser,
+  FiCreditCard
 } from 'react-icons/fi';
 
 import { IconType } from 'react-icons';
@@ -39,6 +43,10 @@ import { ReactText } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { userLogout } from "../actions/userActions";
 import { useDispatch } from 'react-redux';
+import { useTypedSelector } from '../store/store';
+import { SpointActionTypes } from '../actions/spActions';
+import { MdArrowDownward, MdArrowDropUp, MdSwitchLeft } from 'react-icons/md';
+import { FaChevronDown } from 'react-icons/fa';
 interface LinkItemProps {
   name: string;
   icon: IconType;
@@ -111,6 +119,9 @@ const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
       <NavItem key={1} icon={FiHome} onClick={() => navigate('main')}  >
         Dashboard
       </NavItem>
+      <NavItem key={6} icon={FiCreditCard} onClick={() => navigate('comptoir')}  >
+        Comptoir
+      </NavItem>
       <NavItem key={2} icon={FiTrendingUp} onClick={() => navigate('products')}  >
         Products
       </NavItem>
@@ -168,10 +179,17 @@ interface MobileProps extends FlexProps {
 const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
 
   const dispatch = useDispatch();
-
   const signout = () => {
     dispatch(userLogout())
   }
+
+  const setSP = (spoints:any, sp:any) => {
+    dispatch({type:SpointActionTypes.LOADING_SPOINTS})
+    dispatch({type: SpointActionTypes.SET_Spoint, spoints:spoints ,selectedSpoint:sp})
+  }
+
+  const {spoints, selectedSpoint, loading} = useTypedSelector((state) => state.spointState);
+  const {user} = useTypedSelector((state) => state.userState);
 
   return (
     <Flex
@@ -197,16 +215,32 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
         fontSize="2xl"
         fontFamily="monospace"
         fontWeight="bold">
-        Logo
+        Mortest
       </Text>
 
       <HStack spacing={{ base: '0', md: '6' }}>
-        <IconButton
-          size="lg"
-          variant="ghost"
-          aria-label="open menu"
-          icon={<FiBell />}
-        />
+        {!loading&&<Flex alignItems={'center'}>
+          <Menu>
+            <MenuButton
+              py={2}
+              transition="all 0.3s"
+              _focus={{ boxShadow: 'none' }}>
+              <HStack>
+                  <Tag p={3} size={'lg'} variant='subtle' colorScheme='telegram'>
+                    <TagLabel mr={'1em'} ml={'1em'} fontWeight={'bold'} fontSize={'lg'} >{selectedSpoint.wilaya}</TagLabel>
+                    <TagLeftIcon as={FaChevronDown} />
+                  </Tag>
+              </HStack>
+            </MenuButton>
+            <MenuList
+              bg={useColorModeValue('white', 'gray.900')}
+              borderColor={useColorModeValue('gray.200', 'gray.700')}>
+              {spoints.map((sp:any,i) => {
+                      return  <MenuItem  onClick={()=>{setSP(spoints,sp)}} value={sp.id}key={i}>{sp.name+" "+sp.wilaya}</MenuItem>
+              })}
+            </MenuList>
+          </Menu>
+        </Flex>}
         <Flex alignItems={'center'}>
           <Menu>
             <MenuButton
@@ -215,23 +249,21 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
               _focus={{ boxShadow: 'none' }}>
               <HStack>
                 <Avatar
-                  size={'sm'}
-                  src={
-                    'https://images.unsplash.com/photo-1619946794135-5bc917a27793?ixlib=rb-0.3.5&q=80&fm=jpg&crop=faces&fit=crop&h=200&w=200&s=b616b2c5b373a80ffc9636ba24f7a4a9'
-                  }
+                  ml="0.5"
+                  size={'md'}
+                  name={user.username}
                 />
                 <VStack
                   display={{ base: 'none', md: 'flex' }}
                   alignItems="flex-start"
                   spacing="1px"
-                  ml="2">
-                  <Text fontSize="sm">Houssam Boudiar</Text>
-                  <Text fontSize="xs" color="gray.600">
+                  ml="1">
+                  <Text fontSize="md">{user.username}</Text>
+                  <Text fontSize="sm" color="gray.600">
                     Admin
                   </Text>
                 </VStack>
                 <Box display={{ base: 'none', md: 'flex' }}>
-                  <FiChevronDown />
                 </Box>
               </HStack>
             </MenuButton>
@@ -246,6 +278,12 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
             </MenuList>
           </Menu>
         </Flex>
+        <IconButton
+          size="lg"
+          variant="ghost"
+          aria-label="open menu"
+          icon={<FiBell />}
+        />
       </HStack>
     </Flex>
   );

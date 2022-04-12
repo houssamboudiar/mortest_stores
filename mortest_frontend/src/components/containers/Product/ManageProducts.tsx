@@ -35,7 +35,7 @@
 
 import React, { useState, useEffect, useCallback, FC} from 'react'
 import { Box, Button, Center, Divider, Heading, Icon, Input, 
-    InputGroup, InputLeftElement, propNames, Table, TableCaption, Tbody, Td, Tfoot, Th, Thead, Tr, useDisclosure, useToast } from '@chakra-ui/react'
+    InputGroup, InputLeftElement, propNames, Skeleton, Spinner, Table, TableCaption, Tbody, Td, Tfoot, Th, Thead, Tr, useDisclosure, useToast } from '@chakra-ui/react'
 import { ProductList } from './ProductList'
 import { BsPlus, BsSearch } from 'react-icons/bs';
 import { BiRefresh } from 'react-icons/bi';
@@ -44,7 +44,7 @@ import InfiniteScroll from 'react-infinite-scroll-component'
 import { IAppState, useTypedSelector } from '../../../store/store';
 import { ProductTable } from './ProductTable';
 import { AddProduct } from './AddProduct';
-import { fetchProducts, getAllProducts, getProductPage, getSPFamilleMarque, IProductGetAllAction, IProductGetSPFamilleMarqueAction, loadProduct } from '../../../product/productActions';
+import { getAllProducts, getProductPage, getSPFamilleMarque, IProductGetAllAction, IProductGetSPFamilleMarqueAction, loadProduct } from '../../../product/productActions';
 import { ActionCreator, AnyAction } from 'redux';
 import { ThunkAction, ThunkDispatch } from 'redux-thunk';
 import { Dispatch } from 'redux';
@@ -53,34 +53,37 @@ import { any } from 'prop-types';
 import { FaKeyboard } from 'react-icons/fa';
 import faker from '@faker-js/faker';
 import { IProductState, ISPFamilleMarqueProductState } from '../../../product/productReducer';
-import { isAbsolute } from 'path';
 
 interface IProps {
        getProductPage(next:any):void,
        loadProduct():void,
+       inComptoir:boolean,
 }
 
 const ManageProducts: React.FC<IProps> = (props:IProps) => {
 
+       const dispatch = useDispatch();
        const {products, loading, next, count} = useTypedSelector((state) => state.productState);
        const [viewMode, setViewMode] = useState(true);
        const { isOpen, onOpen, onClose } = useDisclosure();
+
        useEffect(() => {
               props.loadProduct();
-
-              // props.getSPUnitFamilleMarque()
-              // var resPerPage = configList.users.resPerPage;
-              // props.ListUsersAction(resPerPage, 1);
        },[])
-
+       
+       // const deleteProduct = (id:number) => {
+       //        dispatch(deleteProduct(id));
+       // }
+       
        const loadNextPage = () => {
               props.getProductPage(next)
+              console.log(products)
        }
        return (
               <Box display="flex" flexDir="column" height="80vh" w="100%" borderRadius="4px" overflow="hidden" bg="P3White" boxShadow="task" >
                      <Box paddingTop="10" paddingBottom="5" paddingRight="6" paddingLeft="6" display="flex" w="100%" >
                      <Heading size="lg" color="P3DarkBlueText" >Products</Heading>
-                     <Box w="100%" display="flex"  justifyContent="flex-end" >
+                     {!props.inComptoir&&<Box w="100%" display="flex"  justifyContent="flex-end">
                             <Button 
                                    onClick={()=>{setViewMode(!viewMode)}}
                                    size="sm"
@@ -111,7 +114,7 @@ const ManageProducts: React.FC<IProps> = (props:IProps) => {
                             Add Product
                             <Icon as={BsPlus} w={7} h={7} />
                             </Button>
-                     </Box>
+                     </Box>}
                      </Box>
                      <Box paddingRight="6" paddingBottom="8" paddingLeft="6" >
                      <InputGroup size="md">
@@ -125,9 +128,23 @@ const ManageProducts: React.FC<IProps> = (props:IProps) => {
                                    _focus={{bg: "#f5f8fa"}}
                                    _disabled={{bg:"#f5f8fa"}} />                
                      </InputGroup>
-                     <AddProduct isOpen={isOpen} onClose={onClose}  />
+                     <AddProduct isOpen={isOpen} onClose={onClose} onOpen={onOpen} />
                      </Box>
                      <Divider color="P3IconGray"/>
+                     {loading &&
+                            <Box
+                            itemID="scrollableDiv"
+                            height="80vh"
+                            overflow="auto"
+                            display="flex"
+                            flexDirection="column"
+                            id="scrollableDiv">
+                                   <Center>
+                                          <Spinner size='xl' />
+                                   </Center>
+                            </Box>
+                     }
+                     {!loading &&
                      <Box
                      itemID="scrollableDiv"
                      height="80vh"
@@ -135,8 +152,7 @@ const ManageProducts: React.FC<IProps> = (props:IProps) => {
                      display="flex"
                      flexDirection="column"
                      id="scrollableDiv">
-                     {loading && <div style={{alignSelf: "center"}}><div className="lds-ellipsis"><div></div><div></div><div></div><div></div></div></div>}
-                     {!loading &&
+                     {/* {loading && <div style={{alignSelf: "center"}}><div className="lds-ellipsis"><div></div><div></div><div></div><div></div></div></div>} */}
                      <InfiniteScroll
                      dataLength={products.length}
                      next={()=>{loadNextPage()}}
@@ -148,7 +164,10 @@ const ManageProducts: React.FC<IProps> = (props:IProps) => {
                      scrollableTarget="scrollableDiv"
                      >
                             {viewMode&&products.map((product:any,i) => {
-                                   return <ProductList product={product}
+                                   return <ProductList 
+                                          product={product}
+                                          inComptoir={props.inComptoir}
+                                          // deleteProduct={deleteProduct}
                                           key={i} />
                             })}
                             
@@ -193,10 +212,9 @@ const ManageProducts: React.FC<IProps> = (props:IProps) => {
                                           </Box>
                                    </Center>
                             </Box>}
-                     </InfiniteScroll>}
-
-
+                     </InfiniteScroll>
                      </Box>
+                     }
               </Box>
        );
 }

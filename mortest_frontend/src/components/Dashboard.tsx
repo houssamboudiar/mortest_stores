@@ -9,6 +9,8 @@ import { useTypedSelector } from '../store/store';
 import ManageProducts from './containers/Product/ManageProducts';
 import MainTask from './MainTask';
 import SidebarWithHeader from './Sidebar';
+import ManageCounter from './containers/Comptoir/ManageCounter';
+import Loader from './Loader';
 
 interface DashboardProps {
 
@@ -18,26 +20,27 @@ interface DashboardProps {
 const Dashboard: FC<DashboardProps> = () => {
        const navigate  = useNavigate();
        
-       const { user } = useTypedSelector((state) => state.userState);
+       const { user, loading, authenticated } = useTypedSelector((state) => state.userState);
 
        useEffect(() => {
-              if(user[0].authenticated == false){
-                     navigate("/login/");
+              if(authenticated == false && loading == false){
+                     navigate("/login");
               }
        }, [user]);
 
-       if(user[0].loading == false){
+       if(loading == false){
               return (
               <>
                      <SidebarWithHeader>
                             <Routes>
                                    <Route path="/main/" element={<MainTask/>} />
-                                   <Route path="/products/" element={<ManageProducts />} />
+                                   <Route path="/comptoir/" element={<ManageCounter/>} />
+                                   <Route path="/products/" element={<ManageProducts inComptoir={false} />} />
                             </Routes>
                      </SidebarWithHeader>
               </>);
        }else{
-              return <h1>LOADING</h1>
+              return <Loader></Loader>
        }
 };
 

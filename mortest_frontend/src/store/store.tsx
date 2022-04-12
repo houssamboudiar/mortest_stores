@@ -17,13 +17,19 @@
  import {errorReducer, IErrorState } from '../reducers/errorReducer';
 import { TypedUseSelectorHook, useSelector } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
+import { ISellingPointState, spointReducer } from '../reducers/spReducer';
+import { cartReducer, ICartState } from '../cart/cartReducers';
+import { caisseReducer, ICaisseState } from '../reducers/caisseReducer';
  
  // Create an interface for the application state
  export interface IAppState {
     productState: IProductState;
-    SPFamilleMarque: ISPFamilleMarqueProductState;
+    caisseState: ICaisseState;
+    spointState: ISellingPointState;
+    spfamillemarqueState: ISPFamilleMarqueProductState;
     userState: IUserState;
     errorState: IErrorState;
+    cartState: ICartState;
  }
  
 //  // Create the root reducer
@@ -38,7 +44,10 @@ import { configureStore } from '@reduxjs/toolkit';
  export const store = configureStore({
   reducer: {
     productState: productReducer,
+    caisseState: caisseReducer,
+    cartState: cartReducer,
     userState: userReducer,
+    spointState: spointReducer,
     errorState: errorReducer,
     spfamillemarqueState: SPFamilleMarqueReducer,
   }, 

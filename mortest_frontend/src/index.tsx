@@ -19,6 +19,7 @@ const theme = {
       login :"Indie Flower , sans-serif"
   },
   size: {
+      xxs: "6px",
       xs: "12px",
       sm: "14px",
       md: "16px",
@@ -72,6 +73,7 @@ const theme = {
       P1red: "#F7685B",
       P1green: "#2ED47A",
       P2green : "#3b993b",
+      P3green : "#4BB543",
       P1purple: "#885AF8",
       P2Black: "#192A3E",
       P2TableBlack: "#323C47",
