@@ -14,10 +14,11 @@ interface IProps {
        handleSubmit:any,
        onSubmit:any,
        // to make
+       clients:any,
+       depots:any,
 }
 
 export const ValidateFicheVenteForm: React.FC<IProps> = (props:IProps) => {
-       const clients=[];
        useEffect(() => {
        }, [])
 
@@ -51,7 +52,7 @@ export const ValidateFicheVenteForm: React.FC<IProps> = (props:IProps) => {
                                           </Stack>
                                           {props.errors.type_fiche && <Text color="P1red" fontWeight="medium" >{props.errors.type_fiche.type === 'required' && 'This is required.'}</Text>}
                                    </Box>
-                                   {/* Type Client */}
+                                   {/* Client */}
                                    <Box paddingRight="1em">
                                           <Stack spacing={3}>
                                                  <Select 
@@ -69,16 +70,38 @@ export const ValidateFicheVenteForm: React.FC<IProps> = (props:IProps) => {
                                                  borderBottomWidth={props.errors.client && "3px"}
                                                  _placeholder={props.errors.client && { color: "P1red" }}  
                                                  >
-                                                        {/* {clients.map((client:any,i) => {
-                                                               return <option value={client.id} key={i}>{client.name}</option>
-                                                        })} */}
-                                                        <option value='Bon de livraison'>Bon de livraison</option>
-                                                        <option value='Facture'>Facture</option>
-                                                        <option value='BL sans montant'>BL sans montant</option>
-                                                        <option value='Facture Proformat'>Facture Proformat</option>
+                                                        {props.clients.map((client:any,i: React.Key) => {
+                                                               return <option value={client.id} key={i}>{client.nom}</option>
+                                                        })}
                                                  </Select>
                                           </Stack>
                                           {props.errors.client && <Text color="P1red" fontWeight="medium" >{props.errors.client.type === 'required' && 'This is required.'}</Text>}
+                                   </Box>
+                                   {/* Type Client */}
+                                   <Box paddingRight="1em">
+                                          <Stack spacing={3}>
+                                                 <Select 
+                                                 isRequired
+                                                 variant='flushed' 
+                                                 placeholder='Select Type Client'
+                                                 paddingBottom="5px"
+                                                 id="type_client"
+                                                 color="P2Black"
+                                                 _hover={{ borderColor: "P1Blue", borderBottomWidth: "3px" }}
+                                                 _focus={{ borderColor: "P1Blue", borderBottomWidth: "3px" }}
+                                                 name="type_client"
+                                                 {...props.register("type_client",{required: 'This is required.'})} 
+                                                 borderColor={props.errors.type_client ? "P1red" : "P3Gray"}
+                                                 borderBottomWidth={props.errors.type_client && "3px"}
+                                                 _placeholder={props.errors.type_client && { color: "P1red" }}  
+                                                 >
+                                                        <option value='Détaillant'>Détaillant</option>
+                                                        <option value='Grossiste'>Grossiste</option>
+                                                        <option value='Revendeur'>Revendeur</option>
+                                                        <option value='Autre'>Autre</option>
+                                                 </Select>
+                                          </Stack>
+                                          {props.errors.type_client && <Text color="P1red" fontWeight="medium" >{props.errors.type_client.type === 'required' && 'This is required.'}</Text>}
                                    </Box>
 
                                    {/* Payment Type */}
@@ -107,59 +130,57 @@ export const ValidateFicheVenteForm: React.FC<IProps> = (props:IProps) => {
                                           </Stack>
                                           {props.errors.type_payment && <Text color="P1red" fontWeight="medium" >{props.errors.type_payment.type === 'required' && 'This is required.'}</Text>}
                                    </Box>
-                                   {/* Reste a payer */}
-                                   <Box paddingRight="1em">
-                                          <NumberInput variant="flushed">
-                                                 <NumberInputField
-                                                        paddingBottom="5px"
-                                                        id="to_pay"
-                                                        type="text"
-                                                        color="P2Black"
-                                                        _hover={{ borderColor: "P1Blue", borderBottomWidth: "3px" }}
-                                                        _focus={{ borderColor: "P1Blue", borderBottomWidth: "3px" }}
-                                                        placeholder="Reste a payer"
-                                                        name="to_pay"
-                                                        {...props.register("to_pay", {
-                                                               maxLength : {
-                                                                      value: 20,
-                                                                      message: 'This is so long.' // JS only: <p>error message</p> TS only support string
-                                                               },
-                                                               required: 'This is required.'
-                                                        })}                                                               
-                                                        borderColor={props.errors.to_pay ? "P1red" : "P3Gray"}
-                                                        borderBottomWidth={props.errors.to_pay && "3px"}
-                                                        _placeholder={props.errors.to_pay && { color: "P1red" }}
-                                                 />
-                                          </NumberInput>
-                                          {props.errors.to_pay && <Text color="P1red" fontWeight="medium" >{props.errors.to_pay.type === 'required' && 'This is required.'}</Text>}
-                                          {props.errors.to_pay && <Text color="P1red" fontWeight="medium" >{props.errors.to_pay.type === 'maxLength' && 'This name is so long.'}</Text>}
-                                   </Box>
                                    {/* Paid */}
                                    <Box paddingRight="1em">
                                           <NumberInput variant="flushed">
                                                  <NumberInputField
                                                         paddingBottom="5px"
-                                                        id="paid"
+                                                        id="montant_reg_client"
                                                         type="text"
                                                         color="P2Black"
                                                         _hover={{ borderColor: "P1Blue", borderBottomWidth: "3px" }}
                                                         _focus={{ borderColor: "P1Blue", borderBottomWidth: "3px" }}
                                                         placeholder="Montant Reg Client"
-                                                        name="paid"
-                                                        {...props.register("paid", {
+                                                        name="montant_reg_client"
+                                                        {...props.register("montant_reg_client", {
                                                                maxLength : {
                                                                       value: 20,
                                                                       message: 'This is so long.' // JS only: <p>error message</p> TS only support string
                                                                },
                                                                required: 'This is required.'
                                                         })}                                                               
-                                                        borderColor={props.errors.paid ? "P1red" : "P3Gray"}
-                                                        borderBottomWidth={props.errors.paid && "3px"}
-                                                        _placeholder={props.errors.paid && { color: "P1red" }}
+                                                        borderColor={props.errors.montant_reg_client ? "P1red" : "P3Gray"}
+                                                        borderBottomWidth={props.errors.montant_reg_client && "3px"}
+                                                        _placeholder={props.errors.montant_reg_client && { color: "P1red" }}
                                                  />
                                           </NumberInput>
-                                          {props.errors.paid && <Text color="P1red" fontWeight="medium" >{props.errors.paid.type === 'required' && 'This is required.'}</Text>}
-                                          {props.errors.paid && <Text color="P1red" fontWeight="medium" >{props.errors.paid.type === 'maxLength' && 'This name is so long.'}</Text>}
+                                          {props.errors.montant_reg_client && <Text color="P1red" fontWeight="medium" >{props.errors.montant_reg_client.type === 'required' && 'This is required.'}</Text>}
+                                          {props.errors.montant_reg_client && <Text color="P1red" fontWeight="medium" >{props.errors.montant_reg_client.type === 'maxLength' && 'This name is so long.'}</Text>}
+                                   </Box>
+                                   {/* Depot */}
+                                   <Box paddingRight="1em">
+                                          <Stack spacing={3}>
+                                                 <Select 
+                                                 isRequired
+                                                 variant='flushed' 
+                                                 placeholder='Select Depot'
+                                                 paddingBottom="5px"
+                                                 id="depot"
+                                                 color="P2Black"
+                                                 _hover={{ borderColor: "P1Blue", borderBottomWidth: "3px" }}
+                                                 _focus={{ borderColor: "P1Blue", borderBottomWidth: "3px" }}
+                                                 name="depot"
+                                                 {...props.register("depot",{required: 'This is required.'})} 
+                                                 borderColor={props.errors.depot ? "P1red" : "P3Gray"}
+                                                 borderBottomWidth={props.errors.depot && "3px"}
+                                                 _placeholder={props.errors.depot && { color: "P1red" }}  
+                                                 >
+                                                        {props.depots.map((depot:any,i: React.Key) => {
+                                                               return <option value={depot.id} key={i}>{depot.nom}</option>
+                                                        })}
+                                                 </Select>
+                                          </Stack>
+                                          {props.errors.depot && <Text color="P1red" fontWeight="medium" >{props.errors.depot.type === 'required' && 'This is required.'}</Text>}
                                    </Box>
                                    {/* Observation */}
                                    <Box paddingRight="1em">

@@ -10,6 +10,7 @@ import { MdEdit, MdDelete, MdCreate } from "react-icons/md"
 import { getSPFamilleMarque, ProductActionTypes } from '../../../product/productActions';
 import axios from 'axios';
 import { ValidateFicheVenteForm } from './ValidateFicheVenteForm';
+import { IItem } from '../../../cart/cartReducers';
 // import {EditStudent} from './EditStudent'
 // import download from 'downloadjs'
 // import Axios from 'axios'
@@ -19,6 +20,7 @@ interface IProps {
        isOpen:any,
        onOpen:any,
        onClose:any,
+       items:any,
 }
 
 interface FormInputs {
@@ -27,37 +29,60 @@ interface FormInputs {
 export const ValidateFicheVente: React.FC<IProps> = (props:IProps) => {
 
        const toast = useToast();
+       const { selectedSpoint } = useTypedSelector((state) => state.spointState);
+       const { selectedCaisse } = useTypedSelector((state) => state.caisseState);
        const { register, formState: { errors }, handleSubmit } = useForm<FormInputs>();
 
+       let ficheVenteProducts = (items:any) => {
+              const p = new Array();
+              items.forEach((element:IItem,i:any) => {
+                     p.push({
+                            "id": i+1,
+                            "depot": 1,
+                            "produit": element.item.id,
+                            "quantite": element.qty,
+                            "numero_lot": 1,
+                            "prix": element.price,
+                     })
+              });
+              return p;
+       }
+
+       let totalPrice = (items:any) => {
+              let tp=0
+              items.forEach((element:IItem) => {
+                     tp = tp + element.price;
+              });
+              return tp;
+       }
+
        const onSubmit = (data:any) => {
+              console.log(data)
               const validatedProductData = {
-                     selling_point: parseInt(data.selling_point),
-                     reference: data.reference,
-                     article: data.article,
-                     img: null,
-                     unit: data.unit,
-                     famille: parseInt(data.famille),
-                     marque: parseInt(data.marque),
-                     qtte: parseInt(data.qty),
-                     prix_U_achat: data.prixachat,
-                     prix_detail: data.prixd,
-                     prix_vente_gros: data.prixvg,
-                     prix_vente_revendeur: data.prixvr,
-                     prix_vente_autre: data.prixva,
+                     selling_point: selectedSpoint.id,
+                     type_fiche: data.type_fiche,
+                     client: parseInt(data.client),
+                     type_client: data.type_client,
+                     type_payment: data.type_payment,
+                     montant_reg_client: parseInt(data.montant_reg_client),
+                     caisse: selectedCaisse.id,
+                     observation: data.observation,
+                     totalachats: totalPrice(props.items),
+                     produits: ficheVenteProducts(props.items),
               }
               console.log(validatedProductData)
-              registerAddedProduct(validatedProductData)
+              registerFicheVente(validatedProductData)
               props.onClose()
         };
  
         /** 
         * Send axios post request then shows a toast depending on its status 
         * */
-       async function registerAddedProduct(data: any) {
+       async function registerFicheVente(data: any) {
               dispatch({type:ProductActionTypes.ADD_PRODUCT})
               let access = localStorage.getItem('access token') as string ;
               axios.defaults.headers.common = {'Authorization': `Bearer ${access}`}
-              const res = await axios.post('http://127.0.0.1:8000/api/produit_get_post', data)
+              const res = await axios.post('http://127.0.0.1:8000/api/venteclient_get_post', data)
               if (res.status == 201) {
                      toast({
                             position: "bottom-left",
@@ -68,10 +93,10 @@ export const ValidateFicheVente: React.FC<IProps> = (props:IProps) => {
                                           </Center>
                                           <Box w="100%" flexDir="row" >
                                                  <Heading size="md" color="white" marginTop="1" marginLeft="3" marginBottom="3" >
-                                                        Product Registration
+                                                        Fiche Vente Registration
                                                  </Heading>
                                                  <Text size="md" color="white" marginLeft="3" w="100%" >
-                                                        The product has been added successfully
+                                                        The file has been added successfully
                                                  </Text>
                                           </Box>
                                    </Box>
@@ -88,7 +113,7 @@ export const ValidateFicheVente: React.FC<IProps> = (props:IProps) => {
                                           </Center>
                                           <Box w="100%" flexDir="row" >
                                                  <Heading size="md" color="white" marginTop="1" marginLeft="3" marginBottom="3" >
-                                                        Product Registration
+                                                        Fiche Vente Registration
                                                  </Heading>
                                                  <Text size="md" color="white" marginLeft="3" w="100%" >
                                                         Unable to add this product
@@ -101,7 +126,8 @@ export const ValidateFicheVente: React.FC<IProps> = (props:IProps) => {
               }
        }
        const dispatch = useDispatch();
-       const {selling_point, famille, marque} = useTypedSelector((state) => state.spfamillemarqueState);
+       const {clients} = useTypedSelector((state) => state.clientState);
+       const {depots} = useTypedSelector((state) => state.depotState);
        
        useEffect(()=>{
               dispatch(getSPFamilleMarque())
@@ -130,6 +156,8 @@ export const ValidateFicheVente: React.FC<IProps> = (props:IProps) => {
                                           handleSubmit={handleSubmit}
                                           onSubmit={onSubmit}
                                           errors={errors}
+                                          clients={clients} 
+                                          depots={depots}                                   
                                    />
 
                                    <Divider color="P3IconGray"></Divider>

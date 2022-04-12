@@ -35,7 +35,8 @@ import {
   FiBell,
   FiChevronDown,
   FiUser,
-  FiCreditCard
+  FiCreditCard,
+  FiPackage
 } from 'react-icons/fi';
 
 import { IconType } from 'react-icons';
@@ -122,7 +123,10 @@ const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
       <NavItem key={6} icon={FiCreditCard} onClick={() => navigate('comptoir')}  >
         Comptoir
       </NavItem>
-      <NavItem key={2} icon={FiTrendingUp} onClick={() => navigate('products')}  >
+      <NavItem key={7} icon={FiTrendingUp} onClick={() => navigate('sales')}  >
+        Sales
+      </NavItem>
+      <NavItem key={2} icon={FiPackage} onClick={() => navigate('products')}  >
         Products
       </NavItem>
       <NavItem key={3} icon={FiUser} onClick={() => navigate('/')}  >

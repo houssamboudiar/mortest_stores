@@ -4,6 +4,7 @@ import { SellingPointActions, SpointActionTypes} from '../actions/spActions';
 
 // Define the Character type
 export interface ISellingPoint {
+    id:number,
     name : string,
     societé : string,
     adress : string,
@@ -26,6 +27,7 @@ export interface ISellingPointState {
 const initialSPState: ISellingPointState = {
     spoints: [],
     selectedSpoint: {
+      id:0,
       name : "Selling Point",
       societé : "string",
       adress : "undefined",
