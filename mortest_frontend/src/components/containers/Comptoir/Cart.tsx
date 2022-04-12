@@ -8,10 +8,11 @@ import { MdBuild , MdCall, MdCheck, MdClearAll } from "react-icons/md"
 import { clearItems } from '../../../cart/cartActions';
 import { useDispatch } from 'react-redux';
 import { Image } from '@chakra-ui/react'
-import EmptyData from './../../../../images/nodata.svg';
-import { ValidateFicheVente } from './ValidateFicheVente';
+import { ValidateFicheVente } from '../FicheVentes/ValidateFicheVente';
 import { FaChevronDown } from 'react-icons/fa';
 import { CaisseActionTypes, SpointActionTypes } from '../../../actions/spActions';
+// @ts-ignore
+import EmptyData from './../../../../images/nodata.svg';
 
 interface IProps {
 

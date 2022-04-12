@@ -77,6 +77,9 @@ export interface IFicheVenteProduit {
     numero_lot: number,
     prix: number,
     qtteAct: number
+    produit_reference: string,
+    article: string,
+    prix_produit: number
 }
 // Fiches Ventes
 export interface IFicheVente {
@@ -103,7 +106,9 @@ export interface IFicheVente {
   remise: number,
   montanttva: number,
   montantremise: number,
-  prixttc: number
+  prixttc: number,
+  client_name: string,
+  client_solde: number
 }
 
 // Define the Character State

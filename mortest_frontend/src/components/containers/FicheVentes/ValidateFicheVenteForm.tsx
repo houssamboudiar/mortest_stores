@@ -47,7 +47,7 @@ export const ValidateFicheVenteForm: React.FC<IProps> = (props:IProps) => {
                                                         <option value='Bon de livraison'>Bon de livraison</option>
                                                         <option value='Facture'>Facture</option>
                                                         <option value='BL sans montant'>BL sans montant</option>
-                                                        <option value='Facture Proformat'>Facture Proformat</option>
+                                                        <option value='Facture proformat'>Facture Proformat</option>
                                                  </Select>
                                           </Stack>
                                           {props.errors.type_fiche && <Text color="P1red" fontWeight="medium" >{props.errors.type_fiche.type === 'required' && 'This is required.'}</Text>}

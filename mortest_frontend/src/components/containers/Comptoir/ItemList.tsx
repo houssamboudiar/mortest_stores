@@ -74,7 +74,7 @@ export const ItemList: React.FC<IProps> = (props:IProps) => {
                                         <Icon as={MdRemove} w={5} h={5} />
                                     </Button>
                                 </Stack>
-                        </Box>
+                            </Box>
                     </Box>
                 </Center>
                 <Divider color="P3IconGray"/>
