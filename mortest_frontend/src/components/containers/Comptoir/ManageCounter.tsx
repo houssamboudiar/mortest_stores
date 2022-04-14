@@ -11,7 +11,7 @@ import { ActionCreator, AnyAction } from 'redux';
 import { ThunkAction, ThunkDispatch } from 'redux-thunk';
 import { Dispatch } from 'redux';
 import { IProductState, ISPFamilleMarqueProductState } from '../../../product/productReducer';
-import ManageProducts from '../Product/ManageProducts';
+import ManageProducts from '../Products/ManageProducts';
 import Cart from './Cart';
 
 interface IProps {

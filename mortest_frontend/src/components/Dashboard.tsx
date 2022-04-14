@@ -6,12 +6,13 @@ import { ProductActionTypes } from '../product/productActions';
 import { getUserData } from '../actions/userActions';
 import { IUserState } from '../reducers/userReducer';
 import { useTypedSelector } from '../store/store';
-import ManageProducts from './containers/Product/ManageProducts';
+import ManageProducts from './containers/Products/ManageProducts';
 import MainTask from './MainTask';
 import SidebarWithHeader from './Sidebar';
 import ManageCounter from './containers/Comptoir/ManageCounter';
 import Loader from './Loader';
 import ManageFicheVentes from './containers/FicheVentes/ManageFicheVentes';
+import ManageClients from './containers/Clients/ManageClients';
 
 interface DashboardProps {
 
@@ -36,6 +37,7 @@ const Dashboard: FC<DashboardProps> = () => {
                             <Routes>
                                    <Route path="/main/" element={<MainTask/>} />
                                    <Route path="/sales/" element={<ManageFicheVentes/>} />
+                                   <Route path="/clients/" element={<ManageClients/>} />
                                    <Route path="/comptoir/" element={<ManageCounter/>} />
                                    <Route path="/products/" element={<ManageProducts inComptoir={false} />} />
                             </Routes>

@@ -8,13 +8,14 @@ import Dashboard from './Dashboard';
 import { useDispatch } from 'react-redux';
 import { getUserData } from '../actions/userActions';
 import { useTypedSelector } from '../store/store';
-import ManageProducts from './containers/Product/ManageProducts';
+import ManageProducts from './containers/Products/ManageProducts';
 import MainTask from './MainTask';
 import { getAllProducts, getProductPage, getSPFamilleMarque, loadProduct, ProductActionTypes } from '../product/productActions';
 import { getAllCaisses, getAllDepots, getAllSpoints } from '../actions/spActions';
 import ManageCounter from './containers/Comptoir/ManageCounter';
 import { getAllClients, getAllFichesVentes } from '../actions/fournisseurclientActions';
 import ManageFicheVentes from './containers/FicheVentes/ManageFicheVentes';
+import ManageClients from './containers/Clients/ManageClients';
   
 interface AppProps {
 }
@@ -34,6 +35,7 @@ const App: React.FC<AppProps> = () => {
                   <Route path={"/"} element={<Dashboard/>}>
                       <Route path="/main/" element={<MainTask/>} />
                       <Route path="/comptoir/" element={<ManageCounter />} />
+                      <Route path="/clients/" element={<ManageClients />} />
                       <Route path="/sales/" element={<ManageFicheVentes />} />
                       <Route path="/products/" element={<ManageProducts inComptoir={false} />} />
                   </Route>

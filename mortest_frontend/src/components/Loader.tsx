@@ -6,7 +6,7 @@ import { ProductActionTypes } from '../product/productActions';
 import { getUserData } from '../actions/userActions';
 import { IUserState } from '../reducers/userReducer';
 import { useTypedSelector } from '../store/store';
-import ManageProducts from './containers/Product/ManageProducts';
+import ManageProducts from './containers/Products/ManageProducts';
 import MainTask from './MainTask';
 import SidebarWithHeader from './Sidebar';
 import ManageCounter from './containers/Comptoir/ManageCounter';

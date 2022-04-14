@@ -1,17 +1,7 @@
 import * as React from 'react';
-import { connect, useDispatch } from 'react-redux';
-import {  Avatar, Box, Button, Center, Divider, Heading, Icon, Stack, Text, Modal, ModalHeader, ModalCloseButton, ModalOverlay, ModalContent, ModalFooter, ModalBody ,useDisclosure ,useToast, AccordionButton, AccordionIcon, AccordionItem, AccordionPanel, Tag, TagLabel, Stat, StatHelpText, StatLabel, StatNumber, StatGroup, Flex, useColorModeValue, StatArrow} from '@chakra-ui/react'
-import { MdEdit, MdDelete, MdAdd, MdRemove } from "react-icons/md"
-import { IoIosCloseCircleOutline } from "react-icons/io"
-import { deleteProduct } from '../../../product/productActions';
-import { addItem, removeItem } from '../../../cart/cartActions';
-import { IItem } from '../../../cart/cartReducers';
+import {  Avatar, Box, Divider, Heading, Text, AccordionButton, AccordionIcon, AccordionItem, AccordionPanel, Stat, StatLabel, StatNumber, StatGroup} from '@chakra-ui/react'
 import { IFicheVente } from '../../../reducers/fournisseurclientReducer';
-import { ProductList } from '../Product/ProductList';
 import { FicheVenteProduitList } from './FicheVenteProduitList';
-import { BiBasket, BiMoney } from 'react-icons/bi';
-import { stat } from 'fs';
-import { title } from 'process';
 
 interface IProps {
        ficheVente:IFicheVente;

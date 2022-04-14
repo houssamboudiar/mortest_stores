@@ -129,7 +129,7 @@ const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
       <NavItem key={2} icon={FiPackage} onClick={() => navigate('products')}  >
         Products
       </NavItem>
-      <NavItem key={3} icon={FiUser} onClick={() => navigate('/')}  >
+      <NavItem key={3} icon={FiUser} onClick={() => navigate('clients')}  >
         Clients
       </NavItem>
       <NavItem key={4} icon={FiCompass} onClick={() => navigate('/')}  >
