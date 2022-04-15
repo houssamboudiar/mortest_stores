@@ -8,26 +8,52 @@ import { AddIcon, AttachmentIcon, PhoneIcon } from '@chakra-ui/icons'
 import moment from 'moment';
 import { ErrorMessage } from '@hookform/error-message';
 
+interface sellingp {
+       id:number,
+       name:any,
+}
+
+interface famille {
+       id:number,
+       name:any,
+}
+
+interface marque {
+       id:number,
+       name:any,
+}
+
 interface IProps {
        errors:any,
        register:any,
        handleSubmit:any,
        onSubmit:any,
-
+       client:any
 }
 
-export const AddClientForm: React.FC<IProps> = (props:IProps) => {
+export const EditClientForm: React.FC<IProps> = (props:IProps) => {
+
+       const [newClient, setNewClient] = useState({})
+
+       const handleChange= (e: any) => {
+              const { name, value } = e.currentTarget;
+              console.log("e.currentTarget")
+              setNewClient({ ...newClient, [name]: value });
+       }
 
        useEffect(() => {
+              setNewClient(props.client)
        }, [])
 
        return (
               <DrawerBody paddingTop="1rem" bg="P3White" >
                      <form >
-                            <Stack paddingTop="1rem" paddingBottom="1rem" paddingLeft="1rem" paddingRight="1em" spacing="24px">
+                            <Stack paddingTop="1rem" paddingBottom="1rem" paddingLeft="1rem" paddingRight="1em" spacing="24px">                                
                                    <Box paddingRight="1em">
                                           <Input
                                                  paddingBottom="5px"
+                                                 defaultValue={props.client.nom}
+                                                 onChangeCapture={handleChange}
                                                  id="nom"
                                                  type="text"
                                                  color="P2Black"
@@ -55,22 +81,24 @@ export const AddClientForm: React.FC<IProps> = (props:IProps) => {
                                                  <Select 
                                                  isRequired
                                                  variant='flushed' 
-                                                 placeholder='Select Type'
                                                  paddingBottom="5px"
                                                  id="type"
                                                  color="P2Black"
                                                  _hover={{ borderColor: "P1Blue", borderBottomWidth: "3px" }}
                                                  _focus={{ borderColor: "P1Blue", borderBottomWidth: "3px" }}
                                                  name="type"
+                                                 defaultValue={props.client.type}
                                                  {...props.register("type",{required: 'This is required.'})} 
                                                  borderColor={props.errors.type ? "P1red" : "P3Gray"}
                                                  borderBottomWidth={props.errors.type && "3px"}
-                                                 _placeholder={props.errors.type && { color: "P1red" }}  
+                                                 _placeholder={props.errors.type && { color: "P1red" }} 
+                                                 onChangeCapture={handleChange} 
                                                  >
                                                         <option value='Détaillant'>Détaillant</option>
                                                         <option value='Grossiste'>Grossiste</option>
                                                         <option value='Revendeur'>Revendeur</option>
-                                                        <option value='Autre'>Autre</option>                                                 </Select>
+                                                        <option value='Autre'>Autre</option>  
+                                                 </Select>
                                           </Stack>
                                           {props.errors.type && <Text color="P1red" fontWeight="medium" >{props.errors.type.type === 'required' && 'This is required.'}</Text>}
                                    </Box>
@@ -79,17 +107,18 @@ export const AddClientForm: React.FC<IProps> = (props:IProps) => {
                                                  <Select 
                                                  isRequired
                                                  variant='flushed' 
-                                                 placeholder='Select Etat Civil'
                                                  paddingBottom="5px"
-                                                 id="etat_civile"
+                                                 id="etat_civil"
                                                  color="P2Black"
                                                  _hover={{ borderColor: "P1Blue", borderBottomWidth: "3px" }}
                                                  _focus={{ borderColor: "P1Blue", borderBottomWidth: "3px" }}
-                                                 name="etat_civile"
-                                                 {...props.register("etat_civile",{required: 'This is required.'})} 
-                                                 borderColor={props.errors.etat_civile ? "P1red" : "P3Gray"}
-                                                 borderBottomWidth={props.errors.etat_civile && "3px"}
-                                                 _placeholder={props.errors.etat_civile && { color: "P1red" }}  
+                                                 name="etat_civil"
+                                                 defaultValue={props.client.etat_civil}
+                                                 {...props.register("etat_civil",{required: 'This is required.'})} 
+                                                 borderColor={props.errors.etat_civil ? "P1red" : "P3Gray"}
+                                                 borderBottomWidth={props.errors.etat_civil && "3px"}
+                                                 _placeholder={props.errors.etat_civil && { color: "P1red" }} 
+                                                 onChangeCapture={handleChange} 
                                                  >
                                                         <option value="M.">M.</option>
                                                         <option value="Mme">Mme</option>
@@ -99,11 +128,13 @@ export const AddClientForm: React.FC<IProps> = (props:IProps) => {
                                                         <option value="autre">Autre</option>
                                                  </Select>
                                           </Stack>
-                                          {props.errors.etat_civile && <Text color="P1red" fontWeight="medium" >{props.errors.etat_civile.type === 'required' && 'This is required.'}</Text>}
+                                          {props.errors.etat_civil && <Text color="P1red" fontWeight="medium" >{props.errors.etat_civil.type === 'required' && 'This is required.'}</Text>}
                                    </Box>
                                    <Box paddingRight="1em">
                                           <Input
                                                  paddingBottom="5px"
+                                                 defaultValue={props.client.email}
+                                                 onChangeCapture={handleChange}
                                                  id="email"
                                                  type="text"
                                                  color="P2Black"
@@ -115,7 +146,7 @@ export const AddClientForm: React.FC<IProps> = (props:IProps) => {
                                                  {...props.register("email", {
                                                         maxLength : {
                                                                value: 20,
-                                                               message: 'This email is so long.' // JS only: <p>error message</p> TS only support string
+                                                               message: 'This name is so long.' // JS only: <p>error message</p> TS only support string
                                                         },
                                                         required: 'This is required.',
                                                         pattern : {
@@ -132,46 +163,49 @@ export const AddClientForm: React.FC<IProps> = (props:IProps) => {
                                           {props.errors.email && <Text color="P1red" fontWeight="medium" >{props.errors.email.type === 'pattern' && 'This email is invalid.'}</Text>}
                                    </Box>
                                    <Box paddingRight="1em">
-                                          <NumberInput variant="flushed">
-                                                 <NumberInputField
-                                                        paddingBottom="5px"
-                                                        id="telephone"
-                                                        type="text"
-                                                        color="P2Black"
-                                                        _hover={{ borderColor: "P1Blue", borderBottomWidth: "3px" }}
-                                                        _focus={{ borderColor: "P1Blue", borderBottomWidth: "3px" }}
-                                                        placeholder="Telephone"
-                                                        name="telephone"
-                                                        {...props.register("telephone", {
-                                                               maxLength : {
-                                                                      value: 20,
-                                                                      message: 'This telephone is so long.' // JS only: <p>error message</p> TS only support string
-                                                               },
-                                                               required: 'This is required.',
-                                                               pattern : {
-                                                                      value: /^(00213|\+213|0)(5|6|7)[0-9]{8}$/,
-                                                                      message: 'This telephone is invalid.' // JS only: <p>error message</p> TS only support string
-                                                               },
-                                                        })}                                                               
-                                                        borderColor={props.errors.telephone ? "P1red" : "P3Gray"}
-                                                        borderBottomWidth={props.errors.telephone && "3px"}
-                                                        _placeholder={props.errors.telephone && { color: "P1red" }}
-                                                 />
-                                          </NumberInput>
+                                          <Input
+                                                 paddingBottom="5px"
+                                                 defaultValue={props.client.telephone}
+                                                 onChangeCapture={handleChange}
+                                                 id="telephone"
+                                                 type="number"
+                                                 color="P2Black"
+                                                 variant="flushed"
+                                                 _hover={{ borderColor: "P1Blue", borderBottomWidth: "3px" }}
+                                                 _focus={{ borderColor: "P1Blue", borderBottomWidth: "3px" }}
+                                                 placeholder="telephone"
+                                                 name="telephone"
+                                                 {...props.register("telephone", {
+                                                        maxLength : {
+                                                               value: 20,
+                                                               message: 'This telephone is so long.' // JS only: <p>error message</p> TS only support string
+                                                        },
+                                                        required: 'This is required.',
+                                                        pattern : {
+                                                               value: /^(00213|\+213|0)(5|6|7)[0-9]{8}$/,
+                                                               message: 'This phone number is invalid.' // JS only: <p>error message</p> TS only support string
+                                                        },
+                                                 })}                                                               
+                                                 borderColor={props.errors.telephone ? "P1red" : "P3Gray"}
+                                                 borderBottomWidth={props.errors.telephone && "3px"}
+                                                 _placeholder={props.errors.telephone && { color: "P1red" }}
+                                          />
                                           {props.errors.telephone && <Text color="P1red" fontWeight="medium" >{props.errors.telephone.type === 'required' && 'This is required.'}</Text>}
                                           {props.errors.telephone && <Text color="P1red" fontWeight="medium" >{props.errors.telephone.type === 'maxLength' && 'This name is so long.'}</Text>}
-                                          {props.errors.telephone && <Text color="P1red" fontWeight="medium" >{props.errors.telephone.type === 'pattern' && 'This telephone is invalid.'}</Text>}
+                                          {props.errors.telephone && <Text color="P1red" fontWeight="medium" >{props.errors.telephone.type === 'pattern' && 'This phone number is invalid.'}</Text>}
                                    </Box>
                                    <Box paddingRight="1em">
                                           <Input
                                                  paddingBottom="5px"
+                                                 defaultValue={props.client.wilaya}
+                                                 onChangeCapture={handleChange}
                                                  id="wilaya"
                                                  type="text"
                                                  color="P2Black"
                                                  variant="flushed"
                                                  _hover={{ borderColor: "P1Blue", borderBottomWidth: "3px" }}
                                                  _focus={{ borderColor: "P1Blue", borderBottomWidth: "3px" }}
-                                                 placeholder="Wilaya"
+                                                 placeholder="Name"
                                                  name="wilaya"
                                                  {...props.register("wilaya", {
                                                         maxLength : {
@@ -190,13 +224,15 @@ export const AddClientForm: React.FC<IProps> = (props:IProps) => {
                                    <Box paddingRight="1em">
                                           <Input
                                                  paddingBottom="5px"
+                                                 defaultValue={props.client.ville}
+                                                 onChangeCapture={handleChange}
                                                  id="ville"
                                                  type="text"
                                                  color="P2Black"
                                                  variant="flushed"
                                                  _hover={{ borderColor: "P1Blue", borderBottomWidth: "3px" }}
                                                  _focus={{ borderColor: "P1Blue", borderBottomWidth: "3px" }}
-                                                 placeholder="Ville"
+                                                 placeholder="Name"
                                                  name="ville"
                                                  {...props.register("ville", {
                                                         maxLength : {
@@ -215,27 +251,29 @@ export const AddClientForm: React.FC<IProps> = (props:IProps) => {
                                    <Box paddingRight="1em">
                                           <Input
                                                  paddingBottom="5px"
-                                                 id="address"
+                                                 defaultValue={props.client.adress}
+                                                 onChangeCapture={handleChange}
+                                                 id="adress"
                                                  type="text"
                                                  color="P2Black"
                                                  variant="flushed"
                                                  _hover={{ borderColor: "P1Blue", borderBottomWidth: "3px" }}
                                                  _focus={{ borderColor: "P1Blue", borderBottomWidth: "3px" }}
-                                                 placeholder="Addresss"
-                                                 name="address"
-                                                 {...props.register("address", {
+                                                 placeholder="adress"
+                                                 name="adress"
+                                                 {...props.register("adress", {
                                                         maxLength : {
                                                                value: 20,
-                                                               message: 'This address is so long.' // JS only: <p>error message</p> TS only support string
+                                                               message: 'This name is so long.' // JS only: <p>error message</p> TS only support string
                                                         },
                                                         required: 'This is required.'
                                                  })}                                                               
-                                                 borderColor={props.errors.address ? "P1red" : "P3Gray"}
-                                                 borderBottomWidth={props.errors.address && "3px"}
-                                                 _placeholder={props.errors.address && { color: "P1red" }}
+                                                 borderColor={props.errors.adress ? "P1red" : "P3Gray"}
+                                                 borderBottomWidth={props.errors.adress && "3px"}
+                                                 _placeholder={props.errors.adress && { color: "P1red" }}
                                           />
-                                          {props.errors.address && <Text color="P1red" fontWeight="medium" >{props.errors.address.type === 'required' && 'This is required.'}</Text>}
-                                          {props.errors.address && <Text color="P1red" fontWeight="medium" >{props.errors.address.type === 'maxLength' && 'This name is so long.'}</Text>}
+                                          {props.errors.adress && <Text color="P1red" fontWeight="medium" >{props.errors.adress.type === 'required' && 'This is required.'}</Text>}
+                                          {props.errors.adress && <Text color="P1red" fontWeight="medium" >{props.errors.adress.type === 'maxLength' && 'This name is so long.'}</Text>}
                                    </Box>
                             </Stack>
                      </form>

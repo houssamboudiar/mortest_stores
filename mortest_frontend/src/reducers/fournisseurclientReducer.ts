@@ -50,6 +50,12 @@ export const clientReducer: Reducer<IClientState, AnyAction> = (
         loading: true
       };
     }
+    case ClientActionTypes.DELETE_CLIENT: {
+      return {
+        ...state,
+        clients: action.clients,
+      };
+    }
     case ClientActionTypes.GET_ALL_CLIENTS: {
       return {
         ...state,

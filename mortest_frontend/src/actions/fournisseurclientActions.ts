@@ -7,6 +7,7 @@ import axios from 'axios';
 import { ISellingPoint, ISellingPointState } from '../reducers/spReducer';
 import { ICaisse, ICaisseState, IDepot, IDepotState } from '../reducers/caissedepotReducer';
 import { IClient, IClientState, IFicheVente, IFicheVenteState } from '../reducers/fournisseurclientReducer';
+import { store } from '../store/store';
 
 // Create Action Constants
 
@@ -14,6 +15,9 @@ export enum ClientActionTypes {
   GET_ALL_CLIENTS = "GET_ALL_CLIENTS",
   SET_CLIENT = "SET_CLIENT",
   LOADING_CLIENTS = "LOADING_CLIENTS",
+  ADD_CLIENT = "ADD_CLIENT",
+  EDIT_CLIENT = "EDIT_CLIENT",
+  DELETE_CLIENT = "DELETE_CLIENT"
 }
 
 export enum FVActionTypes {
@@ -49,6 +53,27 @@ export const getAllClients: ActionCreator<
       dispatch({
         clients: response.data,
         type: ClientActionTypes.GET_ALL_CLIENTS,
+      });
+    } catch (err) {
+      console.error(err);
+    }
+  };
+};
+
+// Delete Product
+export const deleteClient: ActionCreator<ThunkAction<Promise<any>, IClientState, null, IClientGetAllAction>> = (id:number) => {
+  return async (dispatch: Dispatch) => {
+    try {
+      let access = localStorage.getItem('access token') as string ;
+      axios.defaults.headers.common = {'Authorization': `Bearer ${access}`};
+      const response = await axios.delete(`http://127.0.0.1:8000/api/client_pk/${id}`);
+      const clientState = store.getState().clientState;
+      const clients = clientState.clients.filter((items)=>{
+        return items.id != id
+      })
+      dispatch({
+        clients: clients,
+        type: ClientActionTypes.DELETE_CLIENT,
       });
     } catch (err) {
       console.error(err);

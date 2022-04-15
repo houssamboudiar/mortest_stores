@@ -606,7 +606,7 @@ class Client(models.Model):
     saisie_le = models.DateField(auto_now_add=True)
     modilfié_le = models.DateField(auto_now=True)
     saisie_par = models.ForeignKey(
-        User, on_delete=models.CASCADE, default=1111)
+        User, on_delete=models.CASCADE)
 
     def __str__(self) -> str:
         return f'{self.etat_civile}.{self.nom}'

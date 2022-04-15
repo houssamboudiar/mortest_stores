@@ -10,9 +10,9 @@ import { MdEdit, MdDelete, MdCreate } from "react-icons/md"
 import { IoIosCloseCircleOutline } from "react-icons/io"
 import { AiFillFilePdf } from "react-icons/ai"
 import { FaAddressCard } from "react-icons/fa"
-import { AddClientForm } from './AddClientForm';
+import { EditClientForm } from './EditClientForm';
+import { getSPFamilleMarque, ProductActionTypes } from '../../../product/productActions';
 import axios from 'axios';
-import { ProductActionTypes } from '../../../product/productActions';
 import { ClientActionTypes } from '../../../actions/fournisseurclientActions';
 // import {EditStudent} from './EditStudent'
 // import download from 'downloadjs'
@@ -20,13 +20,13 @@ import { ClientActionTypes } from '../../../actions/fournisseurclientActions';
 
 // Create the containers interface
 interface IProps {
-       isOpen:any,
-       onOpen:any,
-       onClose:any,
+       chosenClient: any
+       isOpenEdit:any,
+       onOpenEdit:any,
+       onCloseEdit:any,
 }
 
 interface FormInputs {
-       firstName: string,
        selling_point: string,
        reference: number,
        article: string,
@@ -42,27 +42,11 @@ interface FormInputs {
        prix_vente_autre: string,
 }
 
-export const AddClient: React.FC<IProps> = (props:IProps) => {
+export const EditClient: React.FC<IProps> = (props:IProps) => {
 
        const toast = useToast();
-       const { selectedSpoint } = useTypedSelector((state) => state.spointState);
        const { register, formState: { errors }, handleSubmit } = useForm<FormInputs>();
-       const [editedProduct, setEditedProduct] = useState({
-              firstName: null,
-              selling_point: null,
-              reference: null,
-              article: null,
-              img: null,
-              unit: null,
-              famille: null,
-              marque: null,
-              qtte: null,
-              prix_U_achat: null,
-              prix_detail: null,
-              prix_vente_gros: null,
-              prix_vente_revendeur: null,
-              prix_vente_autre: null,
-       });
+       const { selectedSpoint } = useTypedSelector((state) => state.spointState);
 
        const onSubmit = (data:any) => {
               const validatedClientData = {
@@ -76,22 +60,22 @@ export const AddClient: React.FC<IProps> = (props:IProps) => {
                      email: data.email,
                      wilaya: data.wilaya,
                      ville: data.ville,
-                     adress: data.address,
+                     adress: data.adress,
               }
               console.log(validatedClientData)
-              registerAddedClient(validatedClientData)
-              props.onClose()
+              registerEditedClient(props.chosenClient.id, validatedClientData)
+              props.onCloseEdit()
         };
  
         /** 
         * Send axios post request then shows a toast depending on its status 
         * */
-       async function registerAddedClient(data: any) {
-              dispatch({type:ClientActionTypes.ADD_CLIENT})
+       async function registerEditedClient(id:any,data: any) {
+              dispatch({type:ClientActionTypes.EDIT_CLIENT})
               let access = localStorage.getItem('access token') as string ;
               axios.defaults.headers.common = {'Authorization': `Bearer ${access}`}
-              const res = await axios.post('http://127.0.0.1:8000/api/client_get_post', data)
-              if (res.status == 201) {
+              const res = await axios.put(`http://127.0.0.1:8000/api/client_pk/${id}`, data)
+              if (res.status == 200) {
                      toast({
                             position: "bottom-left",
                             render: () => (
@@ -101,10 +85,10 @@ export const AddClient: React.FC<IProps> = (props:IProps) => {
                                           </Center>
                                           <Box w="100%" flexDir="row" >
                                                  <Heading size="md" color="white" marginTop="1" marginLeft="3" marginBottom="3" >
-                                                        Client Registration
+                                                        Client Modification
                                                  </Heading>
                                                  <Text size="md" color="white" marginLeft="3" w="100%" >
-                                                        The Client has been added successfully
+                                                        The Client has been edited successfully
                                                  </Text>
                                           </Box>
                                    </Box>
@@ -121,10 +105,10 @@ export const AddClient: React.FC<IProps> = (props:IProps) => {
                                           </Center>
                                           <Box w="100%" flexDir="row" >
                                                  <Heading size="md" color="white" marginTop="1" marginLeft="3" marginBottom="3" >
-                                                        Client Registration
+                                                        Product Registration
                                                  </Heading>
                                                  <Text size="md" color="white" marginLeft="3" w="100%" >
-                                                        Unable to add this Client
+                                                        Unable to add this product
                                                  </Text>
                                           </Box>
                                    </Box>
@@ -137,13 +121,13 @@ export const AddClient: React.FC<IProps> = (props:IProps) => {
        const {selling_point, famille, marque} = useTypedSelector((state) => state.spfamillemarqueState);
        
        useEffect(()=>{
-        },[])
+       },[])
        
        return (
               <Drawer
               size="xs"
-              isOpen={props.isOpen}
-              onClose={props.onClose}
+              isOpen={props.isOpenEdit}
+              onClose={props.onCloseEdit}
               placement="right"
               >
                      <DrawerOverlay>
@@ -151,17 +135,18 @@ export const AddClient: React.FC<IProps> = (props:IProps) => {
                                    <DrawerHeader>
                                           <Box display="flex" paddingTop="0.5rem" paddingBottom="0.5rem" >
                                                  <Center>
-                                                        <Heading size="md" fontWeight="500" color="P3DarkBlueText" >Client Registration</Heading>
+                                                        <Heading size="md" fontWeight="500" color="P3DarkBlueText" >Product Registration</Heading>
                                                  </Center>
                                           </Box>
                                    </DrawerHeader>
                                    <Divider color="P3IconGray"></Divider>
 
-                                   <AddClientForm 
-                                          register={register}
-                                          handleSubmit={handleSubmit}
-                                          onSubmit={onSubmit}
-                                          errors={errors}                                  
+                                   <EditClientForm 
+                                          client={props.chosenClient}
+                                          register={register} 
+                                          handleSubmit={handleSubmit} 
+                                          onSubmit={onSubmit} 
+                                          errors={errors} 
                                    />
 
                                    <Divider color="P3IconGray"></Divider>
@@ -173,7 +158,7 @@ export const AddClient: React.FC<IProps> = (props:IProps) => {
                                                                size="sm"
                                                                marginRight="1rem"
                                                                variant="outline"
-                                                               onClick={props.onClose}
+                                                               onClick={props.onCloseEdit}
                                                                color="P1red"
                                                                fontWeight="bold"
                                                                _hover={{ color: "#f89f96" }}

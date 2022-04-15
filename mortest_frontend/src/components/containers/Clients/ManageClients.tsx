@@ -59,8 +59,8 @@ const ManageClients: React.FC<IProps> = (props:IProps) => {
                      flexDirection="column"
                      id="scrollableDiv">
                             <Accordion allowToggle>
-                            {clients.map((client:any,i) => {
-                                   return <ClientsList client={client} />
+                            {clients.map((client:any,i:React.Key) => {
+                                   return <ClientsList client={client} key={i}/>
                             })}
                             </Accordion>
                      </Box>

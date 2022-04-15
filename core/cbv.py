@@ -834,7 +834,7 @@ class ClientGetPost(generics.ListCreateAPIView):
         serializer = serializers.ClientSerializer(
             data=request.data, context={'request': request})
         if serializer.is_valid():
-            serializer.save()
+            serializer.save(saisie_par = request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.data, status=status.HTTP_400_BAD_REQUEST)
 
