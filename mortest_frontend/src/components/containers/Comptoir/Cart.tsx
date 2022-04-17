@@ -85,7 +85,7 @@ const Cart: React.FC<IProps> = (props:IProps) => {
                             })}
                      </Box>}
                      <Divider color="P3IconGray"/>
-                     <ValidateFicheVente isOpen={isOpen} onClose={onClose} onOpen={onOpen} />
+                     <ValidateFicheVente items={items} isOpen={isOpen} onClose={onClose} onOpen={onOpen} />
                      <Box p={4} justifyContent="flex-end" display="flex">
                             <Stack direction='row' spacing={4}>
                                    <Button 

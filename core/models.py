@@ -617,8 +617,7 @@ class FicheVenteClient(models.Model):
         'BL sans montant', "BL sans montant"), ('Facture proformat', "Facture proformat"))
     type_fiche = models.CharField(
         default=1, choices=type_fiche_data, max_length=30)
-    type_client_data = (('Détaillant', "Détaillant"), ('Grossiste',
-                        "Grossiste"), ('Revendeur', "Revendeur"), ('autre', "autre"))
+    type_client_data = (('Détaillant', "Détaillant"), ('Grossiste',"Grossiste"), ('Revendeur', "Revendeur"), ('Autre', "Autre"))
     type_client = models.CharField(
         default=1, choices=type_client_data, max_length=30)
     selling_point = models.ForeignKey(SellingPoint, on_delete=models.PROTECT)
