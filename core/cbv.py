@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from rest_framework import status, pagination
 from django_filters.rest_framework import DjangoFilterBackend
 from datetime import datetime
+from .custom_permissions import IsSPUser
 
 
 # ----------------------------------------------SELLING POINT----------------------------------------------------------
@@ -105,7 +106,8 @@ class CaissePk(generics.RetrieveUpdateDestroyAPIView):
     queryset = models.Caisse.objects.all()
     serializer_class = serializers.CaisseSerializer
     permission_classes = [IsAuthenticated,
-                          DjangoModelPermissionsOrAnonReadOnly]
+                          DjangoModelPermissionsOrAnonReadOnly,
+                          IsSPUser]
 
     def get_queryset(self):
         queryset = models.Caisse.objects.all()
@@ -161,7 +163,7 @@ class ProduitPk(generics.RetrieveUpdateDestroyAPIView):
     queryset = models.Produit.objects.all()
     serializer_class = serializers.ProduitSerializer
     permission_classes = [IsAuthenticated,
-                          DjangoModelPermissionsOrAnonReadOnly]
+                          DjangoModelPermissionsOrAnonReadOnly, IsSPUser]
 
     def get_queryset(self):
         queryset = models.Produit.objects.all()
@@ -182,7 +184,7 @@ class MarqueProduitPk(generics.RetrieveUpdateDestroyAPIView):
     queryset = models.MarqueProduit.objects.all()
     serializer_class = serializers.MarqueProduitSerializer
     permission_classes = [IsAuthenticated,
-                          DjangoModelPermissionsOrAnonReadOnly]
+                          DjangoModelPermissionsOrAnonReadOnly, IsSPUser]
 
 
 class FamilleProduitGetPost(generics.ListCreateAPIView):
@@ -196,7 +198,7 @@ class FamilleProduitPk(generics.RetrieveUpdateDestroyAPIView):
     queryset = models.FamilleProduit.objects.all()
     serializer_class = serializers.FamilleProduitSerializer
     permission_classes = [IsAuthenticated,
-                          DjangoModelPermissionsOrAnonReadOnly]
+                          DjangoModelPermissionsOrAnonReadOnly, IsSPUser]
 
 
 class AvariesGetPost(generics.ListCreateAPIView):
@@ -250,7 +252,7 @@ class AvariesPk(generics.RetrieveUpdateDestroyAPIView):
     queryset = models.Avaries.objects.all()
     serializer_class = serializers.AvariesSerializer
     permission_classes = [IsAuthenticated,
-                          DjangoModelPermissionsOrAnonReadOnly]
+                          DjangoModelPermissionsOrAnonReadOnly, IsSPUser]
 
     def get_queryset(self):
         queryset = models.Avaries.objects.all()
@@ -291,7 +293,7 @@ class DepotPk(generics.RetrieveUpdateDestroyAPIView):
     queryset = models.Depot.objects.all()
     serializer_class = serializers.DepotSerializer
     permission_classes = [IsAuthenticated,
-                          DjangoModelPermissionsOrAnonReadOnly]
+                          DjangoModelPermissionsOrAnonReadOnly, IsSPUser]
 
     def get_queryset(self):
         queryset = models.Depot.objects.all()
@@ -354,7 +356,7 @@ class FicheCreditPk(generics.RetrieveUpdateDestroyAPIView):
     queryset = models.FicheCredit.objects.all()
     serializer_class = serializers.FicheCreditSerializer
     permission_classes = [IsAuthenticated,
-                          DjangoModelPermissionsOrAnonReadOnly]
+                          DjangoModelPermissionsOrAnonReadOnly, IsSPUser]
 
     def get_queryset(self):
         queryset = models.FicheCredit.objects.all()
@@ -422,7 +424,7 @@ class FicheDebitPk(generics.RetrieveUpdateDestroyAPIView):
     queryset = models.FicheDebit.objects.all()
     serializer_class = serializers.FicheDebitSerializer
     permission_classes = [IsAuthenticated,
-                          DjangoModelPermissionsOrAnonReadOnly]
+                          DjangoModelPermissionsOrAnonReadOnly, IsSPUser]
 
     def get_queryset(self):
         queryset = models.FicheDebit.objects.all()
@@ -481,7 +483,7 @@ class FraisGeneralesGetPost(generics.ListCreateAPIView):
     queryset = models.FraisGenerales.objects.all()
     serializer_class = serializers.FraisGeneralesSerializer
     permission_classes = [IsAuthenticated,
-                          DjangoModelPermissionsOrAnonReadOnly]
+                          DjangoModelPermissionsOrAnonReadOnly, IsSPUser]
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['reglement', 'caisse', 'type']
 
@@ -530,7 +532,7 @@ class FraisGeneralesPk(generics.RetrieveUpdateDestroyAPIView):
     queryset = models.FraisGenerales.objects.all()
     serializer_class = serializers.FraisGeneralesSerializer
     permission_classes = [IsAuthenticated,
-                          DjangoModelPermissionsOrAnonReadOnly]
+                          DjangoModelPermissionsOrAnonReadOnly, IsSPUser]
 
     def get_queryset(self):
         queryset = models.FraisGenerales.objects.all()
@@ -577,7 +579,7 @@ class FournisseurPk(generics.RetrieveUpdateDestroyAPIView):
     queryset = models.Fournisseur.objects.all()
     serializer_class = serializers.FournisseurSerializer
     permission_classes = [IsAuthenticated,
-                          DjangoModelPermissionsOrAnonReadOnly]
+                          DjangoModelPermissionsOrAnonReadOnly, IsSPUser]
 
     def get_queryset(self):
         queryset = models.Fournisseur.objects.all()
@@ -645,7 +647,7 @@ class FicheAchatFournisseurPk(generics.RetrieveUpdateDestroyAPIView):
     queryset = models.FicheAchatCommandeFournisseur.objects.all()
     serializer_class = serializers.FicheACFournisseurSerializer
     permission_classes = [IsAuthenticated,
-                          DjangoModelPermissionsOrAnonReadOnly]
+                          DjangoModelPermissionsOrAnonReadOnly, IsSPUser]
 
     def get_queryset(self):
         queryset = models.FicheAchatCommandeFournisseur.objects.filter(
@@ -693,7 +695,7 @@ class FicheCommandeFournisseurPk(generics.RetrieveUpdateDestroyAPIView):
     queryset = models.FicheAchatCommandeFournisseur.objects.all()
     serializer_class = serializers.FicheACFournisseurSerializer
     permission_classes = [IsAuthenticated,
-                          DjangoModelPermissionsOrAnonReadOnly]
+                          DjangoModelPermissionsOrAnonReadOnly, IsSPUser]
 
     def get_queryset(self):
         queryset = models.FicheAchatCommandeFournisseur.objects.filter(
@@ -744,7 +746,7 @@ class PayementFournisseurPk(generics.RetrieveUpdateDestroyAPIView):
     queryset = models.PayementFournisseur.objects.all()
     serializer_class = serializers.PayementFournisseurSerializer
     permission_classes = [IsAuthenticated,
-                          DjangoModelPermissionsOrAnonReadOnly]
+                          DjangoModelPermissionsOrAnonReadOnly, IsSPUser]
 
     def get_queryset(self):
         queryset = models.PayementFournisseur.objects.all()
@@ -796,7 +798,7 @@ class RetoursFournisseurPk(generics.RetrieveUpdateDestroyAPIView):
     queryset = models.RetoursFournisseur.objects.all()
     serializer_class = serializers.RetoursFournisseurSerializer
     permission_classes = [IsAuthenticated,
-                          DjangoModelPermissionsOrAnonReadOnly]
+                          DjangoModelPermissionsOrAnonReadOnly, IsSPUser]
 
     def get_queryset(self):
         queryset = models.RetoursFournisseur.objects.all()
@@ -834,7 +836,7 @@ class ClientGetPost(generics.ListCreateAPIView):
         serializer = serializers.ClientSerializer(
             data=request.data, context={'request': request})
         if serializer.is_valid():
-            serializer.save()
+            serializer.save(saisie_par=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.data, status=status.HTTP_400_BAD_REQUEST)
 
@@ -843,7 +845,7 @@ class ClientPk(generics.RetrieveUpdateDestroyAPIView):
     queryset = models.Client.objects.all()
     serializer_class = serializers.ClientSerializer
     permission_classes = [IsAuthenticated,
-                          DjangoModelPermissionsOrAnonReadOnly]
+                          DjangoModelPermissionsOrAnonReadOnly, IsSPUser]
 
     def get_queryset(self):
         queryset = models.Client.objects.all()
@@ -900,7 +902,7 @@ class FicheVenteClientPk(generics.RetrieveUpdateDestroyAPIView):
     queryset = models.FicheVenteClient.objects.all()
     serializer_class = serializers.FicheVenteSerializer
     permission_classes = [IsAuthenticated,
-                          DjangoModelPermissionsOrAnonReadOnly]
+                          DjangoModelPermissionsOrAnonReadOnly, IsSPUser]
 
     def get_queryset(self):
         queryset = models.FicheVenteClient.objects.all()
@@ -950,7 +952,7 @@ class PayementClientPk(generics.RetrieveUpdateDestroyAPIView):
     queryset = models.PayementClient.objects.all()
     serializer_class = serializers.PayementClientSerializer
     permission_classes = [IsAuthenticated,
-                          DjangoModelPermissionsOrAnonReadOnly]
+                          DjangoModelPermissionsOrAnonReadOnly, IsSPUser]
 
     def get_queryset(self):
         queryset = models.PayementClient.objects.all()
@@ -1001,7 +1003,7 @@ class RetoursClientPk(generics.RetrieveUpdateDestroyAPIView):
     queryset = models.RetoursClient.objects.all()
     serializer_class = serializers.RetoursClientSerializer
     permission_classes = [IsAuthenticated,
-                          DjangoModelPermissionsOrAnonReadOnly]
+                          DjangoModelPermissionsOrAnonReadOnly, IsSPUser]
 
     def get_queryset(self):
         queryset = models.RetoursClient.objects.all()
@@ -1048,7 +1050,7 @@ class TransporteurPk(generics.RetrieveUpdateDestroyAPIView):
     queryset = models.Transporteur.objects.all()
     serializer_class = serializers.TransporteurSerializer
     permission_classes = [IsAuthenticated,
-                          DjangoModelPermissionsOrAnonReadOnly]
+                          DjangoModelPermissionsOrAnonReadOnly, IsSPUser]
 
     def get_queryset(self):
         queryset = models.Transporteur.objects.all()
@@ -1089,7 +1091,7 @@ class ClarquePk(generics.RetrieveUpdateDestroyAPIView):
     queryset = models.Clarque.objects.all()
     serializer_class = serializers.ClarqueSerializer
     permission_classes = [IsAuthenticated,
-                          DjangoModelPermissionsOrAnonReadOnly]
+                          DjangoModelPermissionsOrAnonReadOnly, IsSPUser]
 
     def get_queryset(self):
         queryset = models.Clarque.objects.all()
