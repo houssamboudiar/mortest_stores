@@ -7,13 +7,9 @@ import { connect, useDispatch } from 'react-redux';
 import { IAppState, useTypedSelector } from '../../../store/store';
 import { IProduct } from '../../../product/productReducer';
 import { MdEdit, MdDelete, MdCreate } from "react-icons/md"
-import { IoIosCloseCircleOutline } from "react-icons/io"
-import { AiFillFilePdf } from "react-icons/ai"
-import { FaAddressCard } from "react-icons/fa"
-import { AddProductForm } from './AddProductForm';
-import { EditProductForm } from './EditProductForm';
 import { getSPFamilleMarque, ProductActionTypes } from '../../../product/productActions';
 import axios from 'axios';
+import { ValidateFicheVenteForm } from './ValidateFicheVenteForm';
 // import {EditStudent} from './EditStudent'
 // import download from 'downloadjs'
 // import Axios from 'axios'
@@ -26,42 +22,12 @@ interface IProps {
 }
 
 interface FormInputs {
-       firstName: string,
-       selling_point: string,
-       reference: number,
-       article: string,
-       img: null,
-       unit: string,
-       famille: number,
-       marque: number,
-       qtte: number,
-       prix_U_achat: string,
-       prix_detail: string,
-       prix_vente_gros: string,
-       prix_vente_revendeur: string,
-       prix_vente_autre: string,
 }
 
-export const AddProduct: React.FC<IProps> = (props:IProps) => {
+export const ValidateFicheVente: React.FC<IProps> = (props:IProps) => {
 
        const toast = useToast();
        const { register, formState: { errors }, handleSubmit } = useForm<FormInputs>();
-       const [editedProduct, setEditedProduct] = useState({
-              firstName: null,
-              selling_point: null,
-              reference: null,
-              article: null,
-              img: null,
-              unit: null,
-              famille: null,
-              marque: null,
-              qtte: null,
-              prix_U_achat: null,
-              prix_detail: null,
-              prix_vente_gros: null,
-              prix_vente_revendeur: null,
-              prix_vente_autre: null,
-       });
 
        const onSubmit = (data:any) => {
               const validatedProductData = {
@@ -153,20 +119,17 @@ export const AddProduct: React.FC<IProps> = (props:IProps) => {
                                    <DrawerHeader>
                                           <Box display="flex" paddingTop="0.5rem" paddingBottom="0.5rem" >
                                                  <Center>
-                                                        <Heading size="md" fontWeight="500" color="P3DarkBlueText" >Product Registration</Heading>
+                                                        <Heading size="md" fontWeight="500" color="P3DarkBlueText" >Fiche Vente Registration</Heading>
                                                  </Center>
                                           </Box>
                                    </DrawerHeader>
                                    <Divider color="P3IconGray"></Divider>
 
-                                   <AddProductForm 
-                                          selling_point={selling_point}
-                                          famille={famille}
-                                          marque={marque}
-                                          register={register} 
-                                          handleSubmit={handleSubmit} 
-                                          onSubmit={onSubmit} 
-                                          errors={errors} 
+                                   <ValidateFicheVenteForm
+                                          register={register}
+                                          handleSubmit={handleSubmit}
+                                          onSubmit={onSubmit}
+                                          errors={errors}
                                    />
 
                                    <Divider color="P3IconGray"></Divider>

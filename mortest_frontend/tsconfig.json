@@ -117,5 +117,6 @@
     "../images",
     "../src",
     "../users",
-  ]
+  ],
+  "include": ["src/custom.d.ts"]
 }
